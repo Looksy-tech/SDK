@@ -67,7 +67,7 @@ jobs:
           username: ${{ secrets.TEST_SERVER_USER }}
           key: ${{ secrets.TEST_SERVER_SSH_KEY }}
           source: script-test.tar.gz
-          target: /tmp
+          target: /srv
 
       - name: Deploy script to test server
         uses: appleboy/ssh-action@v1.0.3
@@ -76,22 +76,31 @@ jobs:
           username: ${{ secrets.TEST_SERVER_USER }}
           key: ${{ secrets.TEST_SERVER_SSH_KEY }}
           script: |
-            mkdir -p "${{ secrets.TEST_SCRIPT_PATH }}"
+            TEST_DEPLOY_PATH="${{ secrets.TEST_SCRIPT_PATH }}"
+            if [ -z "$TEST_DEPLOY_PATH" ]; then
+              TEST_DEPLOY_PATH="/srv/sdk-test"
+            fi
+            TEST_ARCHIVE_PATH="/srv/script-test.tar.gz"
+            TEST_EXTRACT_PATH="/srv/script-test-build"
 
-            rm -rf /tmp/script
-            tar -xzf /tmp/script-test.tar.gz -C /tmp
+            mkdir -p "$TEST_DEPLOY_PATH"
+            mkdir -p "$TEST_EXTRACT_PATH"
 
-            rsync -av --delete /tmp/script/ "${{ secrets.TEST_SCRIPT_PATH }}/"
+            rm -rf "$TEST_EXTRACT_PATH"
+            mkdir -p "$TEST_EXTRACT_PATH"
+            tar -xzf "$TEST_ARCHIVE_PATH" -C "$TEST_EXTRACT_PATH"
 
-            if [ -f "${{ secrets.TEST_SCRIPT_PATH }}/script.js" ]; then
-              mv "${{ secrets.TEST_SCRIPT_PATH }}/script.js" "${{ secrets.TEST_SCRIPT_PATH }}/script-test.js"
+            rsync -av --delete "$TEST_EXTRACT_PATH/script/" "$TEST_DEPLOY_PATH/"
+
+            if [ -f "$TEST_DEPLOY_PATH/script.js" ]; then
+              mv "$TEST_DEPLOY_PATH/script.js" "$TEST_DEPLOY_PATH/script-test.js"
             fi
 
-            if [ -f "${{ secrets.TEST_SCRIPT_PATH }}/script.min.js" ]; then
-              mv "${{ secrets.TEST_SCRIPT_PATH }}/script.min.js" "${{ secrets.TEST_SCRIPT_PATH }}/script-test.min.js"
+            if [ -f "$TEST_DEPLOY_PATH/script.min.js" ]; then
+              mv "$TEST_DEPLOY_PATH/script.min.js" "$TEST_DEPLOY_PATH/script-test.min.js"
             fi
 
-            rm -rf /tmp/script /tmp/script-test.tar.gz
+            rm -rf "$TEST_EXTRACT_PATH" "$TEST_ARCHIVE_PATH"
 
   build-prod:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
@@ -141,7 +150,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           source: script-prod.tar.gz
-          target: /tmp
+          target: /srv
 
       - name: Deploy script to prod server
         uses: appleboy/ssh-action@v1.0.3
@@ -150,19 +159,28 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            mkdir -p "${{ secrets.SCRIPT_PATH }}"
+            PROD_DEPLOY_PATH="${{ secrets.SCRIPT_PATH }}"
+            if [ -z "$PROD_DEPLOY_PATH" ]; then
+              PROD_DEPLOY_PATH="/srv/sdk"
+            fi
+            PROD_ARCHIVE_PATH="/srv/script-prod.tar.gz"
+            PROD_EXTRACT_PATH="/srv/script-prod-build"
 
-            rm -rf /tmp/script
-            tar -xzf /tmp/script-prod.tar.gz -C /tmp
+            mkdir -p "$PROD_DEPLOY_PATH"
+            mkdir -p "$PROD_EXTRACT_PATH"
 
-            rsync -av --delete /tmp/script/ "${{ secrets.SCRIPT_PATH }}/"
+            rm -rf "$PROD_EXTRACT_PATH"
+            mkdir -p "$PROD_EXTRACT_PATH"
+            tar -xzf "$PROD_ARCHIVE_PATH" -C "$PROD_EXTRACT_PATH"
 
-            if [ -f "${{ secrets.SCRIPT_PATH }}/script.js" ]; then
-              mv "${{ secrets.SCRIPT_PATH }}/script.js" "${{ secrets.SCRIPT_PATH }}/script-prod.js"
+            rsync -av --delete "$PROD_EXTRACT_PATH/script/" "$PROD_DEPLOY_PATH/"
+
+            if [ -f "$PROD_DEPLOY_PATH/script.js" ]; then
+              mv "$PROD_DEPLOY_PATH/script.js" "$PROD_DEPLOY_PATH/script-prod.js"
             fi
 
-            if [ -f "${{ secrets.SCRIPT_PATH }}/script.min.js" ]; then
-              mv "${{ secrets.SCRIPT_PATH }}/script.min.js" "${{ secrets.SCRIPT_PATH }}/script-prod.min.js"
+            if [ -f "$PROD_DEPLOY_PATH/script.min.js" ]; then
+              mv "$PROD_DEPLOY_PATH/script.min.js" "$PROD_DEPLOY_PATH/script-prod.min.js"
             fi
 
-            rm -rf /tmp/script /tmp/script-prod.tar.gz
+            rm -rf "$PROD_EXTRACT_PATH" "$PROD_ARCHIVE_PATH"
