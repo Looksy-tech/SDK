@@ -15,6 +15,10 @@
   "type": "commonjs",
   "main": "script.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "terser script/script.js -o script/script.min.js -c -m"
+  },
+  "devDependencies": {
+    "terser": "^5.37.0"
   }
 }
