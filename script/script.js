@@ -4,8 +4,8 @@
   // =====================================================
   // НАСТРОЙКИ ДЛЯ БЫСТРОГО РЕДАКТИРОВАНИЯ
   // =====================================================
-  const WIDGET_URL = "https://test-widget.looksy.tech";
-  const ICON_URL = "https://s3.regru.cloud/test-looksy/try_on_icon.png";
+  const WIDGET_URL = "https://widget.looksy.tech";
+  const ICON_URL = "https://s3.regru.cloud/looksy-widget/try_on.svg";
   const BUTTON_TEXT = "Примерить на себе";
   const Z_INDEX = 999999;
   // =====================================================
