@@ -38,7 +38,15 @@ jobs:
         run: |
           test -f ./script/ex.html
           test -f ./script/script.js
-          test -f ./script/script.min.js
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build minified script
+        run: npm run build
+
+      - name: Validate build output
+        run: test -f ./script/script.min.js
 
       - name: Package script files
         run: tar -czf script-test.tar.gz ./script
@@ -118,7 +126,15 @@ jobs:
         run: |
           test -f ./script/ex.html
           test -f ./script/script.js
-          test -f ./script/script.min.js
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build minified script
+        run: npm run build
+
+      - name: Validate build output
+        run: test -f ./script/script.min.js
 
       - name: Package script files
         run: tar -czf script-prod.tar.gz ./script
