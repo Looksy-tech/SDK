@@ -83,9 +83,6 @@ jobs:
             TEST_ARCHIVE_PATH="/srv/script-test.tar.gz"
             TEST_EXTRACT_PATH="/srv/script-test-build"
 
-            mkdir -p "$TEST_DEPLOY_PATH"
-            mkdir -p "$TEST_EXTRACT_PATH"
-
             rm -rf "$TEST_EXTRACT_PATH"
             mkdir -p "$TEST_EXTRACT_PATH"
             tar -xzf "$TEST_ARCHIVE_PATH" -C "$TEST_EXTRACT_PATH"
@@ -165,9 +162,6 @@ jobs:
             fi
             PROD_ARCHIVE_PATH="/srv/script-prod.tar.gz"
             PROD_EXTRACT_PATH="/srv/script-prod-build"
-
-            mkdir -p "$PROD_DEPLOY_PATH"
-            mkdir -p "$PROD_EXTRACT_PATH"
 
             rm -rf "$PROD_EXTRACT_PATH"
             mkdir -p "$PROD_EXTRACT_PATH"
