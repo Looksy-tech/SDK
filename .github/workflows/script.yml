@@ -1,0 +1,168 @@
+name: CI/CD Script
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'script/**'
+      - '.github/workflows/script.yml'
+
+  push:
+    branches:
+      - main
+    paths:
+      - 'script/**'
+      - '.github/workflows/script.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build-test:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Validate script syntax
+        run: node --check ./script/script.js
+
+      - name: Validate required files
+        run: |
+          test -f ./script/ex.html
+          test -f ./script/script.js
+          test -f ./script/script.min.js
+
+      - name: Package script files
+        run: tar -czf script-test.tar.gz ./script
+
+      - name: Upload test package
+        uses: actions/upload-artifact@v4
+        with:
+          name: script-test-package
+          path: script-test.tar.gz
+          retention-days: 3
+
+  deploy-test:
+    needs: build-test
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download test package
+        uses: actions/download-artifact@v4
+        with:
+          name: script-test-package
+
+      - name: Upload package to test server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.TEST_SERVER_HOST }}
+          username: ${{ secrets.TEST_SERVER_USER }}
+          key: ${{ secrets.TEST_SERVER_SSH_KEY }}
+          source: script-test.tar.gz
+          target: /tmp
+
+      - name: Deploy script to test server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.TEST_SERVER_HOST }}
+          username: ${{ secrets.TEST_SERVER_USER }}
+          key: ${{ secrets.TEST_SERVER_SSH_KEY }}
+          script: |
+            mkdir -p "${{ secrets.TEST_SCRIPT_PATH }}"
+
+            rm -rf /tmp/script
+            tar -xzf /tmp/script-test.tar.gz -C /tmp
+
+            rsync -av --delete /tmp/script/ "${{ secrets.TEST_SCRIPT_PATH }}/"
+
+            if [ -f "${{ secrets.TEST_SCRIPT_PATH }}/script.js" ]; then
+              mv "${{ secrets.TEST_SCRIPT_PATH }}/script.js" "${{ secrets.TEST_SCRIPT_PATH }}/script-test.js"
+            fi
+
+            if [ -f "${{ secrets.TEST_SCRIPT_PATH }}/script.min.js" ]; then
+              mv "${{ secrets.TEST_SCRIPT_PATH }}/script.min.js" "${{ secrets.TEST_SCRIPT_PATH }}/script-test.min.js"
+            fi
+
+            rm -rf /tmp/script /tmp/script-test.tar.gz
+
+  build-prod:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Validate script syntax
+        run: node --check ./script/script.js
+
+      - name: Validate required files
+        run: |
+          test -f ./script/ex.html
+          test -f ./script/script.js
+          test -f ./script/script.min.js
+
+      - name: Package script files
+        run: tar -czf script-prod.tar.gz ./script
+
+      - name: Upload prod package
+        uses: actions/upload-artifact@v4
+        with:
+          name: script-prod-package
+          path: script-prod.tar.gz
+          retention-days: 7
+
+  deploy-prod:
+    needs: build-prod
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download prod package
+        uses: actions/download-artifact@v4
+        with:
+          name: script-prod-package
+
+      - name: Upload package to prod server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          source: script-prod.tar.gz
+          target: /tmp
+
+      - name: Deploy script to prod server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            mkdir -p "${{ secrets.SCRIPT_PATH }}"
+
+            rm -rf /tmp/script
+            tar -xzf /tmp/script-prod.tar.gz -C /tmp
+
+            rsync -av --delete /tmp/script/ "${{ secrets.SCRIPT_PATH }}/"
+
+            if [ -f "${{ secrets.SCRIPT_PATH }}/script.js" ]; then
+              mv "${{ secrets.SCRIPT_PATH }}/script.js" "${{ secrets.SCRIPT_PATH }}/script-prod.js"
+            fi
+
+            if [ -f "${{ secrets.SCRIPT_PATH }}/script.min.js" ]; then
+              mv "${{ secrets.SCRIPT_PATH }}/script.min.js" "${{ secrets.SCRIPT_PATH }}/script-prod.min.js"
+            fi
+
+            rm -rf /tmp/script /tmp/script-prod.tar.gz
