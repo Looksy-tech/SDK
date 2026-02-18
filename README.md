@@ -310,24 +310,40 @@ $_imageHelper = $this->helper('Magento\Catalog\Helper\Image');
 
 ## Tilda
 
-### 1. Через "HTML-код"
+### 1. Найдите селекторы элементов
 
-Добавьте блок "T123 - HTML-код" и вставьте:
+Селекторы в Tilda зависят от используемого блока. Чтобы найти нужные:
+
+1. Откройте опубликованную страницу в браузере
+2. Нажмите `F12` (DevTools) → вкладка "Elements"
+3. Кликните на иконку выбора элемента (стрелка в квадрате) или нажмите `Ctrl+Shift+C`
+4. Наведите на карточку товара, изображение, название и цену
+5. Запишите классы каждого элемента
+
+### 2. Через "HTML-код"
+
+Добавьте блок "T123 - HTML-код" в конец страницы и вставьте код, заменив селекторы на найденные:
 
 ```html
-<script src="https://looksy.tech/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
+<script src="https://looksy.tech/min-script.js" defer data-shop-token="YOUR_SHOP_TOKEN"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.t-store__card').forEach(function(card) {
-        const img = card.querySelector('.t-store__card__img img');
-        const title = card.querySelector('.t-store__card__title');
-        const price = card.querySelector('.t-store__card__price');
+    // Замените селекторы на найденные в DevTools для вашего блока
+    const CARD_SELECTOR = '.t-store__card';           // Карточка товара
+    const IMG_SELECTOR = '.t-store__card__imgwrapper img'; // Изображение
+    const TITLE_SELECTOR = '.t-store__card__title';   // Название
+    const PRICE_SELECTOR = '.t-store__card__price';   // Цена
+
+    document.querySelectorAll(CARD_SELECTOR).forEach(function(card) {
+        const img = card.querySelector(IMG_SELECTOR);
+        const title = card.querySelector(TITLE_SELECTOR);
+        const price = card.querySelector(PRICE_SELECTOR);
         
-        if (img && title && price) {
+        if (img) {
             card.setAttribute('data-fitting-product', '');
-            card.setAttribute('data-fitting-name', title.textContent.trim());
-            card.setAttribute('data-fitting-price', price.textContent.trim());
+            card.setAttribute('data-fitting-name', title ? title.textContent.trim() : '');
+            card.setAttribute('data-fitting-price', price ? price.textContent.trim() : '');
             img.setAttribute('data-fitting-image', '');
         }
     });
@@ -336,6 +352,14 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 ```
+
+### Примеры селекторов для разных блоков Tilda
+
+| Блок | Карточка | Изображение | Название | Цена |
+|------|----------|-------------|----------|------|
+| ST100 | `.t-store__card` | `.t-store__card__imgwrapper img` | `.t-store__card__title` | `.t-store__card__price` |
+| ST200 | `.t-store__card` | `.t-store__card__img img` | `.t-store__card__title` | `.t-store__card__price-value` |
+| Zero Block | Зависит от вашей вёрстки — используйте классы, заданные вами |
 
 ## Вёрстка на чистом HTML/CSS/JS
 
