@@ -113,7 +113,7 @@
         visibility: visible;
       }
       .${WIDGET_CONFIG.overlayClass}.active_processing {
-        background: rgba(0, 0, 0, 0.8);
+        background: rgba(0, 0, 0, 0.9);
         visibility: visible;
       }
       #${WIDGET_CONFIG.iframeId} {
