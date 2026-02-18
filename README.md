@@ -9,7 +9,7 @@
 Добавьте скрипт перед закрывающим тегом `</body>`:
 
 ```html
-<script src="https://test-widget.looksy.tech/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
+<script src="https://looksy.tech/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
 ```
 
 ### 2. Разметка продуктов
@@ -57,7 +57,7 @@
 <?php
 // В файле footer.php вашей темы, перед </body>
 ?>
-<script src="https://test-widget.looksy.tech/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
+<script src="https://looksy.tech/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
 <?php wp_footer(); ?>
 </body>
 </html>
@@ -87,7 +87,7 @@
 ```php
 add_action('wp_footer', function() {
     ?>
-    <script src="https://test-widget.looksy.tech/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
+    <script src="https://looksy.tech/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
     <?php
 });
 
@@ -118,7 +118,7 @@ add_filter('woocommerce_product_thumbnails_columns', function() {
 
 ```liquid
 <!-- Перед закрывающим тегом </body> в theme.liquid -->
-<script src="https://test-widget.looksy.tech/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
+<script src="https://looksy.tech/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
 </body>
 ```
 
@@ -167,7 +167,7 @@ add_filter('woocommerce_product_thumbnails_columns', function() {
 <?php
 // В footer.php или в компоненте bitrix:main.include
 ?>
-<script src="https://test-widget.looksy.tech/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
+<script src="https://looksy.tech/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
 ```
 
 ### 2. Настройка карточки товара
@@ -211,7 +211,7 @@ add_filter('woocommerce_product_thumbnails_columns', function() {
 В файле `catalog/view/theme/default/template/common/footer.tpl`:
 
 ```php
-<script src="https://test-widget.looksy.tech/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
+<script src="https://looksy.tech/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
 </body>
 </html>
 ```
@@ -241,7 +241,7 @@ add_filter('woocommerce_product_thumbnails_columns', function() {
 ```javascript
 $(document).ready(function() {
     const script = document.createElement('script');
-    script.src = 'https://test-widget.looksy.tech/min-script.js';
+    script.src = 'https://looksy.tech/min-script.js';
     script.setAttribute('data-shop-token', 'YOUR_SHOP_TOKEN');
     document.body.appendChild(script);
 });
@@ -286,7 +286,7 @@ $(document).ready(function() {
 Создайте `app/design/frontend/YourVendor/YourTheme/Magento_Theme/templates/virtual-fitting.phtml`:
 
 ```php
-<script src="https://test-widget.looksy.tech/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
+<script src="https://looksy.tech/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
 ```
 
 ### 2. Шаблон товара
@@ -315,7 +315,7 @@ $_imageHelper = $this->helper('Magento\Catalog\Helper\Image');
 Добавьте блок "T123 - HTML-код" и вставьте:
 
 ```html
-<script src="https://test-widget.looksy.tech/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
+<script src="https://looksy.tech/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -362,7 +362,7 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
     </div>
 
-    <script src="https://test-widget.looksy.tech/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
+    <script src="https://looksy.tech/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
 </body>
 </html>
 ```
@@ -372,7 +372,7 @@ document.addEventListener('DOMContentLoaded', function() {
 ```html
 <div id="products-container"></div>
 
-<script src="https://test-widget.looksy.tech/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
+<script src="https://looksy.tech/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
 <script>
 fetch('/api/products')
     .then(res => res.json())
@@ -415,7 +415,7 @@ interface Product {
 export default function ProductCard({ product }: { product: Product }) {
   useEffect(() => {
     const script = document.createElement('script');
-    script.src = 'https://test-widget.looksy.tech/min-script.js';
+    script.src = 'https://looksy.tech/min-script.js';
     script.setAttribute('data-shop-token', 'YOUR_SHOP_TOKEN');
     script.async = true;
     document.body.appendChild(script);
@@ -471,7 +471,7 @@ const props = defineProps(['product']);
 
 onMounted(() => {
   const script = document.createElement('script');
-  script.src = 'https://test-widget.looksy.tech/min-script.js';
+  script.src = 'https://looksy.tech/min-script.js';
   script.setAttribute('data-shop-token', 'YOUR_SHOP_TOKEN');
   document.body.appendChild(script);
 });
