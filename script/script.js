@@ -58,6 +58,68 @@
   let overlay = null;
   let currentProduct = null;
 
+  const MINIMIZED_CLASS = "virtual-fitting-minimized";
+  const TOGGLE_BTN_ID = "virtual-fitting-toggle-btn";
+  const CONTAINER_ID = "virtual-fitting-minimizer";
+
+  function minimizeWidget() {
+    if (!overlay) return;
+    overlay.classList.add(MINIMIZED_CLASS);
+    document.body.style.overflow = "";
+    updateMinimizerButton(true, null);
+  }
+
+  function expandWidget() {
+    if (!overlay) return;
+    overlay.classList.remove(MINIMIZED_CLASS);
+    document.body.style.overflow = "hidden";
+    updateMinimizerButton(false, null);
+  }
+
+  function updateMinimizerButton(isMinimized, attentionState) {
+    var btn = document.getElementById(TOGGLE_BTN_ID);
+    if (!btn) return;
+    btn.classList.toggle("virtual-fitting-toggle--minimized", isMinimized);
+    btn.classList.toggle("virtual-fitting-toggle--attention", attentionState === "success" || attentionState === "error");
+    if (attentionState === "success") {
+      btn.innerHTML = '<span class="virtual-fitting-toggle-check">✓</span>';
+    } else if (attentionState === "error") {
+      btn.innerHTML = '<span class="virtual-fitting-toggle-cross">×</span>';
+    } else if (isMinimized) {
+      btn.innerHTML = '<span class="virtual-fitting-toggle-letter">L</span>';
+    }
+    btn.title = isMinimized ? "Развернуть виджет" : "Свернуть в фон";
+    btn.style.display = isMinimized ? "flex" : "none";
+  }
+
+  function triggerMinimizerAttention(isError) {
+    var btn = document.getElementById(TOGGLE_BTN_ID);
+    if (!btn || !overlay || !overlay.classList.contains(MINIMIZED_CLASS)) return;
+    updateMinimizerButton(true, isError ? "error" : "success");
+    // Галочка/крестик висят и пульсируют до клика по кнопке (развернуть)
+  }
+
+  function createMinimizerButton() {
+    if (document.getElementById(CONTAINER_ID)) return;
+    var container = document.createElement("div");
+    container.id = CONTAINER_ID;
+    container.style.cssText = "position:fixed;top:0;left:0;width:0;height:0;pointer-events:none;z-index:2147483647;";
+    var btn = document.createElement("button");
+    btn.id = TOGGLE_BTN_ID;
+    btn.type = "button";
+    btn.className = "virtual-fitting-toggle virtual-fitting-toggle--minimized";
+    btn.style.display = "none";
+    btn.title = "Развернуть виджет";
+    btn.innerHTML = '<span class="virtual-fitting-toggle-letter">L</span>';
+    btn.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      expandWidget();
+    });
+    container.appendChild(btn);
+    document.body.appendChild(container);
+  }
+
   function createStyles() {
     if (document.getElementById("virtual-fitting-styles")) return;
 
@@ -152,6 +214,97 @@
           transform: translateY(0);
         }
       }
+      /* Minimizer: свёрнутое состояние и кнопка L */
+      .${WIDGET_CONFIG.overlayClass}.active #${WIDGET_CONFIG.iframeId} {
+        transition: width 0.4s cubic-bezier(0.32, 0.72, 0, 1), height 0.4s cubic-bezier(0.32, 0.72, 0, 1), max-width 0.4s cubic-bezier(0.32, 0.72, 0, 1), max-height 0.4s cubic-bezier(0.32, 0.72, 0, 1), border-radius 0.4s cubic-bezier(0.32, 0.72, 0, 1), box-shadow 0.3s ease, opacity 0.2s ease, transform 0.2s ease !important;
+      }
+      .${WIDGET_CONFIG.overlayClass}.${MINIMIZED_CLASS} {
+        align-items: flex-end !important;
+        justify-content: flex-end !important;
+        padding: 20px !important;
+        background: rgba(0, 0, 0, 0) !important;
+        pointer-events: none !important;
+      }
+      .${WIDGET_CONFIG.overlayClass}.${MINIMIZED_CLASS} #${WIDGET_CONFIG.iframeId} {
+        pointer-events: auto !important;
+        width: 56px !important;
+        height: 56px !important;
+        max-width: 56px !important;
+        max-height: 56px !important;
+        border-radius: 50% !important;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25) !important;
+      }
+      @media (max-width: 768px) {
+        .${WIDGET_CONFIG.overlayClass}.${MINIMIZED_CLASS} { padding: 16px !important; }
+        .${WIDGET_CONFIG.overlayClass}.${MINIMIZED_CLASS} #${WIDGET_CONFIG.iframeId} {
+          width: 52px !important; height: 52px !important;
+          max-width: 52px !important; max-height: 52px !important;
+        }
+      }
+      #${TOGGLE_BTN_ID} {
+        position: fixed;
+        z-index: 2147483647;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        width: 56px;
+        height: 56px;
+        right: 20px;
+        bottom: 20px;
+        padding: 0;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 50%;
+        background: rgba(99, 102, 241, 0.75);
+        color: #fff;
+        cursor: pointer;
+        pointer-events: auto;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        box-shadow: 0 4px 24px rgba(99, 102, 241, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      }
+      #${TOGGLE_BTN_ID}:hover {
+        background: rgba(99, 102, 241, 0.9);
+        transform: scale(1.05);
+        box-shadow: 0 6px 28px rgba(99, 102, 241, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+      }
+      #${TOGGLE_BTN_ID} .virtual-fitting-toggle-letter {
+        font-size: 1.5rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        line-height: 1;
+      }
+      #${TOGGLE_BTN_ID} .virtual-fitting-toggle-check {
+        font-size: 1.5rem;
+        font-weight: 700;
+        line-height: 1;
+        transition: opacity 0.3s ease, transform 0.3s ease;
+      }
+      #${TOGGLE_BTN_ID} .virtual-fitting-toggle-cross {
+        font-size: 1.75rem;
+        font-weight: 300;
+        line-height: 1;
+        transition: opacity 0.3s ease, transform 0.3s ease;
+      }
+      #${TOGGLE_BTN_ID}.virtual-fitting-toggle--attention {
+        animation: virtual-fitting-pulse 2s ease-in-out infinite;
+      }
+      #${TOGGLE_BTN_ID}.virtual-fitting-toggle--attention .virtual-fitting-toggle-check,
+      #${TOGGLE_BTN_ID}.virtual-fitting-toggle--attention .virtual-fitting-toggle-cross {
+        animation: virtual-fitting-check-pop 0.4s ease-out;
+      }
+      @keyframes virtual-fitting-pulse {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.06); opacity: 0.95; }
+      }
+      @keyframes virtual-fitting-check-pop {
+        0% { opacity: 0; transform: scale(0.5); }
+        100% { opacity: 1; transform: scale(1); }
+      }
+      @media (max-width: 768px) {
+        #${TOGGLE_BTN_ID} { right: 16px; bottom: 16px; width: 52px; height: 52px; }
+      }
     `;
     document.head.appendChild(style);
   }
@@ -233,11 +386,13 @@
     if (overlay) {
       overlay.classList.remove("active");
       overlay.classList.remove("active_processing");
+      overlay.classList.remove(MINIMIZED_CLASS);
       document.body.style.overflow = "";
     }
+    updateMinimizerButton(false, null);
 
     // Ждём окончания анимации перед очисткой iframe
-    setTimeout(() => {
+    setTimeout(function () {
       if (iframe) {
         iframe.src = "about:blank";
       }
@@ -366,9 +521,25 @@
           overlay.removeEventListener('click', overlayListenerFn)
           break;
           
+        case "MINIMIZE_WIDGET":
+          minimizeWidget();
+          break;
+        case "EXPAND_WIDGET":
+          expandWidget();
+          break;
         case "GENERATION_READY":
           overlay.classList.remove("active_processing");
-          overlay.addEventListener('click', overlayListenerFn)
+          overlay.addEventListener("click", overlayListenerFn);
+          if (overlay.classList.contains(MINIMIZED_CLASS)) {
+            triggerMinimizerAttention(false);
+          }
+          break;
+        case "GENERATION_ERROR":
+          overlay.classList.remove("active_processing");
+          overlay.addEventListener("click", overlayListenerFn);
+          if (overlay.classList.contains(MINIMIZED_CLASS)) {
+            triggerMinimizerAttention(true);
+          }
           break;
 
         default:
@@ -403,8 +574,9 @@
   }
 
   function init() {
+    createMinimizerButton();
     if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", () => {
+      document.addEventListener("DOMContentLoaded", function () {
         createStyles();
         initButtons();
         setupMessageListener();
