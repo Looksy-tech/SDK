@@ -226,20 +226,12 @@
         pointer-events: none !important;
       }
       .${WIDGET_CONFIG.overlayClass}.${MINIMIZED_CLASS} #${WIDGET_CONFIG.iframeId} {
-        pointer-events: auto !important;
-        width: 56px !important;
-        height: 56px !important;
-        max-width: 56px !important;
-        max-height: 56px !important;
-        border-radius: 50% !important;
-        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25) !important;
-      }
-      @media (max-width: 768px) {
-        .${WIDGET_CONFIG.overlayClass}.${MINIMIZED_CLASS} { padding: 16px !important; }
-        .${WIDGET_CONFIG.overlayClass}.${MINIMIZED_CLASS} #${WIDGET_CONFIG.iframeId} {
-          width: 52px !important; height: 52px !important;
-          max-width: 52px !important; max-height: 52px !important;
-        }
+        pointer-events: none !important;
+        opacity: 0 !important;
+        width: 0 !important;
+        height: 0 !important;
+        max-width: 0 !important;
+        max-height: 0 !important;
       }
       #${TOGGLE_BTN_ID} {
         position: fixed;
@@ -247,14 +239,14 @@
         display: none;
         align-items: center;
         justify-content: center;
-        width: 112px;
-        height: 112px;
-        right: 24px;
-        bottom: 24px;
+        width: 72px;
+        height: 72px;
+        right: 20px;
+        bottom: 20px;
         padding: 0;
         border: 1px solid rgba(255, 255, 255, 0.25);
         border-radius: 50%;
-        background: rgba(99, 102, 241, 0.75);
+        background: rgba(99, 102, 241, 0.85);
         color: #fff;
         cursor: pointer;
         pointer-events: auto;
@@ -270,29 +262,29 @@
         box-shadow: 0 6px 28px rgba(99, 102, 241, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.25);
       }
       #${TOGGLE_BTN_ID} .virtual-fitting-toggle-letter {
-        font-size: 3rem;
+        font-size: 2rem;
         font-weight: 700;
         letter-spacing: -0.02em;
         line-height: 1;
       }
       #${TOGGLE_BTN_ID} .virtual-fitting-toggle-check {
-        font-size: 3rem;
+        font-size: 2rem;
         font-weight: 700;
         line-height: 1;
         transition: opacity 0.3s ease, transform 0.3s ease;
       }
       #${TOGGLE_BTN_ID} .virtual-fitting-toggle-cross {
-        font-size: 3.5rem;
+        font-size: 2.25rem;
         font-weight: 300;
         line-height: 1;
         transition: opacity 0.3s ease, transform 0.3s ease;
       }
       #${TOGGLE_BTN_ID} .virtual-fitting-toggle-badge {
         position: absolute;
-        top: 8px;
-        right: 8px;
-        width: 24px;
-        height: 24px;
+        top: 4px;
+        right: 4px;
+        width: 18px;
+        height: 18px;
         background: #ef4444;
         border-radius: 50%;
         border: 2px solid #fff;
@@ -314,11 +306,11 @@
         100% { opacity: 1; transform: scale(1); }
       }
       @media (max-width: 768px) {
-        #${TOGGLE_BTN_ID} { right: 16px; bottom: 16px; width: 90px; height: 90px; }
-        #${TOGGLE_BTN_ID} .virtual-fitting-toggle-letter { font-size: 2.5rem; }
-        #${TOGGLE_BTN_ID} .virtual-fitting-toggle-check { font-size: 2.5rem; }
-        #${TOGGLE_BTN_ID} .virtual-fitting-toggle-cross { font-size: 3rem; }
-        #${TOGGLE_BTN_ID} .virtual-fitting-toggle-badge { width: 20px; height: 20px; top: 6px; right: 6px; }
+        #${TOGGLE_BTN_ID} { right: 16px; bottom: 16px; width: 64px; height: 64px; }
+        #${TOGGLE_BTN_ID} .virtual-fitting-toggle-letter { font-size: 1.75rem; }
+        #${TOGGLE_BTN_ID} .virtual-fitting-toggle-check { font-size: 1.75rem; }
+        #${TOGGLE_BTN_ID} .virtual-fitting-toggle-cross { font-size: 2rem; }
+        #${TOGGLE_BTN_ID} .virtual-fitting-toggle-badge { width: 16px; height: 16px; top: 2px; right: 2px; }
       }
     `;
     document.head.appendChild(style);
