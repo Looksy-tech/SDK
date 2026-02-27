@@ -82,9 +82,9 @@
     btn.classList.toggle("virtual-fitting-toggle--minimized", isMinimized);
     btn.classList.toggle("virtual-fitting-toggle--attention", attentionState === "success" || attentionState === "error");
     if (attentionState === "success") {
-      btn.innerHTML = '<span class="virtual-fitting-toggle-check">✓</span>';
+      btn.innerHTML = '<span class="virtual-fitting-toggle-check">✓</span><span class="virtual-fitting-toggle-badge"></span>';
     } else if (attentionState === "error") {
-      btn.innerHTML = '<span class="virtual-fitting-toggle-cross">×</span>';
+      btn.innerHTML = '<span class="virtual-fitting-toggle-cross">×</span><span class="virtual-fitting-toggle-badge"></span>';
     } else if (isMinimized) {
       btn.innerHTML = '<span class="virtual-fitting-toggle-letter">L</span>';
     }
@@ -247,10 +247,10 @@
         display: none;
         align-items: center;
         justify-content: center;
-        width: 56px;
-        height: 56px;
-        right: 20px;
-        bottom: 20px;
+        width: 112px;
+        height: 112px;
+        right: 24px;
+        bottom: 24px;
         padding: 0;
         border: 1px solid rgba(255, 255, 255, 0.25);
         border-radius: 50%;
@@ -270,22 +270,33 @@
         box-shadow: 0 6px 28px rgba(99, 102, 241, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.25);
       }
       #${TOGGLE_BTN_ID} .virtual-fitting-toggle-letter {
-        font-size: 1.5rem;
+        font-size: 3rem;
         font-weight: 700;
         letter-spacing: -0.02em;
         line-height: 1;
       }
       #${TOGGLE_BTN_ID} .virtual-fitting-toggle-check {
-        font-size: 1.5rem;
+        font-size: 3rem;
         font-weight: 700;
         line-height: 1;
         transition: opacity 0.3s ease, transform 0.3s ease;
       }
       #${TOGGLE_BTN_ID} .virtual-fitting-toggle-cross {
-        font-size: 1.75rem;
+        font-size: 3.5rem;
         font-weight: 300;
         line-height: 1;
         transition: opacity 0.3s ease, transform 0.3s ease;
+      }
+      #${TOGGLE_BTN_ID} .virtual-fitting-toggle-badge {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        width: 24px;
+        height: 24px;
+        background: #ef4444;
+        border-radius: 50%;
+        border: 2px solid #fff;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
       }
       #${TOGGLE_BTN_ID}.virtual-fitting-toggle--attention {
         animation: virtual-fitting-pulse 2s ease-in-out infinite;
@@ -303,7 +314,11 @@
         100% { opacity: 1; transform: scale(1); }
       }
       @media (max-width: 768px) {
-        #${TOGGLE_BTN_ID} { right: 16px; bottom: 16px; width: 52px; height: 52px; }
+        #${TOGGLE_BTN_ID} { right: 16px; bottom: 16px; width: 90px; height: 90px; }
+        #${TOGGLE_BTN_ID} .virtual-fitting-toggle-letter { font-size: 2.5rem; }
+        #${TOGGLE_BTN_ID} .virtual-fitting-toggle-check { font-size: 2.5rem; }
+        #${TOGGLE_BTN_ID} .virtual-fitting-toggle-cross { font-size: 3rem; }
+        #${TOGGLE_BTN_ID} .virtual-fitting-toggle-badge { width: 20px; height: 20px; top: 6px; right: 6px; }
       }
     `;
     document.head.appendChild(style);
