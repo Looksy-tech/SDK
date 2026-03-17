@@ -597,6 +597,7 @@
       observeDOM();
     }
   }
+  
 
   window.VirtualFitting = {
     open: openWidget,
