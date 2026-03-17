@@ -27,6 +27,17 @@
     nameAttribute: "data-fitting-name",
     priceAttribute: "data-fitting-price",
     imageAttribute: "data-fitting-image",
+    onlyOpenCardFirstImage: true,
+    openCardSelector: ".t-store__prod-popup.t-popup_show, .t-popup_show .t-store__prod-popup, .t-popup_show .js-store-prod-all, .t-popup_show .js-product-single-wrapper",
+    firstPhotoSelectors: [
+      ".t-popup_show .t-store__prod-popup__slider .t-slds__item:first-child .t-bgimg",
+      ".t-popup_show .t-store__prod-popup__slider .t-slds__item:first-child img",
+      ".t-popup_show .t-store__prod-popup__slider .t-slds__item:first-child [data-original]",
+      ".t-popup_show .t-store__prod-popup__slider .t-slds__item_active .t-bgimg",
+      ".t-popup_show .t-store__prod-popup__slider .t-slds__item_active img",
+      ".t-popup_show .t-store__prod-popup__imgwrapper .t-bgimg",
+      ".t-popup_show .t-store__prod-popup__imgwrapper img",
+    ],
     productSelectors: [
       "[data-fitting-product]",
       ".js-product",
@@ -166,8 +177,9 @@
     style.textContent = `
       .${WIDGET_CONFIG.buttonClass} {
         position: absolute;
-        right: 8px;
-        bottom: 8px;
+        right: 12px;
+        bottom: 12px;
+        z-index: 5;
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -233,6 +245,12 @@
         transform: scale(1);
       }
       @media (max-width: 768px) {
+        .${WIDGET_CONFIG.buttonClass} {
+          right: 10px;
+          bottom: 10px;
+          height: 34px;
+          font-size: 13px;
+        }
         .${WIDGET_CONFIG.overlayClass} {
           align-items: flex-end;
           justify-content: center;
@@ -458,6 +476,43 @@
     return candidate;
   }
 
+  function getOpenCardRoot(contextElement) {
+    const context = contextElement && contextElement.nodeType === 1 ? contextElement : document;
+    if (context.matches && context.matches(WIDGET_CONFIG.openCardSelector)) {
+      return context;
+    }
+    if (context.closest) {
+      const closest = context.closest(WIDGET_CONFIG.openCardSelector);
+      if (closest) return closest;
+    }
+    return document.querySelector(WIDGET_CONFIG.openCardSelector);
+  }
+
+  function isInsideOpenCard(element) {
+    if (!element || !element.closest) return false;
+    return Boolean(element.closest(WIDGET_CONFIG.openCardSelector));
+  }
+
+  function resolveFirstPhotoElement(contextElement) {
+    const openRoot = getOpenCardRoot(contextElement);
+    if (!openRoot) return null;
+
+    for (let i = 0; i < WIDGET_CONFIG.firstPhotoSelectors.length; i++) {
+      const selector = WIDGET_CONFIG.firstPhotoSelectors[i];
+      const candidate = openRoot.querySelector(selector);
+      if (candidate && resolveImageSourceFromElement(candidate)) {
+        return candidate;
+      }
+    }
+
+    return resolveImageElement(openRoot);
+  }
+
+  function shouldRenderForProduct(productElement) {
+    if (!WIDGET_CONFIG.onlyOpenCardFirstImage) return true;
+    return isInsideOpenCard(productElement);
+  }
+
   function resolveImageElement(productElement) {
     if (!productElement) return null;
 
@@ -562,6 +617,7 @@
   function processProducts(rootNode) {
     const products = collectProducts(rootNode);
     products.forEach((product) => {
+      if (!shouldRenderForProduct(product)) return;
       hydrateProductElement(product);
       createButton(product);
     });
@@ -646,6 +702,8 @@
   }
 
   function createButton(productElement) {
+    if (!shouldRenderForProduct(productElement)) return;
+
     const existingButton = productElement.querySelector(
       `.${WIDGET_CONFIG.buttonClass}`,
     );
@@ -680,10 +738,17 @@
     const imageElement = productElement.querySelector(
       WIDGET_CONFIG.imageSelector,
     );
-    const targetImageElement = imageElement || resolveImageElement(productElement);
+    const firstPhotoElement =
+      WIDGET_CONFIG.onlyOpenCardFirstImage ? resolveFirstPhotoElement(productElement) : null;
+    const targetImageElement = firstPhotoElement || imageElement || resolveImageElement(productElement);
     if (targetImageElement && targetImageElement.parentNode) {
+      const hostElement = targetImageElement.parentNode;
+      const hostStyle = window.getComputedStyle(hostElement);
+      if (hostStyle.position === "static") {
+        hostElement.style.position = "relative";
+      }
       console.log("imageElement.nextSibling :>> ", targetImageElement.nextSibling);
-      targetImageElement.parentNode.insertBefore(button, targetImageElement.nextSibling);
+      hostElement.insertBefore(button, targetImageElement.nextSibling);
     } else {
       productElement.appendChild(button);
     }
@@ -762,14 +827,29 @@
   function observeDOM() {
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
+        if (mutation.type === "attributes") {
+          const target = mutation.target;
+          if (
+            target &&
+            target.nodeType === 1 &&
+            target.matches &&
+            target.matches(".t-popup_show, .t-store__prod-popup, .js-store-prod-all, .js-product-single-wrapper")
+          ) {
+            processProducts(document);
+          }
+          return;
+        }
+
         mutation.addedNodes.forEach((node) => {
           if (node.nodeType === 1) {
             if (node.matches) {
               for (let i = 0; i < WIDGET_CONFIG.productSelectors.length; i++) {
                 const selector = WIDGET_CONFIG.productSelectors[i];
                 if (node.matches(selector)) {
-                  hydrateProductElement(node);
-                  createButton(node);
+                  if (shouldRenderForProduct(node)) {
+                    hydrateProductElement(node);
+                    createButton(node);
+                  }
                   break;
                 }
               }
@@ -783,6 +863,8 @@
     observer.observe(document.body, {
       childList: true,
       subtree: true,
+      attributes: true,
+      attributeFilter: ["class", "style"],
     });
   }
 
