@@ -1141,7 +1141,9 @@
             target &&
             target.nodeType === 1 &&
             target.matches &&
-            target.matches(".t-popup_show, .t-store__prod-popup, .t-store__prod-popup_showed, .js-store-prod-all, .js-product-single-wrapper")
+            target.matches(
+              ".t-popup_show, .t-store__prod-popup, .t-store__prod-popup_showed, .js-store-prod-all, .js-product-single-wrapper, .t-slds__item, .t-slds__items-wrapper, .t-slds__imgwrapper, .js-product-img, .t-bgimg",
+            )
           ) {
             scheduleProcessProducts();
           }
@@ -1172,13 +1174,31 @@
       childList: true,
       subtree: true,
       attributes: true,
-      attributeFilter: ["class", "style"],
+      attributeFilter: ["class", "style", "aria-hidden", "data-slider-pos"],
     });
 
     processProducts(document);
 
     document.addEventListener("click", function () {
       scheduleProcessProducts();
+    }, true);
+
+    // На некоторых Tilda-слайдерах активный слайд меняется без клика,
+    // поэтому ловим завершение трансформации/анимации.
+    document.addEventListener("transitionend", function (e) {
+      const target = e.target;
+      if (!target || !target.closest) return;
+      if (target.closest(".t-slds__items-wrapper, .t-slds__item, .t-slds__imgwrapper")) {
+        scheduleProcessProducts();
+      }
+    }, true);
+
+    document.addEventListener("animationend", function (e) {
+      const target = e.target;
+      if (!target || !target.closest) return;
+      if (target.closest(".t-slds__items-wrapper, .t-slds__item, .t-slds__imgwrapper")) {
+        scheduleProcessProducts();
+      }
     }, true);
   }
 
