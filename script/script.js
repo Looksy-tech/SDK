@@ -199,7 +199,7 @@
         position: absolute;
         right: 12px;
         bottom: 12px;
-        z-index: 50;
+        z-index: 999;
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -230,6 +230,17 @@
       .js-product-img .${WIDGET_CONFIG.buttonClass} {
         right: 12px;
         bottom: 12px;
+      }
+      .t-store__prod-popup__slider,
+      .t-slds,
+      .t-slds__main,
+      .t-slds__container {
+        position: relative;
+        isolation: isolate;
+      }
+      .t-slds__imgwrapper {
+        position: relative;
+        isolation: isolate;
       }
       .${WIDGET_CONFIG.overlayClass} {
         position: fixed;
@@ -762,6 +773,18 @@
   }
 
   function resolveButtonHostElement(targetImageElement, productElement) {
+    // Для слайдеров крепим к стабильному viewport-контейнеру, а не к active-item
+    // и не к длинному .t-slds__items-wrapper.
+    const stableSliderContainer =
+      (targetImageElement && targetImageElement.closest && targetImageElement.closest(
+        ".t-store__prod-popup__slider, .t-slds, .t-slds__main, .t-slds__container",
+      )) ||
+      null;
+
+    if (stableSliderContainer) {
+      return stableSliderContainer;
+    }
+
     const preferredContainer =
       (targetImageElement && targetImageElement.closest && targetImageElement.closest(
         ".t-slds__imgwrapper, .t-store__prod-popup__imgwrapper, [data-fitting-image-container]",
