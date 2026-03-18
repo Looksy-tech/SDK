@@ -145,6 +145,7 @@
   let productsProcessQueued = false;
   let productsProcessTimer = null;
   let buttonRenderTimer = null;
+  let startupRenderInterval = null;
 
   const MINIMIZED_CLASS = "virtual-fitting-minimized";
   const TOGGLE_BTN_ID = "virtual-fitting-toggle-btn";
@@ -1011,6 +1012,38 @@
     }, BUTTON_RENDER_DELAY_MS);
   }
 
+  function startStartupRenderRecheck() {
+    if (startupRenderInterval) {
+      window.clearInterval(startupRenderInterval);
+      startupRenderInterval = null;
+    }
+
+    let attempts = 0;
+    const maxAttempts = 20; // ~6 секунд при интервале 300мс
+
+    startupRenderInterval = window.setInterval(() => {
+      attempts += 1;
+      scheduleProcessProducts();
+
+      // Если в Tilda-режиме кнопка уже на месте — завершаем раньше.
+      if (isTildaPopupOnlyMode()) {
+        const hasPopupButton = document.querySelector(
+          `.${WIDGET_CONFIG.buttonClass}[${PRODUCT_BTN_ATTR}="true"]`,
+        );
+        if (hasPopupButton) {
+          window.clearInterval(startupRenderInterval);
+          startupRenderInterval = null;
+          return;
+        }
+      }
+
+      if (attempts >= maxAttempts) {
+        window.clearInterval(startupRenderInterval);
+        startupRenderInterval = null;
+      }
+    }, 300);
+  }
+
   function openWidget(productData) {
     currentProduct = productData;
 
@@ -1256,6 +1289,11 @@
     });
 
     processProducts(document);
+    startStartupRenderRecheck();
+
+    window.addEventListener("pageshow", function () {
+      startStartupRenderRecheck();
+    });
 
     document.addEventListener("click", function () {
       scheduleProcessProducts();
