@@ -530,7 +530,7 @@
 
     if (context && context.closest) {
       const contextualRoot = context.closest(
-        ".js-store-prod-all, .js-product-single-wrapper, .t-store__prod-popup, .t-popup, .t-slds__item_active",
+        ".js-store-prod-all, .js-product-single-wrapper, .t-store__prod-popup, .t-popup_show",
       );
       if (contextualRoot && roots.indexOf(contextualRoot) === -1) {
         roots.push(contextualRoot);
@@ -570,9 +570,13 @@
 
     if (activeSlideImage && isElementVisible(activeSlideImage)) {
       const activeSliderContext = activeSlideImage.closest(
-        ".js-store-prod-all, .js-product-single-wrapper, .t-store__prod-popup, .t-popup, .t-store__prod-popup__slider, .t-slds__item_active",
+        ".js-store-prod-all, .js-product-single-wrapper, .t-store__prod-popup, .t-store__prod-popup__slider, .t-slds__items-wrapper, .t-popup_show",
       );
-      if (activeSliderContext && isElementVisible(activeSliderContext)) {
+      if (
+        activeSliderContext &&
+        isElementVisible(activeSliderContext) &&
+        isLikelyProductPopupContext(activeSliderContext)
+      ) {
         return activeSliderContext;
       }
     }
@@ -588,6 +592,15 @@
     );
     if (!popupContext) return false;
 
+    const storeContainerHint =
+      (popupContext.matches &&
+        popupContext.matches(".t-store__prod-popup, .js-store-prod-all, .js-product-single-wrapper")) ||
+      Boolean(
+        popupContext.querySelector(
+          ".t-store__prod-popup, .js-store-prod-all, .js-product-single-wrapper",
+        ),
+      );
+
     const productMeta = popupContext.querySelector(
       ".js-product-name, .js-product-price, .js-store-prod-name, .js-store-prod-price-val, .t-store__prod-popup__title, .t-store__prod-popup__price, [data-product-price], [data-price]",
     );
@@ -596,16 +609,11 @@
       ".t-store__prod-popup__slider, .t-slds__item_active .js-product-img, .t-slds__item_active .t-bgimg, .t-slds__imgwrapper[data-img-zoom-url], .t-slds__item [data-img-zoom-url]",
     );
 
-    return Boolean(productMeta || productSliderSignals);
+    return Boolean(productMeta || (storeContainerHint && productSliderSignals));
   }
 
   function hasOpenProductPopup() {
-    return Boolean(
-      document.querySelector(WIDGET_CONFIG.openCardSelector) ||
-      document.querySelector(
-        ".t-popup_show .t-store__prod-popup, .t-popup_show .js-store-prod-all, .t-popup_show .js-product-single-wrapper, .t-popup_show .t-slds__item_active .t-bgimg, .t-popup_show .t-slds__item_active .js-product-img",
-      ),
-    );
+    return Boolean(resolveOpenProductElement(document));
   }
 
   function hasTildaPopupStructure(contextElement) {
@@ -664,6 +672,7 @@
   function isValidProductElement(productElement) {
     if (!productElement || productElement.nodeType !== 1) return false;
     if (productElement.hasAttribute("data-fitting-product")) return true;
+    if (isLikelyProductPopupContext(productElement)) return true;
 
     for (let i = 0; i < WIDGET_CONFIG.productContainerSelectors.length; i++) {
       const selector = WIDGET_CONFIG.productContainerSelectors[i];
