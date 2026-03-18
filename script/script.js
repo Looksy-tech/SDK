@@ -190,7 +190,7 @@
         position: absolute;
         right: 12px;
         bottom: 12px;
-        z-index: 5;
+        z-index: 50;
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -216,6 +216,11 @@
         height: 16px;
         margin-right: 4px;
         flex-shrink: 0;
+      }
+      .t-slds__bgimg .${WIDGET_CONFIG.buttonClass},
+      .js-product-img .${WIDGET_CONFIG.buttonClass} {
+        right: 12px;
+        bottom: 12px;
       }
       .${WIDGET_CONFIG.overlayClass} {
         position: fixed;
@@ -871,13 +876,27 @@
       isOpenCardModeActive(productElement) ? resolveFirstPhotoElement(productElement) : null;
     const targetImageElement = firstPhotoElement || imageElement || resolveImageElement(productElement);
     if (targetImageElement && targetImageElement.parentNode) {
-      const hostElement = targetImageElement.parentNode;
+      let hostElement = targetImageElement.parentNode;
+
+      // Для Tilda-слайдера лучше крепить кнопку прямо к видимому bg-слою слайда.
+      if (
+        targetImageElement.classList &&
+        (targetImageElement.classList.contains("t-slds__bgimg") ||
+          targetImageElement.classList.contains("js-product-img") ||
+          targetImageElement.classList.contains("t-bgimg"))
+      ) {
+        hostElement = targetImageElement;
+      }
+
       const hostStyle = window.getComputedStyle(hostElement);
       if (hostStyle.position === "static") {
         hostElement.style.position = "relative";
       }
+      if (hostStyle.overflow === "hidden") {
+        hostElement.style.overflow = "visible";
+      }
       console.log("imageElement.nextSibling :>> ", targetImageElement.nextSibling);
-      hostElement.insertBefore(button, targetImageElement.nextSibling);
+      hostElement.appendChild(button);
     } else {
       productElement.appendChild(button);
     }
