@@ -537,6 +537,14 @@
     return false;
   }
 
+  function isTildaStorefront() {
+    return Boolean(
+      document.querySelector(
+        ".t-store__card, .t-store__parts-switch-wrapper, .t-store__prod-popup, .t-popup",
+      ),
+    );
+  }
+
   function isOpenCardModeActive(contextElement) {
     if (!WIDGET_CONFIG.onlyOpenCardFirstImage) return false;
     return hasTildaPopupStructure(contextElement);
@@ -572,6 +580,11 @@
   }
 
   function shouldRenderForProduct(productElement) {
+    if (WIDGET_CONFIG.onlyOpenCardFirstImage && isTildaStorefront()) {
+      const activeProductInPopup = resolveOpenProductElement(document);
+      return Boolean(activeProductInPopup && activeProductInPopup === productElement);
+    }
+
     if (!isOpenCardModeActive(productElement)) return true;
     const activeProduct = resolveOpenProductElement(productElement);
     return Boolean(activeProduct && activeProduct === productElement);
@@ -679,6 +692,15 @@
   }
 
   function processProducts(rootNode) {
+    if (WIDGET_CONFIG.onlyOpenCardFirstImage && isTildaStorefront()) {
+      const activeProduct = resolveOpenProductElement(document);
+      removeButtonsOutsideActiveProduct(activeProduct);
+      if (!activeProduct) return 0;
+      hydrateProductElement(activeProduct);
+      createButton(activeProduct);
+      return 1;
+    }
+
     if (isOpenCardModeActive(rootNode)) {
       const activeProduct = resolveOpenProductElement(rootNode);
       removeButtonsOutsideActiveProduct(activeProduct);
