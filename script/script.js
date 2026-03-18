@@ -7,7 +7,7 @@
   const WIDGET_URL = "https://widget.looksy.tech";
   const ICON_URL = "https://s3.regru.cloud/looksy-widget/try_on.svg";
   const BUTTON_TEXT = "Примерить на себе";
-  const Z_INDEX = 999999;
+  const Z_INDEX = 2147483646;
   // =====================================================
 
   // Получаем shopToken из data-атрибута текущего скрипта
@@ -238,7 +238,7 @@
         width: 100%;
         height: 100%;
         background: rgba(0, 0, 0, 0);
-        z-index: ${WIDGET_CONFIG.zIndex};
+        z-index: ${WIDGET_CONFIG.zIndex} !important;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -258,6 +258,7 @@
         max-width: 700px;
         height: 90vh;
         max-height: 800px;
+        z-index: ${WIDGET_CONFIG.zIndex} !important;
         border: none;
         border-radius: 12px;
         background-color: transparent;
