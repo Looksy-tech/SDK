@@ -34,6 +34,15 @@
       ".js-product-single-wrapper",
       ".t-store__prod-popup",
     ],
+    productContainerSelectors: [
+      "[data-fitting-product]",
+      ".js-store-prod-all",
+      ".js-product-single-wrapper",
+      ".t-store__prod-popup",
+      ".t-store__card",
+      ".js-product",
+      ".js-product-wrapper",
+    ],
     firstPhotoSelectors: [
       ".t-store__prod-popup__slider .t-slds__item_active .t-bgimg",
       ".t-store__prod-popup__slider .t-slds__item_active img",
@@ -544,6 +553,25 @@
       return root;
     }
 
+    // Fallback для Tilda: иногда в открытой карточке нет class-маркера show,
+    // но есть активный слайд товара.
+    const activeSlideImage =
+      document.querySelector(".t-store__prod-popup .t-slds__item_active .js-product-img") ||
+      document.querySelector(".t-store__prod-popup .t-slds__item_active .t-bgimg") ||
+      document.querySelector(".t-store__prod-popup .t-slds__item_active .t-slds__bgimg") ||
+      document.querySelector(".js-store-prod-all .t-slds__item_active .js-product-img") ||
+      document.querySelector(".js-store-prod-all .t-slds__item_active .t-bgimg") ||
+      document.querySelector(".js-store-prod-all .t-slds__item_active .t-slds__bgimg");
+
+    if (activeSlideImage && isElementVisible(activeSlideImage)) {
+      const activeSliderContext = activeSlideImage.closest(
+        ".js-store-prod-all, .js-product-single-wrapper, .t-store__prod-popup, .t-popup, .t-store__prod-popup__slider, .t-slds__item_active",
+      );
+      if (activeSliderContext && isElementVisible(activeSliderContext)) {
+        return activeSliderContext;
+      }
+    }
+
     return null;
   }
 
@@ -585,6 +613,30 @@
         btn.remove();
       }
     });
+  }
+
+  function isInKnownProductContainer(element) {
+    if (!element || !element.closest) return false;
+    for (let i = 0; i < WIDGET_CONFIG.productContainerSelectors.length; i++) {
+      if (element.closest(WIDGET_CONFIG.productContainerSelectors[i])) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function isValidProductElement(productElement) {
+    if (!productElement || productElement.nodeType !== 1) return false;
+    if (productElement.hasAttribute("data-fitting-product")) return true;
+
+    for (let i = 0; i < WIDGET_CONFIG.productContainerSelectors.length; i++) {
+      const selector = WIDGET_CONFIG.productContainerSelectors[i];
+      if (productElement.matches && productElement.matches(selector)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   function isInsideOpenCard(element) {
@@ -637,7 +689,7 @@
       const candidates = productElement.querySelectorAll(selector);
       for (let j = 0; j < candidates.length; j++) {
         const candidate = candidates[j];
-        if (resolveImageSourceFromElement(candidate)) {
+        if (resolveImageSourceFromElement(candidate) && isInKnownProductContainer(candidate)) {
           return candidate;
         }
       }
@@ -711,7 +763,7 @@
       const elements = root.querySelectorAll(selector);
       for (let j = 0; j < elements.length; j++) {
         const el = elements[j];
-        if (!seen.has(el)) {
+        if (!seen.has(el) && isValidProductElement(el)) {
           seen.add(el);
           products.push(el);
         }
@@ -837,6 +889,7 @@
 
   function createButton(productElement) {
     if (!shouldRenderForProduct(productElement)) return;
+    if (!isValidProductElement(productElement)) return;
 
     const existingButton = productElement.querySelector(
       `.${WIDGET_CONFIG.buttonClass}`,
@@ -876,6 +929,7 @@
       isOpenCardModeActive(productElement) ? resolveFirstPhotoElement(productElement) : null;
     const targetImageElement = firstPhotoElement || imageElement || resolveImageElement(productElement);
     if (targetImageElement && targetImageElement.parentNode) {
+      if (!isInKnownProductContainer(targetImageElement)) return;
       let hostElement = targetImageElement.parentNode;
 
       // Для Tilda-слайдера лучше крепить кнопку прямо к видимому bg-слою слайда.
