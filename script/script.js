@@ -28,7 +28,7 @@
     priceAttribute: "data-fitting-price",
     imageAttribute: "data-fitting-image",
     onlyOpenCardFirstImage: true,
-    openCardSelector: ".t-popup_show, .t-store__prod-popup.t-popup_show, .t-store__prod-popup_showed, .t-popup",
+    openCardSelector: ".t-store__prod-popup.t-popup_show, .t-store__prod-popup_showed, .t-popup_show .t-store__prod-popup, .t-popup_show .js-store-prod-all, .t-popup_show .js-product-single-wrapper",
     openCardProductSelectors: [
       ".js-store-prod-all",
       ".js-product-single-wrapper",
@@ -550,7 +550,9 @@
         if (nested) return nested;
       }
 
-      return root;
+      if (isLikelyProductPopupContext(root)) {
+        return root;
+      }
     }
 
     // Fallback для Tilda: иногда в открытой карточке нет class-маркера show,
@@ -559,9 +561,9 @@
       document.querySelector(".t-store__prod-popup .t-slds__item_active .js-product-img") ||
       document.querySelector(".t-store__prod-popup .t-slds__item_active .t-bgimg") ||
       document.querySelector(".t-store__prod-popup .t-slds__item_active .t-slds__bgimg") ||
-      document.querySelector(".t-popup .t-slds__item_active .js-product-img") ||
-      document.querySelector(".t-popup .t-slds__item_active .t-bgimg") ||
-      document.querySelector(".t-popup .t-slds__item_active .t-slds__bgimg") ||
+      document.querySelector(".t-popup_show .t-store__prod-popup .t-slds__item_active .js-product-img") ||
+      document.querySelector(".t-popup_show .t-store__prod-popup .t-slds__item_active .t-bgimg") ||
+      document.querySelector(".t-popup_show .t-store__prod-popup .t-slds__item_active .t-slds__bgimg") ||
       document.querySelector(".js-store-prod-all .t-slds__item_active .js-product-img") ||
       document.querySelector(".js-store-prod-all .t-slds__item_active .t-bgimg") ||
       document.querySelector(".js-store-prod-all .t-slds__item_active .t-slds__bgimg");
@@ -582,7 +584,7 @@
     if (!element || !element.closest) return false;
 
     const popupContext = element.closest(
-      ".t-store__prod-popup, .js-store-prod-all, .js-product-single-wrapper, .t-popup",
+      ".t-store__prod-popup, .js-store-prod-all, .js-product-single-wrapper",
     );
     if (!popupContext) return false;
 
@@ -614,7 +616,7 @@
   function isTildaStorefront() {
     return Boolean(
       document.querySelector(
-        ".t-store__card, .t-store__parts-switch-wrapper, .t-store__prod-popup, .t-popup",
+        ".t-store__card, .t-store__parts-switch-wrapper, .t-store__prod-popup, .js-store-prod-all, .js-product-single-wrapper",
       ),
     );
   }
