@@ -698,6 +698,24 @@
     return null;
   }
 
+  function resolveButtonHostElement(targetImageElement, productElement) {
+    const preferredContainer =
+      (targetImageElement && targetImageElement.closest && targetImageElement.closest(
+        ".t-slds__imgwrapper, .t-store__prod-popup__imgwrapper, [data-fitting-image-container]",
+      )) ||
+      null;
+
+    if (preferredContainer) {
+      return preferredContainer;
+    }
+
+    if (targetImageElement && targetImageElement.parentNode) {
+      return targetImageElement.parentNode;
+    }
+
+    return productElement;
+  }
+
   function resolveProductName(productElement, imageElement) {
     const attrName = getAttrValue(productElement, WIDGET_CONFIG.nameAttribute);
     if (attrName) return attrName;
@@ -891,10 +909,7 @@
     if (!shouldRenderForProduct(productElement)) return;
     if (!isValidProductElement(productElement)) return;
 
-    const existingButton = productElement.querySelector(
-      `.${WIDGET_CONFIG.buttonClass}`,
-    );
-    if (existingButton) return;
+    const existingButton = productElement.querySelector(`.${WIDGET_CONFIG.buttonClass}`);
 
     const button = document.createElement("button");
     button.className = WIDGET_CONFIG.buttonClass;
@@ -930,28 +945,24 @@
     const targetImageElement = firstPhotoElement || imageElement || resolveImageElement(productElement);
     if (targetImageElement && targetImageElement.parentNode) {
       if (!isInKnownProductContainer(targetImageElement)) return;
-      let hostElement = targetImageElement.parentNode;
-
-      // Для Tilda-слайдера лучше крепить кнопку прямо к видимому bg-слою слайда.
-      if (
-        targetImageElement.classList &&
-        (targetImageElement.classList.contains("t-slds__bgimg") ||
-          targetImageElement.classList.contains("js-product-img") ||
-          targetImageElement.classList.contains("t-bgimg"))
-      ) {
-        hostElement = targetImageElement;
-      }
-
+      const hostElement = resolveButtonHostElement(targetImageElement, productElement);
       const hostStyle = window.getComputedStyle(hostElement);
       if (hostStyle.position === "static") {
         hostElement.style.position = "relative";
       }
-      if (hostStyle.overflow === "hidden") {
-        hostElement.style.overflow = "visible";
+
+      // Если кнопка уже есть, переносим её в нужный контейнер активного фото.
+      if (existingButton) {
+        if (existingButton.parentNode !== hostElement) {
+          hostElement.appendChild(existingButton);
+        }
+        return;
       }
+
       console.log("imageElement.nextSibling :>> ", targetImageElement.nextSibling);
       hostElement.appendChild(button);
     } else {
+      if (existingButton) return;
       productElement.appendChild(button);
     }
   }
