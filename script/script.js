@@ -694,6 +694,10 @@
     return hasTildaPopupStructure(contextElement);
   }
 
+  function isTildaPopupOnlyMode() {
+    return WIDGET_CONFIG.onlyOpenCardFirstImage && isTildaStorefront();
+  }
+
   function removeButtonsOutsideActiveProduct(activeProduct) {
     const buttons = document.querySelectorAll(`.${WIDGET_CONFIG.buttonClass}`);
     buttons.forEach((btn) => {
@@ -754,7 +758,7 @@
   }
 
   function shouldRenderForProduct(productElement) {
-    if (WIDGET_CONFIG.onlyOpenCardFirstImage && isTildaStorefront()) {
+    if (isTildaPopupOnlyMode()) {
       const activeProductInPopup = resolveOpenProductElement(document);
       return Boolean(activeProductInPopup && activeProductInPopup === productElement);
     }
@@ -878,6 +882,11 @@
   function hydrateProductElement(productElement) {
     if (!productElement) return;
 
+    // В Tilda popup-режиме избегаем мутаций DOM, чтобы не ломать навигацию блоков.
+    if (isTildaPopupOnlyMode()) {
+      return;
+    }
+
     if (!productElement.hasAttribute("data-fitting-product")) {
       productElement.setAttribute("data-fitting-product", "true");
     }
@@ -923,7 +932,7 @@
   }
 
   function processProducts(rootNode) {
-    if (WIDGET_CONFIG.onlyOpenCardFirstImage && isTildaStorefront()) {
+    if (isTildaPopupOnlyMode()) {
       const activeProduct = resolveOpenProductElement(document);
       if (!activeProduct) {
         if (!hasOpenProductPopup()) {
@@ -1046,14 +1055,16 @@
     if (!shouldRenderForProduct(productElement)) return;
     if (!isValidProductElement(productElement)) return;
 
-    const existingButton = document.querySelector(
-      `.${WIDGET_CONFIG.buttonClass}[${PRODUCT_BTN_ATTR}="true"]`,
-    );
+    const existingButton = isTildaPopupOnlyMode()
+      ? document.querySelector(`.${WIDGET_CONFIG.buttonClass}[${PRODUCT_BTN_ATTR}="true"]`)
+      : productElement.querySelector(`.${WIDGET_CONFIG.buttonClass}`);
 
     const button = document.createElement("button");
     button.className = WIDGET_CONFIG.buttonClass;
     button.type = "button";
-    button.setAttribute(PRODUCT_BTN_ATTR, "true");
+    if (isTildaPopupOnlyMode()) {
+      button.setAttribute(PRODUCT_BTN_ATTR, "true");
+    }
 
     // Добавляем иконку
     const icon = document.createElement("img");
