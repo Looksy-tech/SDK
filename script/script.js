@@ -559,6 +559,9 @@
       document.querySelector(".t-store__prod-popup .t-slds__item_active .js-product-img") ||
       document.querySelector(".t-store__prod-popup .t-slds__item_active .t-bgimg") ||
       document.querySelector(".t-store__prod-popup .t-slds__item_active .t-slds__bgimg") ||
+      document.querySelector(".t-popup .t-slds__item_active .js-product-img") ||
+      document.querySelector(".t-popup .t-slds__item_active .t-bgimg") ||
+      document.querySelector(".t-popup .t-slds__item_active .t-slds__bgimg") ||
       document.querySelector(".js-store-prod-all .t-slds__item_active .js-product-img") ||
       document.querySelector(".js-store-prod-all .t-slds__item_active .t-bgimg") ||
       document.querySelector(".js-store-prod-all .t-slds__item_active .t-slds__bgimg");
@@ -573,6 +576,21 @@
     }
 
     return null;
+  }
+
+  function isLikelyProductPopupContext(element) {
+    if (!element || !element.closest) return false;
+
+    const popupContext = element.closest(
+      ".t-store__prod-popup, .js-store-prod-all, .js-product-single-wrapper, .t-popup",
+    );
+    if (!popupContext) return false;
+
+    const productMeta = popupContext.querySelector(
+      ".js-product-name, .js-product-price, .js-store-prod-name, .js-store-prod-price-val, .t-store__prod-popup__title, .t-store__prod-popup__price, [data-product-price], [data-price]",
+    );
+
+    return Boolean(productMeta);
   }
 
   function hasTildaPopupStructure(contextElement) {
@@ -621,6 +639,9 @@
       if (element.closest(WIDGET_CONFIG.productContainerSelectors[i])) {
         return true;
       }
+    }
+    if (isLikelyProductPopupContext(element)) {
+      return true;
     }
     return false;
   }
