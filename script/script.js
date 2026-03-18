@@ -8,6 +8,7 @@
   const ICON_URL = "https://s3.regru.cloud/looksy-widget/try_on.svg";
   const BUTTON_TEXT = "Примерить на себе";
   const Z_INDEX = 2147483646;
+  const BUTTON_RENDER_DELAY_MS = 140;
   // =====================================================
 
   // Получаем shopToken из data-атрибута текущего скрипта
@@ -143,6 +144,7 @@
   let currentProduct = null;
   let productsProcessQueued = false;
   let productsProcessTimer = null;
+  let buttonRenderTimer = null;
 
   const MINIMIZED_CLASS = "virtual-fitting-minimized";
   const TOGGLE_BTN_ID = "virtual-fitting-toggle-btn";
@@ -942,7 +944,7 @@
       }
       removeButtonsOutsideActiveProduct(activeProduct);
       hydrateProductElement(activeProduct);
-      createButton(activeProduct);
+      scheduleCreateButton(activeProduct);
       return 1;
     }
 
@@ -951,7 +953,7 @@
       removeButtonsOutsideActiveProduct(activeProduct);
       if (!activeProduct) return 0;
       hydrateProductElement(activeProduct);
-      createButton(activeProduct);
+      scheduleCreateButton(activeProduct);
       return 1;
     }
 
@@ -959,7 +961,7 @@
     products.forEach((product) => {
       if (!shouldRenderForProduct(product)) return;
       hydrateProductElement(product);
-      createButton(product);
+      scheduleCreateButton(product);
     });
     return products.length;
   }
@@ -972,6 +974,25 @@
       productsProcessTimer = null;
       processProducts(document);
     }, 90);
+  }
+
+  function scheduleCreateButton(productElement) {
+    if (!productElement) return;
+
+    if (!isTildaPopupOnlyMode()) {
+      createButton(productElement);
+      return;
+    }
+
+    if (buttonRenderTimer) {
+      window.clearTimeout(buttonRenderTimer);
+      buttonRenderTimer = null;
+    }
+
+    buttonRenderTimer = window.setTimeout(() => {
+      buttonRenderTimer = null;
+      createButton(productElement);
+    }, BUTTON_RENDER_DELAY_MS);
   }
 
   function openWidget(productData) {
