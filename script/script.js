@@ -26,60 +26,6 @@
     imageSelector: "img[data-fitting-image]",
     nameAttribute: "data-fitting-name",
     priceAttribute: "data-fitting-price",
-    imageAttribute: "data-fitting-image",
-    onlyOpenCardFirstImage: true,
-    openCardSelector: ".t-popup_show, .t-store__prod-popup.t-popup_show, .t-store__prod-popup_showed",
-    openCardProductSelectors: [
-      ".js-store-prod-all",
-      ".js-product-single-wrapper",
-      ".t-store__prod-popup",
-    ],
-    firstPhotoSelectors: [
-      ".t-store__prod-popup__slider .t-slds__item:first-child .t-bgimg",
-      ".t-store__prod-popup__slider .t-slds__item:first-child img",
-      ".t-store__prod-popup__slider .t-slds__item:first-child [data-original]",
-      ".t-store__prod-popup__slider .t-slds__item_active .t-bgimg",
-      ".t-store__prod-popup__slider .t-slds__item_active img",
-      ".t-store__prod-popup__imgwrapper .t-bgimg",
-      ".t-store__prod-popup__imgwrapper img",
-    ],
-    productSelectors: [
-      "[data-fitting-product]",
-      ".js-product",
-      ".t-store__card",
-      ".js-store-prod-all",
-      ".js-product-wrapper",
-      ".js-product-single-wrapper",
-    ],
-    imageSelectors: [
-      "img[data-fitting-image]",
-      "[data-fitting-image]",
-      "img.js-product-img",
-      ".js-product-img",
-      ".t-store__card__bgimg",
-      ".t-bgimg",
-      "[data-original]",
-      "img",
-    ],
-    nameSelectors: [
-      ".js-product-name",
-      ".js-product-title",
-      ".js-store-prod-name",
-      ".t-store__card__title",
-      "[itemprop='name']",
-      "h1",
-      "h2",
-      "h3",
-    ],
-    priceSelectors: [
-      ".js-product-price",
-      ".js-store-prod-price-val",
-      ".t-store__card__price-value",
-      ".t-store__card__price",
-      "[itemprop='price']",
-      "[data-price]",
-      "[data-product-price]",
-    ],
     widgetUrl: WIDGET_URL,
     iconUrl: ICON_URL,
     buttonText: BUTTON_TEXT,
@@ -111,7 +57,6 @@
   let iframe = null;
   let overlay = null;
   let currentProduct = null;
-  let productsProcessQueued = false;
 
   const MINIMIZED_CLASS = "virtual-fitting-minimized";
   const TOGGLE_BTN_ID = "virtual-fitting-toggle-btn";
@@ -183,9 +128,8 @@
     style.textContent = `
       .${WIDGET_CONFIG.buttonClass} {
         position: absolute;
-        right: 12px;
-        bottom: 12px;
-        z-index: 5;
+        right: 8px;
+        bottom: 8px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -251,12 +195,6 @@
         transform: scale(1);
       }
       @media (max-width: 768px) {
-        .${WIDGET_CONFIG.buttonClass} {
-          right: 10px;
-          bottom: 10px;
-          height: 34px;
-          font-size: 13px;
-        }
         .${WIDGET_CONFIG.overlayClass} {
           align-items: flex-end;
           justify-content: center;
@@ -420,269 +358,6 @@
     iframe.contentWindow.postMessage(data, targetOrigin);
   }
 
-  function textOrEmpty(value) {
-    if (value == null) return "";
-    return String(value).replace(/\s+/g, " ").trim();
-  }
-
-  function readTextBySelectors(root, selectors) {
-    for (let i = 0; i < selectors.length; i++) {
-      const selector = selectors[i];
-      const el = root.querySelector(selector);
-      if (!el) continue;
-      const text = textOrEmpty(el.textContent);
-      if (text) return text;
-    }
-    return "";
-  }
-
-  function getAttrValue(el, attrName) {
-    if (!el || !attrName) return "";
-    return textOrEmpty(el.getAttribute(attrName));
-  }
-
-  function extractUrlFromBackground(backgroundValue) {
-    if (!backgroundValue || backgroundValue === "none") return "";
-    const match = backgroundValue.match(/url\((['"]?)(.*?)\1\)/i);
-    return match ? textOrEmpty(match[2]) : "";
-  }
-
-  function resolveImageSourceFromElement(imageElement) {
-    if (!imageElement) return "";
-
-    const directCandidates = [
-      imageElement.currentSrc,
-      imageElement.src,
-      imageElement.getAttribute("src"),
-      imageElement.getAttribute("data-src"),
-      imageElement.getAttribute("data-original"),
-      imageElement.getAttribute("data-lazy"),
-      imageElement.getAttribute("data-img-zoom-url"),
-      imageElement.getAttribute("data-image"),
-    ];
-
-    for (let i = 0; i < directCandidates.length; i++) {
-      const candidate = textOrEmpty(directCandidates[i]);
-      if (candidate) return candidate;
-    }
-
-    const inlineBg = extractUrlFromBackground(imageElement.style && imageElement.style.backgroundImage);
-    if (inlineBg) return inlineBg;
-
-    const computedBg = extractUrlFromBackground(window.getComputedStyle(imageElement).backgroundImage);
-    if (computedBg) return computedBg;
-
-    return "";
-  }
-
-  function readImageCandidateAttr(el) {
-    const candidate = getAttrValue(el, WIDGET_CONFIG.imageAttribute);
-    if (!candidate) return "";
-    if (candidate === "true") return "";
-    return candidate;
-  }
-
-  function getOpenCardRoot(contextElement) {
-    const context = contextElement && contextElement.nodeType === 1 ? contextElement : document;
-    if (context.matches && context.matches(WIDGET_CONFIG.openCardSelector)) {
-      return context;
-    }
-    if (context.closest) {
-      const closest = context.closest(WIDGET_CONFIG.openCardSelector);
-      if (closest) return closest;
-    }
-    return document.querySelector(WIDGET_CONFIG.openCardSelector);
-  }
-
-  function isElementVisible(el) {
-    if (!el || el.nodeType !== 1) return false;
-    const style = window.getComputedStyle(el);
-    if (style.display === "none" || style.visibility === "hidden" || Number(style.opacity) === 0) {
-      return false;
-    }
-    return true;
-  }
-
-  function resolveOpenProductElement(contextElement) {
-    const openRoot = getOpenCardRoot(contextElement);
-    if (!openRoot || !isElementVisible(openRoot)) return null;
-
-    for (let i = 0; i < WIDGET_CONFIG.openCardProductSelectors.length; i++) {
-      const selector = WIDGET_CONFIG.openCardProductSelectors[i];
-      if (openRoot.matches && openRoot.matches(selector)) {
-        return openRoot;
-      }
-      const nested = openRoot.querySelector(selector);
-      if (nested) return nested;
-    }
-
-    return openRoot;
-  }
-
-  function removeButtonsOutsideActiveProduct(activeProduct) {
-    const buttons = document.querySelectorAll(`.${WIDGET_CONFIG.buttonClass}`);
-    buttons.forEach((btn) => {
-      if (!activeProduct || !activeProduct.contains(btn)) {
-        btn.remove();
-      }
-    });
-  }
-
-  function isInsideOpenCard(element) {
-    if (!element || !element.closest) return false;
-    return Boolean(element.closest(WIDGET_CONFIG.openCardSelector));
-  }
-
-  function resolveFirstPhotoElement(contextElement) {
-    const openRoot = getOpenCardRoot(contextElement);
-    if (!openRoot) return null;
-
-    for (let i = 0; i < WIDGET_CONFIG.firstPhotoSelectors.length; i++) {
-      const selector = WIDGET_CONFIG.firstPhotoSelectors[i];
-      const candidate = openRoot.querySelector(selector);
-      if (candidate && resolveImageSourceFromElement(candidate)) {
-        return candidate;
-      }
-    }
-
-    return resolveImageElement(openRoot);
-  }
-
-  function shouldRenderForProduct(productElement) {
-    if (!WIDGET_CONFIG.onlyOpenCardFirstImage) return true;
-    const activeProduct = resolveOpenProductElement(productElement);
-    return Boolean(activeProduct && activeProduct === productElement);
-  }
-
-  function resolveImageElement(productElement) {
-    if (!productElement) return null;
-
-    if (productElement.matches) {
-      for (let i = 0; i < WIDGET_CONFIG.imageSelectors.length; i++) {
-        const selector = WIDGET_CONFIG.imageSelectors[i];
-        if (productElement.matches(selector) && resolveImageSourceFromElement(productElement)) {
-          return productElement;
-        }
-      }
-    }
-
-    for (let i = 0; i < WIDGET_CONFIG.imageSelectors.length; i++) {
-      const selector = WIDGET_CONFIG.imageSelectors[i];
-      const candidates = productElement.querySelectorAll(selector);
-      for (let j = 0; j < candidates.length; j++) {
-        const candidate = candidates[j];
-        if (resolveImageSourceFromElement(candidate)) {
-          return candidate;
-        }
-      }
-    }
-
-    return null;
-  }
-
-  function resolveProductName(productElement, imageElement) {
-    const attrName = getAttrValue(productElement, WIDGET_CONFIG.nameAttribute);
-    if (attrName) return attrName;
-
-    const selectorName = readTextBySelectors(productElement, WIDGET_CONFIG.nameSelectors);
-    if (selectorName) return selectorName;
-
-    const alt = imageElement ? textOrEmpty(imageElement.getAttribute("alt")) : "";
-    if (alt) return alt;
-
-    return "Product";
-  }
-
-  function resolveProductPrice(productElement) {
-    const attrPrice = getAttrValue(productElement, WIDGET_CONFIG.priceAttribute);
-    if (attrPrice) return attrPrice;
-
-    const selectorPrice = readTextBySelectors(productElement, WIDGET_CONFIG.priceSelectors);
-    if (selectorPrice) return selectorPrice;
-
-    const dataPrice =
-      getAttrValue(productElement, "data-price") ||
-      getAttrValue(productElement, "data-product-price");
-    if (dataPrice) return dataPrice;
-
-    return "";
-  }
-
-  function hydrateProductElement(productElement) {
-    if (!productElement) return;
-
-    if (!productElement.hasAttribute("data-fitting-product")) {
-      productElement.setAttribute("data-fitting-product", "true");
-    }
-
-    const imageElement = resolveImageElement(productElement);
-    if (imageElement && !imageElement.hasAttribute(WIDGET_CONFIG.imageAttribute)) {
-      imageElement.setAttribute(WIDGET_CONFIG.imageAttribute, "true");
-    }
-
-    if (!productElement.hasAttribute(WIDGET_CONFIG.nameAttribute)) {
-      const name = resolveProductName(productElement, imageElement);
-      if (name) {
-        productElement.setAttribute(WIDGET_CONFIG.nameAttribute, name);
-      }
-    }
-
-    if (!productElement.hasAttribute(WIDGET_CONFIG.priceAttribute)) {
-      const price = resolveProductPrice(productElement);
-      if (price) {
-        productElement.setAttribute(WIDGET_CONFIG.priceAttribute, price);
-      }
-    }
-  }
-
-  function collectProducts(rootNode) {
-    const root = rootNode && rootNode.nodeType === 1 ? rootNode : document;
-    const products = [];
-    const seen = new Set();
-
-    for (let i = 0; i < WIDGET_CONFIG.productSelectors.length; i++) {
-      const selector = WIDGET_CONFIG.productSelectors[i];
-      const elements = root.querySelectorAll(selector);
-      for (let j = 0; j < elements.length; j++) {
-        const el = elements[j];
-        if (!seen.has(el)) {
-          seen.add(el);
-          products.push(el);
-        }
-      }
-    }
-
-    return products;
-  }
-
-  function processProducts(rootNode) {
-    if (WIDGET_CONFIG.onlyOpenCardFirstImage) {
-      const activeProduct = resolveOpenProductElement(rootNode);
-      removeButtonsOutsideActiveProduct(activeProduct);
-      if (!activeProduct) return 0;
-      hydrateProductElement(activeProduct);
-      createButton(activeProduct);
-      return 1;
-    }
-
-    const products = collectProducts(rootNode);
-    products.forEach((product) => {
-      if (!shouldRenderForProduct(product)) return;
-      hydrateProductElement(product);
-      createButton(product);
-    });
-    return products.length;
-  }
-
-  function scheduleProcessProducts() {
-    if (productsProcessQueued) return;
-    productsProcessQueued = true;
-    requestAnimationFrame(() => {
-      productsProcessQueued = false;
-      processProducts(document);
-    });
-  }
-
   function openWidget(productData) {
     currentProduct = productData;
 
@@ -734,19 +409,22 @@
   }
 
   function extractProductData(productElement) {
-    const imageElement = resolveImageElement(productElement);
+    const imageElement = productElement.querySelector(
+      WIDGET_CONFIG.imageSelector,
+    );
 
     if (!imageElement) {
       console.warn("Virtual Fitting: Image not found in product element");
       return null;
     }
 
-    const imageSrc =
-      readImageCandidateAttr(productElement) ||
-      readImageCandidateAttr(imageElement) ||
-      resolveImageSourceFromElement(imageElement);
-    const name = resolveProductName(productElement, imageElement);
-    const price = resolveProductPrice(productElement);
+    const imageSrc = imageElement.src || imageElement.getAttribute("data-src");
+    const name =
+      productElement.getAttribute(WIDGET_CONFIG.nameAttribute) ||
+      imageElement.getAttribute("alt") ||
+      "Product";
+    const price =
+      productElement.getAttribute(WIDGET_CONFIG.priceAttribute) || "";
 
     if (!imageSrc) {
       console.warn("Virtual Fitting: Image source not found");
@@ -761,8 +439,6 @@
   }
 
   function createButton(productElement) {
-    if (!shouldRenderForProduct(productElement)) return;
-
     const existingButton = productElement.querySelector(
       `.${WIDGET_CONFIG.buttonClass}`,
     );
@@ -797,25 +473,22 @@
     const imageElement = productElement.querySelector(
       WIDGET_CONFIG.imageSelector,
     );
-    const firstPhotoElement =
-      WIDGET_CONFIG.onlyOpenCardFirstImage ? resolveFirstPhotoElement(productElement) : null;
-    const targetImageElement = firstPhotoElement || imageElement || resolveImageElement(productElement);
-    if (targetImageElement && targetImageElement.parentNode) {
-      const hostElement = targetImageElement.parentNode;
-      const hostStyle = window.getComputedStyle(hostElement);
-      if (hostStyle.position === "static") {
-        hostElement.style.position = "relative";
-      }
-      console.log("imageElement.nextSibling :>> ", targetImageElement.nextSibling);
-      hostElement.insertBefore(button, targetImageElement.nextSibling);
+    if (imageElement && imageElement.parentNode) {
+      console.log("imageElement.nextSibling :>> ", imageElement.nextSibling);
+      imageElement.parentNode.insertBefore(button, imageElement.nextSibling);
     } else {
       productElement.appendChild(button);
     }
   }
 
   function initButtons() {
-    const count = processProducts(document);
-    console.log(`Virtual Fitting: Initialized ${count} buttons`);
+    const products = document.querySelectorAll(WIDGET_CONFIG.productSelector);
+
+    products.forEach((product) => {
+      createButton(product);
+    });
+
+    console.log(`Virtual Fitting: Initialized ${products.length} buttons`);
   }
 
   function setupMessageListener() {
@@ -886,34 +559,17 @@
   function observeDOM() {
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
-        if (mutation.type === "attributes") {
-          const target = mutation.target;
-          if (
-            target &&
-            target.nodeType === 1 &&
-            target.matches &&
-            target.matches(".t-popup_show, .t-store__prod-popup, .t-store__prod-popup_showed, .js-store-prod-all, .js-product-single-wrapper")
-          ) {
-            scheduleProcessProducts();
-          }
-          return;
-        }
-
         mutation.addedNodes.forEach((node) => {
           if (node.nodeType === 1) {
-            if (node.matches) {
-              for (let i = 0; i < WIDGET_CONFIG.productSelectors.length; i++) {
-                const selector = WIDGET_CONFIG.productSelectors[i];
-                if (node.matches(selector)) {
-                  if (shouldRenderForProduct(node)) {
-                    hydrateProductElement(node);
-                    createButton(node);
-                  }
-                  break;
-                }
-              }
+            if (node.matches && node.matches(WIDGET_CONFIG.productSelector)) {
+              createButton(node);
             }
-            processProducts(node);
+            const products =
+              node.querySelectorAll &&
+              node.querySelectorAll(WIDGET_CONFIG.productSelector);
+            if (products) {
+              products.forEach((product) => createButton(product));
+            }
           }
         });
       });
@@ -922,15 +578,7 @@
     observer.observe(document.body, {
       childList: true,
       subtree: true,
-      attributes: true,
-      attributeFilter: ["class", "style"],
     });
-
-    processProducts(document);
-
-    document.addEventListener("click", function () {
-      scheduleProcessProducts();
-    }, true);
   }
 
   function init() {
