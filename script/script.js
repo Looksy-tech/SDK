@@ -584,7 +584,7 @@
     if (!element || !element.closest) return false;
 
     const popupContext = element.closest(
-      ".t-store__prod-popup, .js-store-prod-all, .js-product-single-wrapper",
+      ".t-store__prod-popup, .js-store-prod-all, .js-product-single-wrapper, .t-popup_show",
     );
     if (!popupContext) return false;
 
@@ -592,7 +592,20 @@
       ".js-product-name, .js-product-price, .js-store-prod-name, .js-store-prod-price-val, .t-store__prod-popup__title, .t-store__prod-popup__price, [data-product-price], [data-price]",
     );
 
-    return Boolean(productMeta);
+    const productSliderSignals = popupContext.querySelector(
+      ".t-store__prod-popup__slider, .t-slds__item_active .js-product-img, .t-slds__item_active .t-bgimg, .t-slds__imgwrapper[data-img-zoom-url], .t-slds__item [data-img-zoom-url]",
+    );
+
+    return Boolean(productMeta || productSliderSignals);
+  }
+
+  function hasOpenProductPopup() {
+    return Boolean(
+      document.querySelector(WIDGET_CONFIG.openCardSelector) ||
+      document.querySelector(
+        ".t-popup_show .t-store__prod-popup, .t-popup_show .js-store-prod-all, .t-popup_show .js-product-single-wrapper, .t-popup_show .t-slds__item_active .t-bgimg, .t-popup_show .t-slds__item_active .js-product-img",
+      ),
+    );
   }
 
   function hasTildaPopupStructure(contextElement) {
@@ -817,8 +830,13 @@
   function processProducts(rootNode) {
     if (WIDGET_CONFIG.onlyOpenCardFirstImage && isTildaStorefront()) {
       const activeProduct = resolveOpenProductElement(document);
+      if (!activeProduct) {
+        if (!hasOpenProductPopup()) {
+          removeButtonsOutsideActiveProduct(null);
+        }
+        return 0;
+      }
       removeButtonsOutsideActiveProduct(activeProduct);
-      if (!activeProduct) return 0;
       hydrateProductElement(activeProduct);
       createButton(activeProduct);
       return 1;
