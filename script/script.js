@@ -130,6 +130,7 @@
   const MINIMIZED_CLASS = "virtual-fitting-minimized";
   const TOGGLE_BTN_ID = "virtual-fitting-toggle-btn";
   const CONTAINER_ID = "virtual-fitting-minimizer";
+  const PRODUCT_BTN_ATTR = "data-virtual-fitting-product-btn";
 
   function minimizeWidget() {
     if (!overlay) return;
@@ -1027,11 +1028,14 @@
     if (!shouldRenderForProduct(productElement)) return;
     if (!isValidProductElement(productElement)) return;
 
-    const existingButton = productElement.querySelector(`.${WIDGET_CONFIG.buttonClass}`);
+    const existingButton = document.querySelector(
+      `.${WIDGET_CONFIG.buttonClass}[${PRODUCT_BTN_ATTR}="true"]`,
+    );
 
     const button = document.createElement("button");
     button.className = WIDGET_CONFIG.buttonClass;
     button.type = "button";
+    button.setAttribute(PRODUCT_BTN_ATTR, "true");
 
     // Добавляем иконку
     const icon = document.createElement("img");
@@ -1049,7 +1053,6 @@
       e.stopPropagation();
 
       const productData = extractProductData(productElement);
-      console.log("productData :>> ", productData);
       if (productData) {
         openWidget(productData);
       }
@@ -1077,7 +1080,6 @@
         return;
       }
 
-      console.log("imageElement.nextSibling :>> ", targetImageElement.nextSibling);
       hostElement.appendChild(button);
     } else {
       if (existingButton) return;
