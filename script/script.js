@@ -564,6 +564,9 @@
       document.querySelector(".t-popup_show .t-store__prod-popup .t-slds__item_active .js-product-img") ||
       document.querySelector(".t-popup_show .t-store__prod-popup .t-slds__item_active .t-bgimg") ||
       document.querySelector(".t-popup_show .t-store__prod-popup .t-slds__item_active .t-slds__bgimg") ||
+      document.querySelector(".t-popup_show .t-slds__item_active .js-product-img") ||
+      document.querySelector(".t-popup_show .t-slds__item_active .t-bgimg") ||
+      document.querySelector(".t-popup_show .t-slds__item_active .t-slds__bgimg") ||
       document.querySelector(".js-store-prod-all .t-slds__item_active .js-product-img") ||
       document.querySelector(".js-store-prod-all .t-slds__item_active .t-bgimg") ||
       document.querySelector(".js-store-prod-all .t-slds__item_active .t-slds__bgimg");
@@ -609,7 +612,11 @@
       ".t-store__prod-popup__slider, .t-slds__item_active .js-product-img, .t-slds__item_active .t-bgimg, .t-slds__imgwrapper[data-img-zoom-url], .t-slds__item [data-img-zoom-url]",
     );
 
-    return Boolean(productMeta || (storeContainerHint && productSliderSignals));
+    const activeProductSliderSignals = popupContext.querySelector(
+      ".t-slds__item_active .t-slds__imgwrapper[data-img-zoom-url] .js-product-img, .t-slds__item_active .t-slds__imgwrapper[data-img-zoom-url] .t-bgimg, .t-slds__item_active .t-slds__imgwrapper[data-img-zoom-url] .t-slds__bgimg",
+    );
+
+    return Boolean(productMeta || activeProductSliderSignals || (storeContainerHint && productSliderSignals));
   }
 
   function hasOpenProductPopup() {
