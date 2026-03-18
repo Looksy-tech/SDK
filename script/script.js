@@ -935,7 +935,7 @@
 
   function processProducts(rootNode) {
     if (isTildaPopupOnlyMode()) {
-      const activeProduct = resolveOpenProductElement(document);
+      const activeProduct = resolveOpenProductElement(document) || resolveFallbackProductElement();
       if (!activeProduct) {
         if (!hasOpenProductPopup()) {
           removeButtonsOutsideActiveProduct(null);
@@ -966,6 +966,18 @@
     return products.length;
   }
 
+  function resolveFallbackProductElement() {
+    return (
+      document.querySelector(".t-popup_show .js-store-prod-all") ||
+      document.querySelector(".t-popup_show .js-product-single-wrapper") ||
+      document.querySelector(".t-popup_show .t-store__prod-popup") ||
+      document.querySelector(".js-store-prod-all") ||
+      document.querySelector(".js-product-single-wrapper") ||
+      document.querySelector(".t-store__prod-popup") ||
+      null
+    );
+  }
+
   function scheduleProcessProducts() {
     if (productsProcessQueued || productsProcessTimer) return;
     productsProcessQueued = true;
@@ -984,6 +996,9 @@
       return;
     }
 
+    // Рендерим сразу, чтобы не пропустить момент после открытия карточки.
+    createButton(productElement);
+
     if (buttonRenderTimer) {
       window.clearTimeout(buttonRenderTimer);
       buttonRenderTimer = null;
@@ -991,7 +1006,8 @@
 
     buttonRenderTimer = window.setTimeout(() => {
       buttonRenderTimer = null;
-      createButton(productElement);
+      const stableProduct = resolveOpenProductElement(document) || productElement;
+      createButton(stableProduct);
     }, BUTTON_RENDER_DELAY_MS);
   }
 
