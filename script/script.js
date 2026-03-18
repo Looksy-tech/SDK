@@ -28,7 +28,7 @@
     priceAttribute: "data-fitting-price",
     imageAttribute: "data-fitting-image",
     onlyOpenCardFirstImage: true,
-    openCardSelector: ".t-popup_show, .t-store__prod-popup.t-popup_show, .t-store__prod-popup_showed",
+    openCardSelector: ".t-popup_show, .t-store__prod-popup.t-popup_show, .t-store__prod-popup_showed, .t-popup",
     openCardProductSelectors: [
       ".js-store-prod-all",
       ".js-product-single-wrapper",
@@ -509,19 +509,37 @@
   }
 
   function resolveOpenProductElement(contextElement) {
+    const roots = [];
+    const context = contextElement && contextElement.nodeType === 1 ? contextElement : null;
     const openRoot = getOpenCardRoot(contextElement);
-    if (!openRoot || !isElementVisible(openRoot)) return null;
+    if (openRoot) roots.push(openRoot);
 
-    for (let i = 0; i < WIDGET_CONFIG.openCardProductSelectors.length; i++) {
-      const selector = WIDGET_CONFIG.openCardProductSelectors[i];
-      if (openRoot.matches && openRoot.matches(selector)) {
-        return openRoot;
+    if (context && context.closest) {
+      const contextualRoot = context.closest(
+        ".js-store-prod-all, .js-product-single-wrapper, .t-store__prod-popup, .t-popup, .t-slds__item_active",
+      );
+      if (contextualRoot && roots.indexOf(contextualRoot) === -1) {
+        roots.push(contextualRoot);
       }
-      const nested = openRoot.querySelector(selector);
-      if (nested) return nested;
     }
 
-    return openRoot;
+    for (let r = 0; r < roots.length; r++) {
+      const root = roots[r];
+      if (!root || !isElementVisible(root)) continue;
+
+      for (let i = 0; i < WIDGET_CONFIG.openCardProductSelectors.length; i++) {
+        const selector = WIDGET_CONFIG.openCardProductSelectors[i];
+        if (root.matches && root.matches(selector)) {
+          return root;
+        }
+        const nested = root.querySelector(selector);
+        if (nested) return nested;
+      }
+
+      return root;
+    }
+
+    return null;
   }
 
   function hasTildaPopupStructure(contextElement) {
@@ -570,7 +588,9 @@
   }
 
   function resolveFirstPhotoElement(contextElement) {
-    const openRoot = getOpenCardRoot(contextElement);
+    const openRoot =
+      getOpenCardRoot(contextElement) ||
+      (contextElement && contextElement.nodeType === 1 ? contextElement : null);
     if (!openRoot) return null;
 
     for (let i = 0; i < WIDGET_CONFIG.firstPhotoSelectors.length; i++) {
