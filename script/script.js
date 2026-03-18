@@ -519,6 +519,29 @@
     return openRoot;
   }
 
+  function hasTildaPopupStructure(contextElement) {
+    const context = contextElement && contextElement.nodeType === 1 ? contextElement : document;
+    const tildaPopupSelectors = [
+      ".t-store__prod-popup",
+      ".t-popup",
+      ".js-store-prod-all",
+      ".js-product-single-wrapper",
+    ];
+
+    for (let i = 0; i < tildaPopupSelectors.length; i++) {
+      const selector = tildaPopupSelectors[i];
+      if (context.matches && context.matches(selector)) return true;
+      if (context.querySelector && context.querySelector(selector)) return true;
+    }
+
+    return false;
+  }
+
+  function isOpenCardModeActive(contextElement) {
+    if (!WIDGET_CONFIG.onlyOpenCardFirstImage) return false;
+    return hasTildaPopupStructure(contextElement);
+  }
+
   function removeButtonsOutsideActiveProduct(activeProduct) {
     const buttons = document.querySelectorAll(`.${WIDGET_CONFIG.buttonClass}`);
     buttons.forEach((btn) => {
@@ -549,7 +572,7 @@
   }
 
   function shouldRenderForProduct(productElement) {
-    if (!WIDGET_CONFIG.onlyOpenCardFirstImage) return true;
+    if (!isOpenCardModeActive(productElement)) return true;
     const activeProduct = resolveOpenProductElement(productElement);
     return Boolean(activeProduct && activeProduct === productElement);
   }
@@ -656,7 +679,7 @@
   }
 
   function processProducts(rootNode) {
-    if (WIDGET_CONFIG.onlyOpenCardFirstImage) {
+    if (isOpenCardModeActive(rootNode)) {
       const activeProduct = resolveOpenProductElement(rootNode);
       removeButtonsOutsideActiveProduct(activeProduct);
       if (!activeProduct) return 0;
@@ -798,7 +821,7 @@
       WIDGET_CONFIG.imageSelector,
     );
     const firstPhotoElement =
-      WIDGET_CONFIG.onlyOpenCardFirstImage ? resolveFirstPhotoElement(productElement) : null;
+      isOpenCardModeActive(productElement) ? resolveFirstPhotoElement(productElement) : null;
     const targetImageElement = firstPhotoElement || imageElement || resolveImageElement(productElement);
     if (targetImageElement && targetImageElement.parentNode) {
       const hostElement = targetImageElement.parentNode;
