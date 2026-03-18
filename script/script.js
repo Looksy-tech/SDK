@@ -126,6 +126,7 @@
   let overlay = null;
   let currentProduct = null;
   let productsProcessQueued = false;
+  let productsProcessTimer = null;
 
   const MINIMIZED_CLASS = "virtual-fitting-minimized";
   const TOGGLE_BTN_ID = "virtual-fitting-toggle-btn";
@@ -939,12 +940,13 @@
   }
 
   function scheduleProcessProducts() {
-    if (productsProcessQueued) return;
+    if (productsProcessQueued || productsProcessTimer) return;
     productsProcessQueued = true;
-    requestAnimationFrame(() => {
+    productsProcessTimer = window.setTimeout(() => {
       productsProcessQueued = false;
+      productsProcessTimer = null;
       processProducts(document);
-    });
+    }, 90);
   }
 
   function openWidget(productData) {
@@ -1160,46 +1162,33 @@
   function observeDOM() {
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
-        if (mutation.type === "attributes") {
-          const target = mutation.target;
-          if (
-            target &&
-            target.nodeType === 1 &&
-            target.matches &&
-            target.matches(
-              ".t-popup_show, .t-store__prod-popup, .t-store__prod-popup_showed, .js-store-prod-all, .js-product-single-wrapper, .t-slds__item, .t-slds__items-wrapper, .t-slds__imgwrapper, .js-product-img, .t-bgimg",
-            )
-          ) {
-            scheduleProcessProducts();
-          }
-          return;
-        }
+        if (mutation.type !== "childList") return;
 
+        let shouldReprocess = false;
         mutation.addedNodes.forEach((node) => {
-          if (node.nodeType === 1) {
-            if (node.matches) {
-              for (let i = 0; i < WIDGET_CONFIG.productSelectors.length; i++) {
-                const selector = WIDGET_CONFIG.productSelectors[i];
-                if (node.matches(selector)) {
-                  if (shouldRenderForProduct(node)) {
-                    hydrateProductElement(node);
-                    createButton(node);
-                  }
-                  break;
-                }
-              }
-            }
-            processProducts(node);
+          if (shouldReprocess || node.nodeType !== 1) return;
+          const el = node;
+          if (
+            (el.matches && el.matches(
+              ".t-popup_show, .t-store__prod-popup, .t-store__prod-popup_showed, .js-store-prod-all, .js-product-single-wrapper, .t-slds__item, .t-slds__items-wrapper, .t-slds__imgwrapper, .js-product-img, .t-bgimg",
+            )) ||
+            (el.querySelector && el.querySelector(
+              ".t-popup_show, .t-store__prod-popup, .t-store__prod-popup_showed, .js-store-prod-all, .js-product-single-wrapper, .t-slds__item, .t-slds__items-wrapper, .t-slds__imgwrapper, .js-product-img, .t-bgimg",
+            ))
+          ) {
+            shouldReprocess = true;
           }
         });
+
+        if (shouldReprocess) {
+          scheduleProcessProducts();
+        }
       });
     });
 
     observer.observe(document.body, {
       childList: true,
       subtree: true,
-      attributes: true,
-      attributeFilter: ["class", "style", "aria-hidden", "data-slider-pos"],
     });
 
     processProducts(document);
