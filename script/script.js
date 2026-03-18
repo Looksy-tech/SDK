@@ -14,9 +14,17 @@
   // Получаем shopToken из data-атрибута текущего скрипта
   const currentScript = document.currentScript;
   const SHOP_TOKEN = currentScript?.getAttribute('data-shop-token') || '';
+  const DEBUG_MODE = currentScript?.getAttribute("data-debug") === "true";
 
   if (!SHOP_TOKEN) {
     console.error('[Looksy] Missing data-shop-token attribute on script tag');
+  }
+
+  function debugLog() {
+    if (!DEBUG_MODE) return;
+    const args = Array.prototype.slice.call(arguments);
+    args.unshift("[Looksy]");
+    console.log.apply(console, args);
   }
 
   const WIDGET_CONFIG = {
@@ -36,6 +44,8 @@
       ".t-store__prod-popup",
       ".t-store__prod-popup__container",
       ".t-store__prod-popup__content",
+      ".js-store-product",
+      ".t-store__product-snippet",
     ],
     productContainerSelectors: [
       "[data-fitting-product]",
@@ -44,6 +54,8 @@
       ".t-store__prod-popup",
       ".t-store__prod-popup__container",
       ".t-store__prod-popup__content",
+      ".js-store-product",
+      ".t-store__product-snippet",
       ".t-store__card",
       ".js-product",
       ".js-product-wrapper",
@@ -74,6 +86,8 @@
       ".js-product-wrapper",
       ".js-product-single-wrapper",
       ".t-store__prod-popup__content",
+      ".js-store-product",
+      ".t-store__product-snippet",
     ],
     imageSelectors: [
       "img[data-fitting-image]",
@@ -573,7 +587,7 @@
 
     if (context && context.closest) {
       const contextualRoot = context.closest(
-        ".js-store-prod-all, .js-product-single-wrapper, .t-store__prod-popup, .t-popup_show",
+        ".js-store-prod-all, .js-product-single-wrapper, .t-store__prod-popup, .t-popup_show, .js-store-product, .t-store__product-snippet",
       );
       if (contextualRoot && roots.indexOf(contextualRoot) === -1) {
         roots.push(contextualRoot);
@@ -610,13 +624,19 @@
       document.querySelector(".t-popup_show .t-slds__item_active .js-product-img") ||
       document.querySelector(".t-popup_show .t-slds__item_active .t-bgimg") ||
       document.querySelector(".t-popup_show .t-slds__item_active .t-slds__bgimg") ||
+      document.querySelector(".js-store-product .t-slds__item_active .js-product-img") ||
+      document.querySelector(".js-store-product .t-slds__item_active .t-bgimg") ||
+      document.querySelector(".js-store-product .t-slds__item_active .t-slds__bgimg") ||
+      document.querySelector(".t-store__product-snippet .t-slds__item_active .js-product-img") ||
+      document.querySelector(".t-store__product-snippet .t-slds__item_active .t-bgimg") ||
+      document.querySelector(".t-store__product-snippet .t-slds__item_active .t-slds__bgimg") ||
       document.querySelector(".js-store-prod-all .t-slds__item_active .js-product-img") ||
       document.querySelector(".js-store-prod-all .t-slds__item_active .t-bgimg") ||
       document.querySelector(".js-store-prod-all .t-slds__item_active .t-slds__bgimg");
 
     if (activeSlideImage && isElementVisible(activeSlideImage)) {
       const activeSliderContext = activeSlideImage.closest(
-        ".js-store-prod-all, .js-product-single-wrapper, .t-store__prod-popup, .t-store__prod-popup__slider, .t-slds__items-wrapper, .t-popup_show",
+        ".js-store-prod-all, .js-product-single-wrapper, .t-store__prod-popup, .t-store__prod-popup__slider, .t-slds__items-wrapper, .t-popup_show, .js-store-product, .t-store__product-snippet",
       );
       if (
         activeSliderContext &&
@@ -634,16 +654,16 @@
     if (!element || !element.closest) return false;
 
     const popupContext = element.closest(
-      ".t-store__prod-popup, .js-store-prod-all, .js-product-single-wrapper, .t-popup_show",
+      ".t-store__prod-popup, .js-store-prod-all, .js-product-single-wrapper, .t-popup_show, .js-store-product, .t-store__product-snippet",
     );
     if (!popupContext) return false;
 
     const storeContainerHint =
       (popupContext.matches &&
-        popupContext.matches(".t-store__prod-popup, .js-store-prod-all, .js-product-single-wrapper")) ||
+        popupContext.matches(".t-store__prod-popup, .js-store-prod-all, .js-product-single-wrapper, .js-store-product, .t-store__product-snippet")) ||
       Boolean(
         popupContext.querySelector(
-          ".t-store__prod-popup, .js-store-prod-all, .js-product-single-wrapper",
+          ".t-store__prod-popup, .js-store-prod-all, .js-product-single-wrapper, .js-store-product, .t-store__product-snippet",
         ),
       );
 
@@ -673,6 +693,8 @@
       ".t-popup",
       ".js-store-prod-all",
       ".js-product-single-wrapper",
+      ".js-store-product",
+      ".t-store__product-snippet",
     ];
 
     for (let i = 0; i < tildaPopupSelectors.length; i++) {
@@ -687,7 +709,7 @@
   function isTildaStorefront() {
     return Boolean(
       document.querySelector(
-        ".t-store__card, .t-store__parts-switch-wrapper, .t-store__prod-popup, .js-store-prod-all, .js-product-single-wrapper",
+        ".t-store__card, .t-store__parts-switch-wrapper, .t-store__prod-popup, .js-store-prod-all, .js-product-single-wrapper, .js-store-product, .t-store__product-snippet",
       ),
     );
   }
@@ -935,14 +957,21 @@
   }
 
   function processProducts(rootNode) {
+    debugLog("processProducts:start", {
+      isTildaPopupOnlyMode: isTildaPopupOnlyMode(),
+      rootNodeType: rootNode && rootNode.nodeType,
+    });
+
     if (isTildaPopupOnlyMode()) {
       const activeProduct = resolveOpenProductElement(document) || resolveFallbackProductElement();
       if (!activeProduct) {
+        debugLog("processProducts:no-active-product");
         if (!hasOpenProductPopup()) {
           removeButtonsOutsideActiveProduct(null);
         }
         return 0;
       }
+      debugLog("processProducts:active-product-found");
       removeButtonsOutsideActiveProduct(activeProduct);
       hydrateProductElement(activeProduct);
       scheduleCreateButton(activeProduct);
@@ -972,6 +1001,8 @@
       document.querySelector(".t-popup_show .js-store-prod-all") ||
       document.querySelector(".t-popup_show .js-product-single-wrapper") ||
       document.querySelector(".t-popup_show .t-store__prod-popup") ||
+      document.querySelector(".js-store-product") ||
+      document.querySelector(".t-store__product-snippet") ||
       document.querySelector(".js-store-prod-all") ||
       document.querySelector(".js-product-single-wrapper") ||
       document.querySelector(".t-store__prod-popup") ||
@@ -991,6 +1022,9 @@
 
   function scheduleCreateButton(productElement) {
     if (!productElement) return;
+    debugLog("scheduleCreateButton", {
+      tildaMode: isTildaPopupOnlyMode(),
+    });
 
     if (!isTildaPopupOnlyMode()) {
       createButton(productElement);
@@ -1008,6 +1042,7 @@
     buttonRenderTimer = window.setTimeout(() => {
       buttonRenderTimer = null;
       const stableProduct = resolveOpenProductElement(document) || productElement;
+      debugLog("scheduleCreateButton:delayed-render");
       createButton(stableProduct);
     }, BUTTON_RENDER_DELAY_MS);
   }
@@ -1124,6 +1159,7 @@
   function createButton(productElement) {
     if (!shouldRenderForProduct(productElement)) return;
     if (!isValidProductElement(productElement)) return;
+    debugLog("createButton:initialized");
 
     const existingButton = isTildaPopupOnlyMode()
       ? document.querySelector(`.${WIDGET_CONFIG.buttonClass}[${PRODUCT_BTN_ATTR}="true"]`)
@@ -1175,14 +1211,17 @@
       if (existingButton) {
         if (existingButton.parentNode !== hostElement) {
           hostElement.appendChild(existingButton);
+          debugLog("createButton:moved-existing");
         }
         return;
       }
 
       hostElement.appendChild(button);
+      debugLog("createButton:appended-new");
     } else {
       if (existingButton) return;
       productElement.appendChild(button);
+      debugLog("createButton:appended-fallback");
     }
   }
 
