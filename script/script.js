@@ -455,6 +455,16 @@
     return "";
   }
 
+  function readTextBySelectorsFromContexts(contexts, selectors) {
+    for (let i = 0; i < contexts.length; i++) {
+      const ctx = contexts[i];
+      if (!ctx || !ctx.querySelector) continue;
+      const value = readTextBySelectors(ctx, selectors);
+      if (value) return value;
+    }
+    return "";
+  }
+
   function getAttrValue(el, attrName) {
     if (!el || !attrName) return "";
     return textOrEmpty(el.getAttribute(attrName));
@@ -768,30 +778,57 @@
     return productElement;
   }
 
+  function getProductDataContexts(productElement) {
+    const contexts = [];
+    const seen = new Set();
+
+    function pushContext(ctx) {
+      if (!ctx || !ctx.nodeType || seen.has(ctx)) return;
+      seen.add(ctx);
+      contexts.push(ctx);
+    }
+
+    pushContext(productElement);
+    pushContext(resolveOpenProductElement(productElement));
+    pushContext(getOpenCardRoot(productElement));
+    if (productElement && productElement.closest) {
+      pushContext(productElement.closest(".js-store-prod-all, .js-product-single-wrapper, .t-store__prod-popup"));
+    }
+
+    return contexts;
+  }
+
   function resolveProductName(productElement, imageElement) {
+    const contexts = getProductDataContexts(productElement);
+
     const attrName = getAttrValue(productElement, WIDGET_CONFIG.nameAttribute);
     if (attrName) return attrName;
 
-    const selectorName = readTextBySelectors(productElement, WIDGET_CONFIG.nameSelectors);
+    const selectorName = readTextBySelectorsFromContexts(contexts, WIDGET_CONFIG.nameSelectors);
     if (selectorName) return selectorName;
 
     const alt = imageElement ? textOrEmpty(imageElement.getAttribute("alt")) : "";
     if (alt) return alt;
 
-    return "Product";
+    return "";
   }
 
   function resolveProductPrice(productElement) {
+    const contexts = getProductDataContexts(productElement);
+
     const attrPrice = getAttrValue(productElement, WIDGET_CONFIG.priceAttribute);
     if (attrPrice) return attrPrice;
 
-    const selectorPrice = readTextBySelectors(productElement, WIDGET_CONFIG.priceSelectors);
+    const selectorPrice = readTextBySelectorsFromContexts(contexts, WIDGET_CONFIG.priceSelectors);
     if (selectorPrice) return selectorPrice;
 
-    const dataPrice =
-      getAttrValue(productElement, "data-price") ||
-      getAttrValue(productElement, "data-product-price");
-    if (dataPrice) return dataPrice;
+    for (let i = 0; i < contexts.length; i++) {
+      const ctx = contexts[i];
+      const dataPrice =
+        getAttrValue(ctx, "data-price") ||
+        getAttrValue(ctx, "data-product-price");
+      if (dataPrice) return dataPrice;
+    }
 
     return "";
   }
@@ -810,7 +847,7 @@
 
     if (!productElement.hasAttribute(WIDGET_CONFIG.nameAttribute)) {
       const name = resolveProductName(productElement, imageElement);
-      if (name) {
+      if (name && name !== "Product") {
         productElement.setAttribute(WIDGET_CONFIG.nameAttribute, name);
       }
     }
@@ -947,7 +984,7 @@
       readImageCandidateAttr(productElement) ||
       readImageCandidateAttr(imageElement) ||
       resolveImageSourceFromElement(imageElement);
-    const name = resolveProductName(productElement, imageElement);
+    const name = resolveProductName(productElement, imageElement) || "Product";
     const price = resolveProductPrice(productElement);
 
     if (!imageSrc) {
