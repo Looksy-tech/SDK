@@ -9,6 +9,7 @@
   const BUTTON_TEXT = "Примерить на себе";
   const Z_INDEX = 2147483646;
   const BUTTON_RENDER_DELAY_MS = 140;
+  const ST305N_RELOAD_STEPS_MS = [120, 450, 900, 1600, 2600, 3800];
   // =====================================================
 
   // Получаем shopToken из data-атрибута текущего скрипта
@@ -125,6 +126,13 @@
       "[data-price]",
       "[data-product-price]",
     ],
+    st305nRootSelectors: [
+      ".t-store__grid-cont",
+      ".js-store-grid-cont",
+      ".t-store__card",
+      ".js-store-product",
+      ".t-store__product-snippet",
+    ],
     widgetUrl: WIDGET_URL,
     iconUrl: ICON_URL,
     buttonText: BUTTON_TEXT,
@@ -160,6 +168,7 @@
   let productsProcessTimer = null;
   let buttonRenderTimer = null;
   let startupRenderInterval = null;
+  let st305nReloadTimers = [];
 
   const MINIMIZED_CLASS = "virtual-fitting-minimized";
   const TOGGLE_BTN_ID = "virtual-fitting-toggle-btn";
@@ -714,6 +723,15 @@
     );
   }
 
+  function isST305NContext() {
+    for (let i = 0; i < WIDGET_CONFIG.st305nRootSelectors.length; i++) {
+      if (document.querySelector(WIDGET_CONFIG.st305nRootSelectors[i])) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   function isOpenCardModeActive(contextElement) {
     if (!WIDGET_CONFIG.onlyOpenCardFirstImage) return false;
     return hasTildaPopupStructure(contextElement);
@@ -1079,6 +1097,23 @@
     }, 300);
   }
 
+  function startST305NReloadRecheck() {
+    if (!isST305NContext()) return;
+
+    if (st305nReloadTimers.length) {
+      st305nReloadTimers.forEach((timerId) => window.clearTimeout(timerId));
+      st305nReloadTimers = [];
+    }
+
+    for (let i = 0; i < ST305N_RELOAD_STEPS_MS.length; i++) {
+      const delay = ST305N_RELOAD_STEPS_MS[i];
+      const timerId = window.setTimeout(() => {
+        scheduleProcessProducts();
+      }, delay);
+      st305nReloadTimers.push(timerId);
+    }
+  }
+
   function openWidget(productData) {
     currentProduct = productData;
 
@@ -1329,9 +1364,11 @@
 
     processProducts(document);
     startStartupRenderRecheck();
+    startST305NReloadRecheck();
 
     window.addEventListener("pageshow", function () {
       startStartupRenderRecheck();
+      startST305NReloadRecheck();
     });
 
     document.addEventListener("click", function () {
