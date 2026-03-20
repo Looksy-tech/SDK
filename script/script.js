@@ -1164,6 +1164,40 @@
     currentProduct = null;
   }
 
+  function isTildaSingleColor(productElement) {
+    // Tilda помечает опцию цвета атрибутом data-edition-option-id (проверено на текущих партнерах миэндми туматч)
+    var colorSelectors = [
+      '[data-edition-option-id="Цвет"] select',
+      '[data-edition-option-id="Color"] select',
+      '[data-edition-option-id="Colour"] select',
+    ];
+
+    var context = (productElement && productElement.closest &&
+      productElement.closest(".t-store__prod-popup, .js-store-prod-all, .js-product-single-wrapper")) ||
+      document;
+
+    for (var i = 0; i < colorSelectors.length; i++) {
+      var sel = context.querySelector(colorSelectors[i]);
+      if (!sel) sel = document.querySelector(colorSelectors[i]);
+      if (sel) return sel.options.length <= 1;
+    }
+
+    return false;
+  }
+
+  function findFirstImage(productElement) {
+    var selectors = WIDGET_CONFIG.firstPhotoSelectors;
+    for (var i = 0; i < selectors.length; i++) {
+      var el = document.querySelector(selectors[i]);
+      if (!el) el = productElement.querySelector(selectors[i]);
+      if (el) {
+        var src = resolveImageSourceFromElement(el);
+        if (src) return src;
+      }
+    }
+    return null;
+  }
+
   function findCurrentImage(productElement) {
     const containerRect = productElement.getBoundingClientRect();
     if (containerRect.width === 0 && containerRect.height === 0) return null;
@@ -1209,7 +1243,7 @@
     const imageSrc =
       readImageCandidateAttr(productElement) ||
       readImageCandidateAttr(imageElement) ||
-      findCurrentImage(productElement) ||
+      (isTildaSingleColor(productElement) ? findFirstImage(productElement) : findCurrentImage(productElement)) ||
       resolveImageSourceFromElement(imageElement);
     const name = resolveProductName(productElement, imageElement) || "Product";
     const price = resolveProductPrice(productElement);
