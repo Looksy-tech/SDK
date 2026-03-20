@@ -1164,6 +1164,40 @@
     currentProduct = null;
   }
 
+  function findCurrentImage(productElement) {
+    const containerRect = productElement.getBoundingClientRect();
+    if (containerRect.width === 0 && containerRect.height === 0) return null;
+
+    var candidates = productElement.querySelectorAll("img, [data-original], [data-src]");
+    var bestSrc = null;
+    var bestArea = 0;
+
+    for (var i = 0; i < candidates.length; i++) {
+      var el = candidates[i];
+      var src = resolveImageSourceFromElement(el);
+      if (!src) continue;
+
+      var rect = el.getBoundingClientRect();
+      if (rect.width === 0 || rect.height === 0) continue;
+
+      var intersects =
+        rect.right > containerRect.left &&
+        rect.left < containerRect.right &&
+        rect.bottom > containerRect.top &&
+        rect.top < containerRect.bottom;
+
+      if (!intersects) continue;
+
+      var area = rect.width * rect.height;
+      if (area > bestArea) {
+        bestArea = area;
+        bestSrc = src;
+      }
+    }
+
+    return bestSrc;
+  }
+
   function extractProductData(productElement) {
     const imageElement = resolveImageElement(productElement);
 
@@ -1175,6 +1209,7 @@
     const imageSrc =
       readImageCandidateAttr(productElement) ||
       readImageCandidateAttr(imageElement) ||
+      findCurrentImage(productElement) ||
       resolveImageSourceFromElement(imageElement);
     const name = resolveProductName(productElement, imageElement) || "Product";
     const price = resolveProductPrice(productElement);
