@@ -78,6 +78,10 @@
       ".t-store__prod-popup__slider .t-slds__item:first-child [data-original]",
       ".t-store__prod-popup__imgwrapper .t-bgimg",
       ".t-store__prod-popup__imgwrapper img",
+      ".t-slds__item:first-child .js-product-img",
+      ".t-slds__item:first-child .t-bgimg",
+      ".t-slds__item:first-child .t-slds__bgimg",
+      ".t-slds__item:first-child img",
     ],
     productSelectors: [
       "[data-fitting-product]",
@@ -1188,8 +1192,8 @@
   function findFirstImage(productElement) {
     var selectors = WIDGET_CONFIG.firstPhotoSelectors;
     for (var i = 0; i < selectors.length; i++) {
-      var el = document.querySelector(selectors[i]);
-      if (!el) el = productElement.querySelector(selectors[i]);
+      var el = (productElement && productElement.querySelector(selectors[i])) ||
+               document.querySelector(selectors[i]);
       if (el) {
         var src = resolveImageSourceFromElement(el);
         if (src) return src;
