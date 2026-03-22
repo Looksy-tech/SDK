@@ -177,6 +177,45 @@
   let currentProduct = null;
   let productsProcessQueued = false;
   let productsProcessTimer = null;
+
+  // ─── SHOP CUSTOMIZATION ──────────────────────────────────────────────────
+  // Загружается из /widget/config?shop_token=XXX при инициализации.
+  // Все значения nullable на беке — дефолты совпадают с текущим дизайном.
+  var shopConfig = {
+    button: {
+      bg_color: "#323232",
+      text_color: "#ffffff",
+      text: BUTTON_TEXT,
+      font_size: 14,
+      height: 37,
+      border_radius: 7,
+    },
+    iframe: {
+      primary_button_color: "#0a0a0b",
+      accent_color: "#7886ff",
+      widget_bg_color: "#ffffff",
+      example_good_photo_url: null,
+      example_bad_photo_url: null,
+    },
+  };
+
+  function loadShopConfig() {
+    if (!WIDGET_CONFIG.shopToken) return Promise.resolve();
+    var url = WIDGET_CONFIG.widgetUrl.replace(/\/$/, "") + "/widget/config?shop_token=" + encodeURIComponent(WIDGET_CONFIG.shopToken);
+    return fetch(url)
+      .then(function(response) {
+        if (response.ok) return response.json();
+      })
+      .then(function(data) {
+        if (data && data.button && data.iframe) {
+          shopConfig = data;
+        }
+      })
+      .catch(function() {
+        // Не удалось загрузить — используем дефолты
+      });
+  }
+  // ─────────────────────────────────────────────────────────────────────────
   let buttonRenderTimer = null;
   let startupRenderInterval = null;
   let st305nReloadTimers = [];
@@ -259,12 +298,12 @@
         align-items: center;
         justify-content: center;
         padding: 8px 8px;
-        background: #323232;
-        height: 37px;
-        color: #fff;
+        background: ${shopConfig.button.bg_color};
+        height: ${shopConfig.button.height}px;
+        color: ${shopConfig.button.text_color};
         border: none;
-        border-radius: 7px;
-        font-size: 14px;
+        border-radius: ${shopConfig.button.border_radius}px;
+        font-size: ${shopConfig.button.font_size}px;
         font-weight: 500;
         cursor: pointer;
         transition: opacity 0.2s ease;
@@ -340,8 +379,8 @@
         .${WIDGET_CONFIG.buttonClass} {
           right: 10px;
           bottom: 10px;
-          height: 34px;
-          font-size: 13px;
+          height: ${shopConfig.button.height - 3}px;
+          font-size: ${shopConfig.button.font_size - 1}px;
         }
         .${WIDGET_CONFIG.overlayClass} {
           align-items: flex-end;
@@ -1295,7 +1334,7 @@
     button.appendChild(icon);
 
     // Добавляем текст
-    const text = document.createTextNode(WIDGET_CONFIG.buttonText);
+    const text = document.createTextNode(shopConfig.button.text);
     button.appendChild(text);
 
     button.addEventListener("click", (e) => {
@@ -1366,6 +1405,10 @@
               product: currentProduct,
             });
           }
+          postMessageToIframe({
+            type: "SHOP_CONFIG",
+            config: shopConfig.iframe,
+          });
           break;
 
         case "REQUEST_PRODUCT":
@@ -1474,20 +1517,21 @@
     }, true);
   }
 
+  function initWidget() {
+    createStyles();
+    initButtons();
+    setupMessageListener();
+    observeDOM();
+  }
+
   function init() {
     createMinimizerButton();
     if (document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", function () {
-        createStyles();
-        initButtons();
-        setupMessageListener();
-        observeDOM();
+        loadShopConfig().then(initWidget);
       });
     } else {
-      createStyles();
-      initButtons();
-      setupMessageListener();
-      observeDOM();
+      loadShopConfig().then(initWidget);
     }
   }
   
