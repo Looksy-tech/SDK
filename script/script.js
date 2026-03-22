@@ -201,7 +201,7 @@
 
   function loadShopConfig() {
     if (!WIDGET_CONFIG.shopToken) return Promise.resolve();
-    var url = WIDGET_CONFIG.widgetUrl.replace(/\/$/, "") + "/widget/config?shop_token=" + encodeURIComponent(WIDGET_CONFIG.shopToken);
+    var url = WIDGET_CONFIG.widgetUrl.replace(/\/$/, "") + "/api/widget/config?shop_token=" + encodeURIComponent(WIDGET_CONFIG.shopToken);
     return fetch(url)
       .then(function(response) {
         if (response.ok) return response.json();
