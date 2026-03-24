@@ -147,6 +147,8 @@
     excludedProductNameKeywords: [
       "Сертификат",
       "Бокс",
+      "Пакет",
+      "Упаковка"
     ],
     widgetUrl: WIDGET_URL,
     iconUrl: ICON_URL,
