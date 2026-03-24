@@ -1373,7 +1373,10 @@
       e.preventDefault();
       e.stopPropagation();
 
-      const productData = extractProductData(productElement);
+      const effectiveProduct = isTildaPopupOnlyMode()
+        ? (resolveOpenProductElement(document) || productElement)
+        : productElement;
+      const productData = extractProductData(effectiveProduct);
       if (productData) {
         openWidget(productData);
       }
