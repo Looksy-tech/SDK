@@ -144,6 +144,12 @@
       ".js-store-product",
       ".t-store__product-snippet",
     ],
+    excludedProductNameKeywords: [
+      "Сертификат",
+      "Бокс",
+      "Пакет",
+      "Упаковка"
+    ],
     widgetUrl: WIDGET_URL,
     iconUrl: ICON_URL,
     buttonText: BUTTON_TEXT,
@@ -550,6 +556,10 @@
     return String(value).replace(/\s+/g, " ").trim();
   }
 
+  function normalizeForKeywordMatch(value) {
+    return textOrEmpty(value).toLocaleLowerCase("ru-RU");
+  }
+
   function readTextBySelectors(root, selectors) {
     for (let i = 0; i < selectors.length; i++) {
       const selector = selectors[i];
@@ -851,6 +861,8 @@
   }
 
   function shouldRenderForProduct(productElement) {
+    if (shouldExcludeByProductName(productElement)) return false;
+
     if (isTildaPopupOnlyMode()) {
       const activeProductInPopup = resolveOpenProductElement(document);
       return Boolean(activeProductInPopup && activeProductInPopup === productElement);
@@ -970,6 +982,25 @@
     }
 
     return "";
+  }
+
+  function shouldExcludeByProductName(productElement) {
+    const keywords = WIDGET_CONFIG.excludedProductNameKeywords || [];
+    if (!keywords.length) return false;
+
+    const imageElement = resolveImageElement(productElement);
+    const productName = normalizeForKeywordMatch(resolveProductName(productElement, imageElement));
+    if (!productName) return false;
+
+    for (let i = 0; i < keywords.length; i++) {
+      const keyword = normalizeForKeywordMatch(keywords[i]);
+      if (!keyword) continue;
+      if (productName.includes(keyword)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   function hydrateProductElement(productElement) {

@@ -2,6 +2,17 @@
 
 Встраиваемый скрипт для добавления функционала виртуальной примерки одежды на сайты e-commerce.
 
+## Навигация
+
+- [Быстрый старт](#быстрый-старт)
+- [Data-атрибуты](#data-атрибуты)
+- [Принцип работы](#принцип-работы)
+- [Примеры интеграции для популярных CMS](#примеры-интеграции-для-популярных-cms)
+- [Tilda](#tilda)
+- [Вёрстка на чистом HTML/CSS/JS](#вёрстка-на-чистом-htmlcssjs)
+- [React (для SPA)](#react-для-spa)
+- [Vue.js](#vuejs)
+
 ## Быстрый старт
 
 ### 1. Подключение скрипта
@@ -90,6 +101,24 @@ Data-атрибуты — это способ «пометить» HTML-элем
 - Идентификации вашего магазина
 - Авторизации запросов к API виджета
 - Персонализации настроек
+
+### Debug-режим
+
+Чтобы включить отладочные логи в консоли браузера, добавьте атрибут `data-debug="true"`:
+
+```html
+<script src="https://looksy.tech/min-script.js" data-shop-token="YOUR_SHOP_TOKEN" data-debug="true"></script>
+```
+
+В этом режиме скрипт пишет диагностические сообщения с префиксом `[Looksy]`.
+
+### Публичный API
+
+После загрузки доступен объект `window.VirtualFitting`:
+
+- `window.VirtualFitting.open(productData)` — открыть виджет программно;
+- `window.VirtualFitting.close()` — закрыть виджет;
+- `window.VirtualFitting.init()` — повторно пересканировать страницу и переинициализировать кнопки (полезно после динамической подгрузки товаров).
 
 ---
 
@@ -362,56 +391,83 @@ $_imageHelper = $this->helper('Magento\Catalog\Helper\Image');
 
 ## Tilda
 
-### 1. Найдите селекторы элементов
+### Важно для Tilda
 
-Селекторы в Tilda зависят от используемого блока. Чтобы найти нужные:
+Для большинства магазинов на Tilda (включая блоки ST315N, ST320N, ST305N) достаточно только подключения скрипта с `data-shop-token`.
 
-1. Откройте опубликованную страницу в браузере
-2. Нажмите `F12` (DevTools) → вкладка "Elements"
-3. Кликните на иконку выбора элемента (стрелка в квадрате) или нажмите `Ctrl+Shift+C`
-4. Наведите на карточку товара, изображение, название и цену
-5. Запишите классы каждого элемента
+Скрипт сам:
+- отслеживает изменения DOM через Observer;
+- ищет товар, изображение, название и цену по цепочке фолбэков селекторов;
+- обновляет кнопку при открытии попапа карточки и смене слайдов;
+- делает повторные проверки после загрузки и после `pageshow` (важно для переходов назад/вперёд и релоада).
 
-### 2. Через "HTML-код"
+Ручная разметка `data-fitting-*` остается доступной как fallback-режим для нестандартной верстки.
 
-Добавьте блок "T123 - HTML-код" в конец страницы и вставьте код, заменив селекторы на найденные:
+### Для владельцев сайтов на Tilda
+
+1. Подключите скрипт один раз перед закрывающим `</body>` (или в глобальном коде сайта), а не только внутри отдельной страницы.
+2. Убедитесь, что передан корректный `data-shop-token`.
+3. Опубликуйте сайт и проверьте сценарий: каталог → открытие карточки товара → первая фотография.
+4. Если на странице есть кеш или ленивые блоки, проверьте также релоад и возврат кнопкой браузера "назад".
+
+Ожидаемое поведение для Tilda storefront:
+- кнопка показывается в открытой карточке товара;
+- кнопка привязана к фото товара (в первую очередь к активному/первому слайду);
+- в каталоге без открытой карточки кнопка не должна отображаться.
+
+### Для разработчиков на Tilda
+
+#### Рекомендуемый способ подключения
 
 ```html
-<script src="https://looksy.tech/min-script.js" defer data-shop-token="YOUR_SHOP_TOKEN"></script>
+<script src="https://looksy.tech/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
+```
 
+Скрипт сам работает с типичными Tilda-структурами (`img`, `data-original`, `data-img-zoom-url`, `background-image`) и повторно обрабатывает DOM при изменениях.
+
+#### Когда использовать ручные `data-fitting-*`
+
+Используйте ручную разметку, если:
+- у вас сильно кастомный Zero Block или внешний HTML внутри Tilda;
+- название/цена рендерятся нестандартно и не находятся селекторами;
+- вы хотите полностью контролировать, где появляется кнопка.
+
+Минимальный пример ручной разметки в Tilda-блоке HTML:
+
+```html
+<div data-fitting-product data-fitting-name="Название" data-fitting-price="2990 ₽">
+  <img src="product.jpg" alt="Название" data-fitting-image />
+</div>
+```
+
+После динамической вставки товаров вручную вызовите:
+
+```html
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Замените селекторы на найденные в DevTools для вашего блока
-    const CARD_SELECTOR = '.t-store__card';           // Карточка товара
-    const IMG_SELECTOR = '.t-store__card__imgwrapper img'; // Изображение
-    const TITLE_SELECTOR = '.t-store__card__title';   // Название
-    const PRICE_SELECTOR = '.t-store__card__price';   // Цена
-
-    document.querySelectorAll(CARD_SELECTOR).forEach(function(card) {
-        const img = card.querySelector(IMG_SELECTOR);
-        const title = card.querySelector(TITLE_SELECTOR);
-        const price = card.querySelector(PRICE_SELECTOR);
-        
-        if (img) {
-            card.setAttribute('data-fitting-product', '');
-            card.setAttribute('data-fitting-name', title ? title.textContent.trim() : '');
-            card.setAttribute('data-fitting-price', price ? price.textContent.trim() : '');
-            img.setAttribute('data-fitting-image', '');
-        }
-    });
-    
+  if (window.VirtualFitting) {
     window.VirtualFitting.init();
-});
+  }
 </script>
 ```
 
-### Примеры селекторов для разных блоков Tilda
+### Чеклист диагностики Tilda
 
-| Блок | Карточка | Изображение | Название | Цена |
-|------|----------|-------------|----------|------|
-| ST100 | `.t-store__card` | `.t-store__card__imgwrapper img` | `.t-store__card__title` | `.t-store__card__price` |
-| ST200 | `.t-store__card` | `.t-store__card__img img` | `.t-store__card__title` | `.t-store__card__price-value` |
-| Zero Block | Зависит от вашей вёрстки — используйте классы, заданные вами |
+Если кнопка не появилась:
+
+1. Проверьте, что скрипт загружен на опубликованной странице (Network/Elements).
+2. Проверьте наличие `data-shop-token` в теге скрипта.
+3. Включите `data-debug="true"` и откройте консоль: должны быть логи `[Looksy]`.
+4. Проверьте, не блокирует ли кнопку кастомный слой с большим `z-index`.
+5. Если карточка/слайдер вставляются поздно кастомным кодом, после вставки вызовите `window.VirtualFitting.init()`.
+
+### Пример подключения через T123
+
+```html
+<!-- Блок T123 -> HTML-код -->
+<script src="https://looksy.tech/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
+```
+
+Рекомендуется дублировать подключение в глобальном коде сайта Tilda, если карточки товара открываются на страницах, где нет конкретного T123-блока.
 
 ## Вёрстка на чистом HTML/CSS/JS
 
