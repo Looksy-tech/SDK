@@ -1325,7 +1325,7 @@
     const imageSrc =
       readImageCandidateAttr(productElement) ||
       readImageCandidateAttr(imageElement) ||
-      (isTildaSingleColor(productElement) ? findFirstImage(productElement) : findCurrentImage(productElement)) ||
+      ((!isTildaPopupOnlyMode() && isTildaSingleColor(productElement)) ? findFirstImage(productElement) : findCurrentImage(productElement)) ||
       resolveImageSourceFromElement(imageElement);
     const name = resolveProductName(productElement, imageElement) || "Product";
     const price = resolveProductPrice(productElement);
