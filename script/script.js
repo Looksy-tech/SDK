@@ -1252,7 +1252,8 @@
     const containerRect = productElement.getBoundingClientRect();
     if (containerRect.width === 0 && containerRect.height === 0) return null;
 
-    var candidates = productElement.querySelectorAll("img, [data-original], [data-src]");
+    var activeSlide = productElement.querySelector(".t-slds__item_active");
+    var candidates = (activeSlide || productElement).querySelectorAll("img, [data-original], [data-src]");
     var bestSrc = null;
     var bestArea = 0;
 
