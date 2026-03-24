@@ -1254,12 +1254,13 @@
     ];
 
     var context = (productElement && productElement.closest &&
-      productElement.closest(".t-store__prod-popup, .js-store-prod-all, .js-product-single-wrapper")) ||
-      document;
+      productElement.closest(".t-store__prod-popup, .t-store__product-popup, .js-store-prod-all, .js-product-single-wrapper, .js-store-product")) ||
+      null;
 
     for (var i = 0; i < colorSelectors.length; i++) {
-      var sel = context.querySelector(colorSelectors[i]);
-      if (!sel) sel = document.querySelector(colorSelectors[i]);
+      var sel = context
+        ? context.querySelector(colorSelectors[i])
+        : document.querySelector(colorSelectors[i]);
       if (sel) return sel.options.length <= 1;
     }
 
@@ -1269,8 +1270,9 @@
   function findFirstImage(productElement) {
     var selectors = WIDGET_CONFIG.firstPhotoSelectors;
     for (var i = 0; i < selectors.length; i++) {
-      var el = (productElement && productElement.querySelector(selectors[i])) ||
-               document.querySelector(selectors[i]);
+      var el = productElement
+        ? productElement.querySelector(selectors[i])
+        : document.querySelector(selectors[i]);
       if (el) {
         var src = resolveImageSourceFromElement(el);
         if (src) return src;
@@ -1292,6 +1294,8 @@
       var el = candidates[i];
       var src = resolveImageSourceFromElement(el);
       if (!src) continue;
+
+      if (el.style && el.style.opacity === "0") continue;
 
       var rect = el.getBoundingClientRect();
       if (rect.width === 0 || rect.height === 0) continue;
@@ -1325,7 +1329,7 @@
     const imageSrc =
       readImageCandidateAttr(productElement) ||
       readImageCandidateAttr(imageElement) ||
-      ((!isTildaPopupOnlyMode() && isTildaSingleColor(productElement)) ? findFirstImage(productElement) : findCurrentImage(productElement)) ||
+      (isTildaSingleColor(productElement) ? findFirstImage(productElement) : findCurrentImage(productElement)) ||
       resolveImageSourceFromElement(imageElement);
     const name = resolveProductName(productElement, imageElement) || "Product";
     const price = resolveProductPrice(productElement);
