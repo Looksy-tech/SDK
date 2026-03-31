@@ -137,6 +137,17 @@
       "[data-price]",
       "[data-product-price]",
     ],
+    descriptionSelectors: [
+      ".js-store-prod-all-text",
+      ".t-store__prod-popup__description",
+      "[itemprop='description']",
+    ],
+    descriptionCutMarkers: [
+      "Размеры\n", "Размерная сетка", "Размер на модели",
+      "Состав изделия", "Состав:", "Уход\n", "Уход за изделием",
+      "OS:", "S:", "M:", "L:", "XL:",
+      "Параметры модели", "Обхват груди —", "Рост —",
+    ],
     st305nRootSelectors: [
       ".t-store__grid-cont",
       ".js-store-grid-cont",
@@ -964,6 +975,34 @@
     return "";
   }
 
+  function extractDescriptionOnly(fullText) {
+    if (!fullText) return "";
+    let text = fullText.trim();
+    let cutIndex = text.length;
+    for (const marker of WIDGET_CONFIG.descriptionCutMarkers) {
+      const idx = text.indexOf(marker);
+      if (idx !== -1 && idx < cutIndex) {
+        cutIndex = idx;
+      }
+    }
+    return text.substring(0, cutIndex).trim();
+  }
+
+  function resolveProductDescription(productElement) {
+    const contexts = getProductDataContexts(productElement);
+    for (const selector of WIDGET_CONFIG.descriptionSelectors) {
+      for (const ctx of contexts) {
+        if (!ctx) continue;
+        const el = ctx.querySelector ? ctx.querySelector(selector) : null;
+        if (el && el.textContent) {
+          const cleaned = extractDescriptionOnly(el.textContent);
+          if (cleaned) return cleaned;
+        }
+      }
+    }
+    return "";
+  }
+
   function resolveProductPrice(productElement) {
     const contexts = getProductDataContexts(productElement);
 
@@ -1337,10 +1376,13 @@
       return null;
     }
 
+    const description = resolveProductDescription(productElement);
+
     return {
       image: imageSrc,
       name: name,
       price: price,
+      description: description || undefined,
     };
   }
 
