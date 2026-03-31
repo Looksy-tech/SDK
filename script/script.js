@@ -989,7 +989,7 @@
   }
 
   function resolveProductDescription(productElement) {
-    const contexts = getProductDataContexts(productElement);
+    const contexts = [...getProductDataContexts(productElement), document];
     for (const selector of WIDGET_CONFIG.descriptionSelectors) {
       for (const ctx of contexts) {
         if (!ctx) continue;
