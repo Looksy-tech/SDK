@@ -5,8 +5,10 @@
   // НАСТРОЙКИ ДЛЯ БЫСТРОГО РЕДАКТИРОВАНИЯ
   // =====================================================
   const WIDGET_URL = "https://widget.looksy.tech";
+  const EN_WIDGET_URL = "https://en.widget.looksy.tech";
   const ICON_URL = "https://s3.regru.cloud/looksy-widget/try_on.svg";
   const BUTTON_TEXT = "Примерить на себе";
+  const EN_BUTTON_TEXT = "Try on";
   const Z_INDEX = 2147483646;
   const BUTTON_RENDER_DELAY_MS = 140;
   const ST305N_RELOAD_STEPS_MS = [120, 450, 900, 1600, 2600, 3800];
@@ -16,6 +18,7 @@
   const currentScript = document.currentScript;
   const SHOP_TOKEN = currentScript?.getAttribute('data-shop-token') || '';
   const DEBUG_MODE = currentScript?.getAttribute("data-debug") === "true";
+  const LANG = currentScript?.getAttribute('data-lang') || '';
 
   if (!SHOP_TOKEN) {
     console.error('[Looksy] Missing data-shop-token attribute on script tag');
@@ -160,9 +163,9 @@
       "Пакет",
       "Упаковка"
     ],
-    widgetUrl: WIDGET_URL,
+    widgetUrl: LANG === 'en' ? EN_WIDGET_URL : WIDGET_URL,
     iconUrl: ICON_URL,
-    buttonText: BUTTON_TEXT,
+    buttonText: LANG === 'en' ? EN_BUTTON_TEXT : BUTTON_TEXT,
     zIndex: Z_INDEX,
     shopToken: SHOP_TOKEN,
   };
@@ -201,7 +204,7 @@
     button: {
       bg_color: "#323232",
       text_color: "#ffffff",
-      text: BUTTON_TEXT,
+      text: LANG === 'en' ? EN_BUTTON_TEXT : BUTTON_TEXT,
       font_size: 14,
       height: 37,
       border_radius: 7,
