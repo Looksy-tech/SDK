@@ -171,6 +171,16 @@
     </div>
   </div>
 
-  <script data-shop-token="11111111-1111-1111-1111-111111111111" src="https://widget.looksy.tech/min-script.js"></script>
+  <!--
+    Локальная проверка (по умолчанию): `serve` в этой папке + `npm run dev` виджета на :5173.
+    data-widget-url — база iframe; без неё берётся URL из script/script.js (прод).
+    Прод: закомментируй блок ниже и раскомментируй строку с widget.looksy.tech/min-script.js
+  -->
+  <script
+    src="./script.js"
+    data-shop-token="11111111-1111-1111-1111-111111111111"
+    data-widget-url="http://localhost:5173"
+  ></script>
+  <!-- <script data-shop-token="11111111-1111-1111-1111-111111111111" src="https://widget.looksy.tech/min-script.js"></script> -->
 </body>
 </html>

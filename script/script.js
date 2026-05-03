@@ -5,10 +5,8 @@
   // НАСТРОЙКИ ДЛЯ БЫСТРОГО РЕДАКТИРОВАНИЯ
   // =====================================================
   const WIDGET_URL = "https://widget.looksy.tech";
-  const EN_WIDGET_URL = "https://en.widget.looksy.tech";
   const ICON_URL = "https://s3.regru.cloud/looksy-widget/try_on.svg";
   const BUTTON_TEXT = "Примерить на себе";
-  const EN_BUTTON_TEXT = "Try on";
   const Z_INDEX = 2147483646;
   const BUTTON_RENDER_DELAY_MS = 140;
   const ST305N_RELOAD_STEPS_MS = [120, 450, 900, 1600, 2600, 3800];
@@ -18,7 +16,8 @@
   const currentScript = document.currentScript;
   const SHOP_TOKEN = currentScript?.getAttribute('data-shop-token') || '';
   const DEBUG_MODE = currentScript?.getAttribute("data-debug") === "true";
-  const LANG = currentScript?.getAttribute('data-lang') || '';
+  const DATA_WIDGET_URL = (currentScript && currentScript.getAttribute("data-widget-url") || "").trim();
+  const RESOLVED_WIDGET_URL = DATA_WIDGET_URL || WIDGET_URL;
 
   if (!SHOP_TOKEN) {
     console.error('[Looksy] Missing data-shop-token attribute on script tag');
@@ -161,11 +160,13 @@
       "Сертификат",
       "Бокс",
       "Пакет",
-      "Упаковка"
+      "Упаковка",
+      "Игры",
+      "Дженга"
     ],
-    widgetUrl: LANG === 'en' ? EN_WIDGET_URL : WIDGET_URL,
+    widgetUrl: RESOLVED_WIDGET_URL,
     iconUrl: ICON_URL,
-    buttonText: LANG === 'en' ? EN_BUTTON_TEXT : BUTTON_TEXT,
+    buttonText: BUTTON_TEXT,
     zIndex: Z_INDEX,
     shopToken: SHOP_TOKEN,
   };
@@ -204,7 +205,7 @@
     button: {
       bg_color: "#323232",
       text_color: "#ffffff",
-      text: LANG === 'en' ? EN_BUTTON_TEXT : BUTTON_TEXT,
+      text: BUTTON_TEXT,
       font_size: 14,
       height: 37,
       border_radius: 7,
@@ -238,11 +239,27 @@
   let buttonRenderTimer = null;
   let startupRenderInterval = null;
   let st305nReloadTimers = [];
+  /** Пока iframe на экране генерации (PROCESSING); для кнопки минимайзера — спиннер вместо L */
+  var generationInProgress = false;
 
   const MINIMIZED_CLASS = "virtual-fitting-minimized";
   const TOGGLE_BTN_ID = "virtual-fitting-toggle-btn";
   const CONTAINER_ID = "virtual-fitting-minimizer";
   const PRODUCT_BTN_ATTR = "data-virtual-fitting-product-btn";
+
+  var MINIMIZER_SPINNER_HTML =
+    '<span class="virtual-fitting-toggle-spinner-wrap" aria-hidden="true">' +
+    '<svg class="virtual-fitting-toggle-spinner-svg" width="34" height="34" viewBox="0 0 34 34" xmlns="http://www.w3.org/2000/svg">' +
+    '<g transform="translate(17,17)">' +
+    '<line x1="0" y1="-13" x2="0" y2="-8" stroke="#ffffff" stroke-width="2.8" stroke-linecap="round" transform="rotate(0)"/>' +
+    '<line x1="0" y1="-13" x2="0" y2="-8" stroke="#ffffff" stroke-width="2.8" stroke-linecap="round" transform="rotate(45)"/>' +
+    '<line x1="0" y1="-13" x2="0" y2="-8" stroke="#ffffff" stroke-width="2.8" stroke-linecap="round" transform="rotate(90)"/>' +
+    '<line x1="0" y1="-13" x2="0" y2="-8" stroke="#ffffff" stroke-width="2.8" stroke-linecap="round" transform="rotate(135)"/>' +
+    '<line x1="0" y1="-13" x2="0" y2="-8" stroke="#ffffff" stroke-width="2.8" stroke-linecap="round" transform="rotate(180)"/>' +
+    '<line x1="0" y1="-13" x2="0" y2="-8" stroke="#ffffff" stroke-width="2.8" stroke-linecap="round" transform="rotate(225)"/>' +
+    '<line x1="0" y1="-13" x2="0" y2="-8" stroke="#ffffff" stroke-width="2.8" stroke-linecap="round" transform="rotate(270)"/>' +
+    '<line x1="0" y1="-13" x2="0" y2="-8" stroke="#ffffff" stroke-width="2.8" stroke-linecap="round" transform="rotate(315)"/>' +
+    "</g></svg></span>";
 
   function minimizeWidget() {
     if (!overlay) return;
@@ -261,14 +278,19 @@
   function updateMinimizerButton(isMinimized, attentionState) {
     var btn = document.getElementById(TOGGLE_BTN_ID);
     if (!btn) return;
+    var showingAttention = attentionState === "success" || attentionState === "error";
     btn.classList.toggle("virtual-fitting-toggle--minimized", isMinimized);
-    btn.classList.toggle("virtual-fitting-toggle--attention", attentionState === "success" || attentionState === "error");
+    btn.classList.toggle("virtual-fitting-toggle--attention", showingAttention);
+    btn.classList.toggle(
+      "virtual-fitting-toggle--generating",
+      isMinimized && !showingAttention && generationInProgress,
+    );
     if (attentionState === "success") {
       btn.innerHTML = '<span class="virtual-fitting-toggle-check">✓</span><span class="virtual-fitting-toggle-badge"></span>';
     } else if (attentionState === "error") {
       btn.innerHTML = '<span class="virtual-fitting-toggle-cross">×</span><span class="virtual-fitting-toggle-badge"></span>';
     } else if (isMinimized) {
-      btn.innerHTML = '<span class="virtual-fitting-toggle-letter">L</span>';
+      btn.innerHTML = generationInProgress ? MINIMIZER_SPINNER_HTML : '<span class="virtual-fitting-toggle-letter">L</span>';
     }
     btn.title = isMinimized ? "Развернуть виджет" : "Свернуть в фон";
     btn.style.display = isMinimized ? "flex" : "none";
@@ -511,8 +533,26 @@
         0% { opacity: 0; transform: scale(0.5); }
         100% { opacity: 1; transform: scale(1); }
       }
+      #${TOGGLE_BTN_ID}.virtual-fitting-toggle--generating {
+        border-radius: 22px;
+      }
+      #${TOGGLE_BTN_ID} .virtual-fitting-toggle-spinner-wrap {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 0;
+      }
+      #${TOGGLE_BTN_ID} .virtual-fitting-toggle-spinner-svg {
+        animation: virtual-fitting-spinner-rotate 1.7s linear infinite;
+      }
+      @keyframes virtual-fitting-spinner-rotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
       @media (max-width: 768px) {
         #${TOGGLE_BTN_ID} { right: 16px; bottom: 16px; width: 64px; height: 64px; }
+        #${TOGGLE_BTN_ID}.virtual-fitting-toggle--generating { border-radius: 18px; }
+        #${TOGGLE_BTN_ID} .virtual-fitting-toggle-spinner-svg { width: 28px; height: 28px; }
         #${TOGGLE_BTN_ID} .virtual-fitting-toggle-letter { font-size: 1.75rem; }
         #${TOGGLE_BTN_ID} .virtual-fitting-toggle-check { font-size: 1.75rem; }
         #${TOGGLE_BTN_ID} .virtual-fitting-toggle-cross { font-size: 2rem; }
@@ -1268,6 +1308,7 @@
   }
 
   function closeWidget() {
+    generationInProgress = false;
     if (overlay) {
       overlay.classList.remove("active");
       overlay.classList.remove("active_processing");
@@ -1502,8 +1543,14 @@
           break;
 
         case "PROCESSING":
-          overlay.classList.add("active_processing");
-          overlay.removeEventListener('click', overlayListenerFn)
+          generationInProgress = true;
+          if (overlay) {
+            overlay.classList.add("active_processing");
+            overlay.removeEventListener("click", overlayListenerFn);
+            if (overlay.classList.contains(MINIMIZED_CLASS)) {
+              updateMinimizerButton(true, null);
+            }
+          }
           break;
           
         case "MINIMIZE_WIDGET":
@@ -1513,17 +1560,23 @@
           expandWidget();
           break;
         case "GENERATION_READY":
-          overlay.classList.remove("active_processing");
-          overlay.addEventListener("click", overlayListenerFn);
-          if (overlay.classList.contains(MINIMIZED_CLASS)) {
-            triggerMinimizerAttention(false);
+          generationInProgress = false;
+          if (overlay) {
+            overlay.classList.remove("active_processing");
+            overlay.addEventListener("click", overlayListenerFn);
+            if (overlay.classList.contains(MINIMIZED_CLASS)) {
+              triggerMinimizerAttention(false);
+            }
           }
           break;
         case "GENERATION_ERROR":
-          overlay.classList.remove("active_processing");
-          overlay.addEventListener("click", overlayListenerFn);
-          if (overlay.classList.contains(MINIMIZED_CLASS)) {
-            triggerMinimizerAttention(true);
+          generationInProgress = false;
+          if (overlay) {
+            overlay.classList.remove("active_processing");
+            overlay.addEventListener("click", overlayListenerFn);
+            if (overlay.classList.contains(MINIMIZED_CLASS)) {
+              triggerMinimizerAttention(true);
+            }
           }
           break;
 
