@@ -1,6 +1,12 @@
 (function () {
   "use strict";
 
+  const GLOBAL_INSTANCE_KEY = "__LOOKSY_VF_INSTANCE__";
+  if (window[GLOBAL_INSTANCE_KEY] && typeof window[GLOBAL_INSTANCE_KEY].reconcile === "function") {
+    window[GLOBAL_INSTANCE_KEY].reconcile();
+    return;
+  }
+
   // =====================================================
   // НАСТРОЙКИ ДЛЯ БЫСТРОГО РЕДАКТИРОВАНИЯ
   // =====================================================
@@ -18,6 +24,9 @@
   const DEBUG_MODE = currentScript?.getAttribute("data-debug") === "true";
   const DATA_WIDGET_URL = (currentScript && currentScript.getAttribute("data-widget-url") || "").trim();
   const RESOLVED_WIDGET_URL = DATA_WIDGET_URL || WIDGET_URL;
+  const RENDER_POLICY = ((currentScript && currentScript.getAttribute("data-render-policy")) || "legacy-compatible").trim().toLowerCase();
+  const RENDER_SCOPE = ((currentScript && currentScript.getAttribute("data-render-scope")) || "single-product-only").trim().toLowerCase();
+  const FORCE_RENDER = currentScript?.getAttribute("data-force-render") === "true";
 
   if (!SHOP_TOKEN) {
     console.error('[Looksy] Missing data-shop-token attribute on script tag');
@@ -51,7 +60,9 @@
       ".t-store__product-snippet",
     ],
     productContainerSelectors: [
+      // explicit markup
       "[data-fitting-product]",
+      // Tilda
       ".js-store-prod-all",
       ".js-product-single-wrapper",
       ".t-store__prod-popup",
@@ -63,9 +74,30 @@
       ".js-product",
       ".js-product-wrapper",
       ".t-store__prod-popup__slider",
+      // WooCommerce
+      ".woocommerce div.product",
+      ".single-product div.product",
+      ".woocommerce-product-gallery",
+      // Shopify
+      ".product__info-container",
+      ".product-single",
+      ".product-template__container",
+      ".shopify-section--product",
+      "[data-product-single]",
+      ".product__media-wrapper",
+      // Salla
+      "salla-product-availability",
+      ".product-page",
+      ".product-details",
+      "[data-product-id]",
+      // Zid
+      ".product-details__wrapper",
+      ".product-page__content",
     ],
     firstPhotoSelectors: [
-      // Попап: специфичные селекторы первого слайда
+      // explicit markup
+      "img[data-fitting-image]",
+      // Tilda popup: специфичные селекторы первого слайда
       ".t-store__prod-popup .t-slds__imgwrapper .js-product-img",
       ".t-store__prod-popup .t-slds__imgwrapper .t-bgimg",
       ".t-store__prod-popup .t-slds__imgwrapper .t-slds__bgimg",
@@ -74,7 +106,7 @@
       ".t-store__prod-popup__slider .t-slds__item:first-child [data-original]",
       ".t-store__prod-popup__imgwrapper .t-bgimg",
       ".t-store__prod-popup__imgwrapper img",
-      // Одиночная страница товара: первый слайд по DOM-порядку
+      // Tilda single page: первый слайд по DOM-порядку
       ".t-slds__wrapper:first-child .js-product-img",
       ".t-slds__wrapper:first-child .t-bgimg",
       ".t-slds__wrapper:first-child .t-slds__bgimg",
@@ -83,7 +115,7 @@
       ".t-slds__item:first-child .t-bgimg",
       ".t-slds__item:first-child .t-slds__bgimg",
       ".t-slds__item:first-child img",
-      // Fallback: активный слайд (только если первый не найден)
+      // Tilda fallback: активный слайд
       ".t-store__prod-popup__slider .t-slds__item_active .t-bgimg",
       ".t-store__prod-popup__slider .t-slds__item_active img",
       ".t-store__prod-popup__slider .t-slds__item_active .js-product-img",
@@ -91,9 +123,31 @@
       ".t-slds__item_active .t-bgimg",
       ".js-product-img.t-bgimg",
       ".js-product-img",
+      // WooCommerce
+      ".woocommerce-product-gallery__image:first-child img",
+      ".woocommerce-product-gallery .wp-post-image",
+      ".woocommerce-product-gallery img",
+      // Shopify (Dawn, Impulse, Debut и другие популярные темы)
+      ".product__media-wrapper .product__media img",
+      ".product__media--featured img",
+      ".product-single__photo--has-thumbnails img:first-of-type",
+      ".product-single__photo img",
+      ".product__photo img",
+      "[data-product-featured-image]",
+      ".featured-image img",
+      // Salla
+      ".product-page__image img",
+      ".product-gallery__main img",
+      "salla-slider img:first-of-type",
+      // Zid
+      ".product-details__image img",
+      ".product-slider__main img",
+      ".product-image-wrapper img",
     ],
     productSelectors: [
+      // explicit markup
       "[data-fitting-product]",
+      // Tilda
       ".js-product",
       ".t-store__card",
       ".js-store-prod-all",
@@ -102,10 +156,30 @@
       ".t-store__prod-popup__content",
       ".js-store-product",
       ".t-store__product-snippet",
+      // WooCommerce
+      ".woocommerce div.product",
+      ".products li.product",
+      ".product-card",
+      // Shopify
+      ".product__info-container",
+      ".product-single",
+      "[data-product-single]",
+      ".product-template__container",
+      ".product-item",
+      // Salla
+      "salla-product-availability",
+      ".product-details",
+      "[data-product-id]",
+      ".product-card__content",
+      // Zid
+      ".product-details__wrapper",
+      ".product-page__content",
     ],
     imageSelectors: [
+      // explicit markup
       "img[data-fitting-image]",
       "[data-fitting-image]",
+      // Tilda
       "img.js-product-img",
       ".js-product-img",
       ".t-slds__imgwrapper .js-product-img",
@@ -115,33 +189,105 @@
       ".t-store__card__bgimg",
       ".t-bgimg",
       "[data-original]",
+      // WooCommerce
+      ".woocommerce-product-gallery__image img",
+      ".woocommerce-product-gallery img",
+      ".wp-post-image",
+      // Shopify
+      ".product__media img",
+      ".product__media-wrapper img",
+      ".product-single__photo img",
+      ".product__photo img",
+      "[data-product-featured-image]",
+      ".featured-image img",
+      // Salla
+      ".product-page__image img",
+      ".product-gallery__main img",
+      "salla-slider img",
+      // Zid
+      ".product-details__image img",
+      ".product-slider img",
+      ".product-image-wrapper img",
+      // universal fallback
+      "img[itemprop='image']",
       "img",
     ],
     nameSelectors: [
+      // explicit markup
       ".js-product-name",
       ".js-product-title",
+      // Tilda
       ".js-store-prod-name",
       ".t-store__prod-popup__title",
       ".t-store__card__title",
+      // WooCommerce
+      ".product_title",
+      ".woocommerce-loop-product__title",
+      // Shopify
+      ".product__title",
+      ".product-single__title",
+      ".product-title",
+      // Salla
+      ".product-details__name",
+      ".product-title__text",
+      // Zid
+      ".product-details__title",
+      ".product-name",
+      // universal
       "[itemprop='name']",
       "h1",
       "h2",
       "h3",
     ],
     priceSelectors: [
+      // Tilda
       ".js-product-price",
       ".js-store-prod-price-val",
       ".t-store__prod-popup__price-value",
       ".t-store__prod-popup__price",
       ".t-store__card__price-value",
       ".t-store__card__price",
+      // WooCommerce
+      ".woocommerce-Price-amount",
+      ".price ins .amount",
+      ".price .amount",
+      ".product-price",
+      // Shopify
+      ".product__price",
+      ".product-single__price",
+      ".price__regular",
+      ".price-item--regular",
+      "[data-regular-price]",
+      // Salla
+      ".product-details__price",
+      ".product-price__current",
+      "salla-price",
+      // Zid
+      ".product-details__price",
+      ".product-price__value",
+      // universal
       "[itemprop='price']",
       "[data-price]",
       "[data-product-price]",
     ],
     descriptionSelectors: [
+      // Tilda
       ".js-store-prod-all-text",
       ".t-store__prod-popup__description",
+      // WooCommerce
+      ".woocommerce-product-details__short-description",
+      ".product-short-description",
+      // Shopify
+      ".product__description",
+      ".product-single__description",
+      ".product-description",
+      // Salla
+      ".product-details__description",
+      ".product-description__content",
+      // Zid
+      ".product-details__description",
+      ".product-description",
+      // universal
       "[itemprop='description']",
     ],
     descriptionCutMarkers: [
@@ -192,11 +338,330 @@
     return "";
   }
 
+  function clearAllRenderedButtons() {
+    const buttons = document.querySelectorAll(`.${WIDGET_CONFIG.buttonClass}`);
+    buttons.forEach((btn) => btn.remove());
+  }
+
+  function hasExplicitProductMarkup() {
+    return Boolean(document.querySelector("[data-fitting-product]"));
+  }
+
+  function hasAnySelector(selectors) {
+    if (!selectors || !selectors.length) return false;
+    for (let i = 0; i < selectors.length; i++) {
+      if (document.querySelector(selectors[i])) return true;
+    }
+    return false;
+  }
+
+  function countBySelectors(selectors) {
+    if (!selectors || !selectors.length) return 0;
+    let total = 0;
+    for (let i = 0; i < selectors.length; i++) {
+      total += document.querySelectorAll(selectors[i]).length;
+    }
+    return total;
+  }
+
+  function getDetectionConfig() {
+    const defaults = {
+      min_score: 6,
+      custom_positive_selectors: [],
+      custom_negative_selectors: [],
+      strong_positive_selectors: [],
+      list_selectors: [],
+    };
+
+    const fromConfig = shopConfig && shopConfig.detection ? shopConfig.detection : {};
+    return {
+      min_score: Number(fromConfig.min_score || defaults.min_score),
+      custom_positive_selectors: Array.isArray(fromConfig.custom_positive_selectors) ? fromConfig.custom_positive_selectors : defaults.custom_positive_selectors,
+      custom_negative_selectors: Array.isArray(fromConfig.custom_negative_selectors) ? fromConfig.custom_negative_selectors : defaults.custom_negative_selectors,
+      strong_positive_selectors: Array.isArray(fromConfig.strong_positive_selectors) ? fromConfig.strong_positive_selectors : defaults.strong_positive_selectors,
+      list_selectors: Array.isArray(fromConfig.list_selectors) ? fromConfig.list_selectors : defaults.list_selectors,
+    };
+  }
+
+  function hasSingleDominantProductMedia() {
+    const mediaSelectors = [
+      ".woocommerce-product-gallery img",
+      ".product-info-main img",
+      ".product__media img",
+      ".product-single img",
+      ".js-product-single-wrapper img",
+      ".t-store__prod-popup img",
+      "[data-product-single] img",
+      "main img[itemprop='image']",
+    ];
+
+    const totalMedia = countBySelectors(mediaSelectors);
+    if (totalMedia <= 0) return false;
+    return totalMedia <= 8;
+  }
+
+  function getListingDensityScore() {
+    const listSelectors = [
+      ".t-store__card",
+      ".product-card",
+      ".products li.product",
+      ".collection .card",
+      ".product-grid .product-item",
+      "[data-product-id]",
+    ];
+    const count = countBySelectors(listSelectors);
+    if (count >= 8) return -4;
+    if (count >= 4) return -2;
+    if (count >= 2) return -1;
+    return 0;
+  }
+
+  function hasProductJsonLd() {
+    const nodes = document.querySelectorAll('script[type="application/ld+json"]');
+    for (let i = 0; i < nodes.length; i++) {
+      const text = nodes[i].textContent || "";
+      if (!text) continue;
+
+      try {
+        const parsed = JSON.parse(text);
+        const queue = Array.isArray(parsed) ? parsed.slice() : [parsed];
+
+        while (queue.length) {
+          const item = queue.shift();
+          if (!item || typeof item !== "object") continue;
+
+          const t = item["@type"];
+          if (typeof t === "string" && /product/i.test(t)) return true;
+          if (Array.isArray(t)) {
+            for (let ti = 0; ti < t.length; ti++) {
+              if (typeof t[ti] === "string" && /product/i.test(t[ti])) return true;
+            }
+          }
+
+          if (Array.isArray(item["@graph"])) {
+            for (let gi = 0; gi < item["@graph"].length; gi++) queue.push(item["@graph"][gi]);
+          }
+
+          const keys = Object.keys(item);
+          for (let k = 0; k < keys.length; k++) {
+            const value = item[keys[k]];
+            if (value && typeof value === "object") queue.push(value);
+          }
+        }
+      } catch (e) {
+        if (text.includes('"@type":"Product"') || text.includes('"@type": "Product"')) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  function isLikelySingleProductPage() {
+    if (isBlockedSystemPath()) return false;
+
+    const detection = getDetectionConfig();
+    let score = 0;
+    const reasons = [];
+    const path = window.location.pathname || "";
+    const bodyClass = (document.body && document.body.className) || "";
+
+    if (/\/(products?|item|p|product)\//i.test(path)) {
+      score += 1;
+      reasons.push("url-product-like");
+    }
+    // Shopify: /products/slug
+    if (/\/products\/[^/]+(?:\/|$|\?|#)/i.test(path)) {
+      score += 3;
+      reasons.push("url-shopify-product");
+    }
+    // Salla: /store/product/slug или /products/slug
+    if (/\/store\/product\//i.test(path) || /\/منتج\//i.test(path)) {
+      score += 3;
+      reasons.push("url-salla-product");
+    }
+    // Zid: /product/slug
+    if (/\/product\/[^/]+(?:\/|$|\?|#)/i.test(path)) {
+      score += 3;
+      reasons.push("url-zid-product");
+    }
+    if (/single-product|product-template|template-product|product-page|catalog-product-view/i.test(bodyClass)) {
+      score += 3;
+      reasons.push("body-class-product-template");
+    }
+    // Shopify body classes
+    if (/template-product|product-template/i.test(bodyClass)) {
+      score += 3;
+      reasons.push("body-class-shopify-product");
+    }
+    // Zid body classes
+    if (/product-page|single-product-page/i.test(bodyClass)) {
+      score += 2;
+      reasons.push("body-class-zid-product");
+    }
+
+    const ogType = document.querySelector('meta[property="og:type"][content="product"]');
+    if (ogType) {
+      score += 3;
+      reasons.push("og:type=product");
+    }
+
+    if (hasProductJsonLd()) {
+      score += 3;
+      reasons.push("jsonld-product");
+    }
+
+    const strongProductSignals = [
+      // WooCommerce
+      ".single-product div.product",
+      ".woocommerce-product-gallery",
+      ".product-info-main",
+      ".catalog-product-view .product-info-main",
+      "button[name='add'], button[name='add-to-cart'], button.add_to_cart_button",
+      "form[action*='/cart/add'], form[action*='add-to-cart'], form[action*='cart'] button[type='submit']",
+      // Tilda
+      ".js-product-single-wrapper",
+      "[data-product-single]",
+      // Shopify
+      ".product__info-container",
+      ".product-single__title",
+      ".product__title",
+      "form[action*='/cart/add']",
+      ".shopify-section--product",
+      ".product-template__container",
+      "[data-section-type='product']",
+      // Salla
+      "salla-product-availability",
+      ".product-details__info",
+      "[data-product-id].product-details",
+      "salla-add-to-cart",
+      // Zid
+      ".product-details__wrapper",
+      ".product-page__add-to-cart",
+      "button.add-to-cart-btn",
+    ].concat(detection.strong_positive_selectors);
+
+    const strongMatches = countBySelectors(strongProductSignals);
+    if (strongMatches > 0) {
+      score += Math.min(6, strongMatches * 2);
+      reasons.push("strong-product-signals:" + strongMatches);
+    }
+
+    const listSignals = [
+      // Tilda
+      ".t-store__grid-cont",
+      // WooCommerce
+      ".products",
+      ".woocommerce ul.products",
+      // Shopify
+      ".collection .product-card",
+      ".collection-grid",
+      ".product-grid",
+      // Salla
+      ".products-grid",
+      ".products-list",
+      // Tilda card / universal
+      ".t-store__card",
+      ".product-grid .product-item",
+      "[data-product-id]",
+    ].concat(detection.list_selectors);
+
+    if (hasAnySelector(listSignals)) {
+      score -= 2;
+      reasons.push("list-container-found");
+    }
+
+    const densityDelta = getListingDensityScore();
+    if (densityDelta !== 0) {
+      score += densityDelta;
+      reasons.push("listing-density:" + densityDelta);
+    }
+
+    if (hasSingleDominantProductMedia()) {
+      score += 2;
+      reasons.push("single-dominant-media");
+    }
+
+    if (hasAnySelector(detection.custom_positive_selectors)) {
+      score += 3;
+      reasons.push("shop-custom-positive");
+    }
+
+    if (hasAnySelector(detection.custom_negative_selectors)) {
+      score -= 4;
+      reasons.push("shop-custom-negative");
+    }
+
+    const isProduct = score >= detection.min_score;
+    debugLog("single-product-detection", {
+      isProduct: isProduct,
+      score: score,
+      minScore: detection.min_score,
+      reasons: reasons,
+      route: window.location.pathname,
+    });
+
+    return isProduct;
+  }
+
+  function isBlockedSystemPath() {
+    const path = (window.location.pathname || "") + (window.location.hash || "");
+    const blockedPatterns = [
+      /\/checkout(?:\/|$|[#?])/i,
+      /\/order(?:\/|$|[#?])/i,
+      /\/thank[-_]you(?:\/|$|[#?])/i,
+      /\/account(?:\/|$|[#?])/i,
+      /\/wp-admin(?:\/|$|[#?])/i,
+      /\/admin(?:\/|$|[#?])/i,
+      // Shopify
+      /\/cart(?:\/|$|[#?])/i,
+      /\/collections(?:\/|$|[#?])/i,
+      /\/pages\/(?!.*product)/i,
+      /\/blogs\//i,
+      /\/search(?:\/|$|[#?])/i,
+      // Salla
+      /\/store\/cart/i,
+      /\/customer\//i,
+      // Zid
+      /\/cart\//i,
+      /\/my-account\//i,
+    ];
+
+    for (let i = 0; i < blockedPatterns.length; i++) {
+      if (blockedPatterns[i].test(path)) return true;
+    }
+
+    return false;
+  }
+
+  function shouldRenderOnCurrentPage() {
+    if (FORCE_RENDER) return true;
+
+    // Полная обратная совместимость со старым поведением.
+    if (RENDER_POLICY === "legacy") return true;
+
+    if (RENDER_SCOPE === "single-product-only") {
+      return isLikelySingleProductPage();
+    }
+
+    // Явная разметка магазина всегда приоритетнее эвристик.
+    if (hasExplicitProductMarkup()) return true;
+
+    if (RENDER_POLICY === "smart" || RENDER_POLICY === "legacy-compatible") {
+      if (isBlockedSystemPath()) return false;
+    }
+
+    return true;
+  }
+
   let iframe = null;
   let overlay = null;
   let currentProduct = null;
   let productsProcessQueued = false;
   let productsProcessTimer = null;
+  let domObserver = null;
+  let historyListenersInstalled = false;
+  let trackedRoute = window.location.pathname + window.location.search + window.location.hash;
 
   // ─── SHOP CUSTOMIZATION ──────────────────────────────────────────────────
   // Загружается из /widget/config?shop_token=XXX при инициализации.
@@ -374,6 +839,19 @@
         isolation: isolate;
       }
       .t-slds__imgwrapper {
+        position: relative;
+        isolation: isolate;
+      }
+      .woocommerce-product-gallery,
+      .woocommerce-product-gallery__image,
+      .product__media-wrapper,
+      .product__media,
+      .product-single__photo,
+      .product-gallery__main,
+      .product-gallery__slide,
+      .product-details__image,
+      .product-details__image-wrapper,
+      .product-slider__main {
         position: relative;
         isolation: isolate;
       }
@@ -957,7 +1435,7 @@
     // и не к длинному .t-slds__items-wrapper.
     const stableSliderContainer =
       (targetImageElement && targetImageElement.closest && targetImageElement.closest(
-        ".t-store__prod-popup__slider, .t-slds, .t-slds__main, .t-slds__container",
+        ".t-store__prod-popup__slider, .t-slds, .t-slds__main, .t-slds__container, .woocommerce-product-gallery, .product__media-wrapper, .product-single__photos, .product-gallery__main, .product-details__image",
       )) ||
       null;
 
@@ -967,7 +1445,7 @@
 
     const preferredContainer =
       (targetImageElement && targetImageElement.closest && targetImageElement.closest(
-        ".t-slds__imgwrapper, .t-store__prod-popup__imgwrapper, [data-fitting-image-container]",
+        ".t-slds__imgwrapper, .t-store__prod-popup__imgwrapper, [data-fitting-image-container], .woocommerce-product-gallery__image, .product__media, .product-single__photo, .product-gallery__slide, .product-details__image-wrapper",
       )) ||
       null;
 
@@ -1137,6 +1615,11 @@
   }
 
   function processProducts(rootNode) {
+    if (!shouldRenderOnCurrentPage()) {
+      clearAllRenderedButtons();
+      return 0;
+    }
+
     debugLog("processProducts:start", {
       isTildaPopupOnlyMode: isTildaPopupOnlyMode(),
       rootNodeType: rootNode && rootNode.nodeType,
@@ -1191,6 +1674,11 @@
   }
 
   function scheduleProcessProducts() {
+    if (!shouldRenderOnCurrentPage()) {
+      clearAllRenderedButtons();
+      return;
+    }
+
     if (productsProcessQueued || productsProcessTimer) return;
     productsProcessQueued = true;
     productsProcessTimer = window.setTimeout(() => {
@@ -1502,8 +1990,42 @@
   }
 
   function initButtons() {
+    if (!shouldRenderOnCurrentPage()) {
+      clearAllRenderedButtons();
+      console.log("Virtual Fitting: Rendering skipped by page policy");
+      return;
+    }
+
     const count = processProducts(document);
     console.log(`Virtual Fitting: Initialized ${count} buttons`);
+  }
+
+  function installHistoryListeners() {
+    if (historyListenersInstalled) return;
+    historyListenersInstalled = true;
+
+    const originalPushState = history.pushState;
+    const originalReplaceState = history.replaceState;
+
+    function onRouteMaybeChanged() {
+      const nextRoute = window.location.pathname + window.location.search + window.location.hash;
+      if (nextRoute === trackedRoute) return;
+      trackedRoute = nextRoute;
+      scheduleProcessProducts();
+    }
+
+    history.pushState = function () {
+      originalPushState.apply(history, arguments);
+      onRouteMaybeChanged();
+    };
+
+    history.replaceState = function () {
+      originalReplaceState.apply(history, arguments);
+      onRouteMaybeChanged();
+    };
+
+    window.addEventListener("popstate", onRouteMaybeChanged);
+    window.addEventListener("hashchange", onRouteMaybeChanged);
   }
 
   function setupMessageListener() {
@@ -1588,6 +2110,11 @@
   }
 
   function observeDOM() {
+    if (domObserver) {
+      scheduleProcessProducts();
+      return;
+    }
+
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         if (mutation.type !== "childList") return;
@@ -1598,10 +2125,10 @@
           const el = node;
           if (
             (el.matches && el.matches(
-              ".t-popup_show, .t-store__prod-popup, .t-store__prod-popup_showed, .js-store-prod-all, .js-product-single-wrapper, .t-slds__item, .t-slds__items-wrapper, .t-slds__imgwrapper, .js-product-img, .t-bgimg",
+              ".t-popup_show, .t-store__prod-popup, .t-store__prod-popup_showed, .js-store-prod-all, .js-product-single-wrapper, .t-slds__item, .t-slds__items-wrapper, .t-slds__imgwrapper, .js-product-img, .t-bgimg, .woocommerce-product-gallery, .product__media, .product__media-wrapper, .product-single__photo, .product-gallery__slide, salla-slider, .product-gallery__main, .product-details__image, .product-slider__main",
             )) ||
             (el.querySelector && el.querySelector(
-              ".t-popup_show, .t-store__prod-popup, .t-store__prod-popup_showed, .js-store-prod-all, .js-product-single-wrapper, .t-slds__item, .t-slds__items-wrapper, .t-slds__imgwrapper, .js-product-img, .t-bgimg",
+              ".t-popup_show, .t-store__prod-popup, .t-store__prod-popup_showed, .js-store-prod-all, .js-product-single-wrapper, .t-slds__item, .t-slds__items-wrapper, .t-slds__imgwrapper, .js-product-img, .t-bgimg, .woocommerce-product-gallery, .product__media, .product__media-wrapper, .product-single__photo, .product-gallery__slide, salla-slider, .product-gallery__main, .product-details__image, .product-slider__main",
             ))
           ) {
             shouldReprocess = true;
@@ -1618,6 +2145,7 @@
       childList: true,
       subtree: true,
     });
+    domObserver = observer;
 
     processProducts(document);
     startStartupRenderRecheck();
@@ -1637,7 +2165,7 @@
     document.addEventListener("transitionend", function (e) {
       const target = e.target;
       if (!target || !target.closest) return;
-      if (target.closest(".t-slds__items-wrapper, .t-slds__item, .t-slds__imgwrapper")) {
+      if (target.closest(".t-slds__items-wrapper, .t-slds__item, .t-slds__imgwrapper, .woocommerce-product-gallery, .product__media-wrapper, .product-gallery__main, .product-slider__main")) {
         scheduleProcessProducts();
       }
     }, true);
@@ -1645,10 +2173,12 @@
     document.addEventListener("animationend", function (e) {
       const target = e.target;
       if (!target || !target.closest) return;
-      if (target.closest(".t-slds__items-wrapper, .t-slds__item, .t-slds__imgwrapper")) {
+      if (target.closest(".t-slds__items-wrapper, .t-slds__item, .t-slds__imgwrapper, .woocommerce-product-gallery, .product__media-wrapper, .product-gallery__main, .product-slider__main")) {
         scheduleProcessProducts();
       }
     }, true);
+
+    installHistoryListeners();
   }
 
   function initWidget() {
@@ -1674,7 +2204,11 @@
     open: openWidget,
     close: closeWidget,
     init: initButtons,
+    reconcile: scheduleProcessProducts,
   };
+
+  window.VirtualFitting.__LOOKSY_VF_ACTIVE__ = true;
+  window[GLOBAL_INSTANCE_KEY] = window.VirtualFitting;
 
   init();
 })();
