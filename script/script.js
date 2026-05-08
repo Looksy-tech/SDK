@@ -594,7 +594,10 @@
       "sandbox",
       "allow-same-origin allow-scripts allow-forms allow-popups allow-modals allow-downloads",
     );
-    iframe.setAttribute("allow", "camera; microphone; web-share");
+    iframe.setAttribute(
+      "allow",
+      "camera; microphone; web-share; clipboard-read; clipboard-write",
+    );
 
     const container = createOverlay();
     container.appendChild(iframe);
