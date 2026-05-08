@@ -405,8 +405,8 @@
       #${WIDGET_CONFIG.iframeId} {
         width: 100%;
         max-width: 520px;
-        height: min(720px, 92vh);
-        max-height: 720px;
+        height: min(860px, 96vh);
+        max-height: 860px;
         z-index: ${WIDGET_CONFIG.zIndex} !important;
         border: none;
         border-radius: 0 !important;
