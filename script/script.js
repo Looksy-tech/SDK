@@ -254,14 +254,14 @@
     '<span class="virtual-fitting-toggle-spinner-wrap" aria-hidden="true">' +
     '<svg class="virtual-fitting-toggle-spinner-svg" width="34" height="34" viewBox="0 0 34 34" xmlns="http://www.w3.org/2000/svg">' +
     '<g transform="translate(17,17)">' +
-    '<line x1="0" y1="-13" x2="0" y2="-8" stroke="#ffffff" stroke-width="2.8" stroke-linecap="round" transform="rotate(0)"/>' +
-    '<line x1="0" y1="-13" x2="0" y2="-8" stroke="#ffffff" stroke-width="2.8" stroke-linecap="round" transform="rotate(45)"/>' +
-    '<line x1="0" y1="-13" x2="0" y2="-8" stroke="#ffffff" stroke-width="2.8" stroke-linecap="round" transform="rotate(90)"/>' +
-    '<line x1="0" y1="-13" x2="0" y2="-8" stroke="#ffffff" stroke-width="2.8" stroke-linecap="round" transform="rotate(135)"/>' +
-    '<line x1="0" y1="-13" x2="0" y2="-8" stroke="#ffffff" stroke-width="2.8" stroke-linecap="round" transform="rotate(180)"/>' +
-    '<line x1="0" y1="-13" x2="0" y2="-8" stroke="#ffffff" stroke-width="2.8" stroke-linecap="round" transform="rotate(225)"/>' +
-    '<line x1="0" y1="-13" x2="0" y2="-8" stroke="#ffffff" stroke-width="2.8" stroke-linecap="round" transform="rotate(270)"/>' +
-    '<line x1="0" y1="-13" x2="0" y2="-8" stroke="#ffffff" stroke-width="2.8" stroke-linecap="round" transform="rotate(315)"/>' +
+    '<line x1="0" y1="-13" x2="0" y2="-8" stroke="#0a0a0a" stroke-width="2.8" stroke-linecap="round" transform="rotate(0)"/>' +
+    '<line x1="0" y1="-13" x2="0" y2="-8" stroke="#0a0a0a" stroke-width="2.8" stroke-linecap="round" transform="rotate(45)"/>' +
+    '<line x1="0" y1="-13" x2="0" y2="-8" stroke="#0a0a0a" stroke-width="2.8" stroke-linecap="round" transform="rotate(90)"/>' +
+    '<line x1="0" y1="-13" x2="0" y2="-8" stroke="#0a0a0a" stroke-width="2.8" stroke-linecap="round" transform="rotate(135)"/>' +
+    '<line x1="0" y1="-13" x2="0" y2="-8" stroke="#0a0a0a" stroke-width="2.8" stroke-linecap="round" transform="rotate(180)"/>' +
+    '<line x1="0" y1="-13" x2="0" y2="-8" stroke="#0a0a0a" stroke-width="2.8" stroke-linecap="round" transform="rotate(225)"/>' +
+    '<line x1="0" y1="-13" x2="0" y2="-8" stroke="#0a0a0a" stroke-width="2.8" stroke-linecap="round" transform="rotate(270)"/>' +
+    '<line x1="0" y1="-13" x2="0" y2="-8" stroke="#0a0a0a" stroke-width="2.8" stroke-linecap="round" transform="rotate(315)"/>' +
     "</g></svg></span>";
 
   function minimizeWidget() {
@@ -404,12 +404,13 @@
       }
       #${WIDGET_CONFIG.iframeId} {
         width: 100%;
-        max-width: 700px;
-        height: 90vh;
-        max-height: 800px;
+        max-width: 520px;
+        height: min(720px, 92vh);
+        max-height: 720px;
         z-index: ${WIDGET_CONFIG.zIndex} !important;
         border: none;
-        border-radius: 12px;
+        border-radius: 0 !important;
+        overflow: hidden !important;
         background-color: transparent;
         opacity: 0;
         transform: scale(0.95);
@@ -433,10 +434,11 @@
         #${WIDGET_CONFIG.iframeId} {
           max-width: 100%;
           width: 100%;
-          height: 95vh;
-          height: 95dvh;
+          height: 100vh;
+          height: 100dvh;
           max-height: none;
-          border-radius: 20px 20px 0 0;
+          border-radius: 0 !important;
+          overflow: hidden !important;
           opacity: 1;
           transform: translateY(100%);
           transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
@@ -475,22 +477,22 @@
         right: 20px;
         bottom: 20px;
         padding: 0;
-        border: 1px solid rgba(255, 255, 255, 0.25);
-        border-radius: 50%;
-        background: rgba(99, 102, 241, 0.85);
-        color: #fff;
+        border: 2px solid #0a0a0a;
+        border-radius: 0;
+        background: rgba(255, 255, 255, 0.94);
+        color: #0a0a0a;
         cursor: pointer;
         pointer-events: auto;
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
-        box-shadow: 0 4px 24px rgba(99, 102, 241, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        box-shadow: 0 4px 28px rgba(0, 0, 0, 0.12), 0 2px 10px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 1);
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
       }
       #${TOGGLE_BTN_ID}:hover {
-        background: rgba(99, 102, 241, 0.9);
+        background: rgba(250, 250, 250, 0.98);
         transform: scale(1.05);
-        box-shadow: 0 6px 28px rgba(99, 102, 241, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.14), 0 2px 12px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 1);
       }
       #${TOGGLE_BTN_ID} .virtual-fitting-toggle-letter {
         font-size: 2rem;
@@ -517,9 +519,9 @@
         width: 18px;
         height: 18px;
         background: #ef4444;
-        border-radius: 50%;
-        border: 2px solid #fff;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        border-radius: 0;
+        border: 2px solid rgba(255, 255, 255, 0.95);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
       }
       #${TOGGLE_BTN_ID}.virtual-fitting-toggle--attention {
         animation: virtual-fitting-pulse 2s ease-in-out infinite;
@@ -537,7 +539,7 @@
         100% { opacity: 1; transform: scale(1); }
       }
       #${TOGGLE_BTN_ID}.virtual-fitting-toggle--generating {
-        border-radius: 22px;
+        border-radius: 0;
       }
       #${TOGGLE_BTN_ID} .virtual-fitting-toggle-spinner-wrap {
         display: flex;
@@ -554,7 +556,7 @@
       }
       @media (max-width: 768px) {
         #${TOGGLE_BTN_ID} { right: 16px; bottom: 16px; width: 64px; height: 64px; }
-        #${TOGGLE_BTN_ID}.virtual-fitting-toggle--generating { border-radius: 18px; }
+        #${TOGGLE_BTN_ID}.virtual-fitting-toggle--generating { border-radius: 0; }
         #${TOGGLE_BTN_ID} .virtual-fitting-toggle-spinner-svg { width: 28px; height: 28px; }
         #${TOGGLE_BTN_ID} .virtual-fitting-toggle-letter { font-size: 1.75rem; }
         #${TOGGLE_BTN_ID} .virtual-fitting-toggle-check { font-size: 1.75rem; }
@@ -1297,7 +1299,6 @@
         }),
       ),
     });
-
     const baseUrl = WIDGET_CONFIG.widgetUrl.replace(/\/$/, "");
     widgetIframe.src = `${baseUrl}/?${params.toString()}`;
 
