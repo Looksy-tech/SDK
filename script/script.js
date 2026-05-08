@@ -567,19 +567,11 @@
     document.head.appendChild(style);
   }
 
-  function overlayListenerFn(e) {
-    if (e.target === overlay) {
-      closeWidget();
-    }
-  }
-
   function createOverlay() {
     if (overlay) return overlay;
 
     overlay = document.createElement("div");
     overlay.className = WIDGET_CONFIG.overlayClass;
-
-    overlay.addEventListener("click", overlayListenerFn);
 
     document.body.appendChild(overlay);
     return overlay;
@@ -1553,7 +1545,6 @@
           generationInProgress = true;
           if (overlay) {
             overlay.classList.add("active_processing");
-            overlay.removeEventListener("click", overlayListenerFn);
             if (overlay.classList.contains(MINIMIZED_CLASS)) {
               updateMinimizerButton(true, null);
             }
@@ -1570,7 +1561,6 @@
           generationInProgress = false;
           if (overlay) {
             overlay.classList.remove("active_processing");
-            overlay.addEventListener("click", overlayListenerFn);
             if (overlay.classList.contains(MINIMIZED_CLASS)) {
               triggerMinimizerAttention(false);
             }
@@ -1580,7 +1570,6 @@
           generationInProgress = false;
           if (overlay) {
             overlay.classList.remove("active_processing");
-            overlay.addEventListener("click", overlayListenerFn);
             if (overlay.classList.contains(MINIMIZED_CLASS)) {
               triggerMinimizerAttention(true);
             }
