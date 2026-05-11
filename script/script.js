@@ -276,6 +276,9 @@
     overlay.classList.remove(MINIMIZED_CLASS);
     document.body.style.overflow = "hidden";
     updateMinimizerButton(false, null);
+    // После 0→100% высоты iframe iOS часто оставляет Vaul/transform/scroll в битом состоянии
+    // до первого жеста — даём iframe явный сигнал сбросить layout (см. widget-en App).
+    postMessageToIframe({ type: "WIDGET_EXPANDED" });
   }
 
   function updateMinimizerButton(isMinimized, attentionState) {
