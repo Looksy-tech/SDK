@@ -1442,13 +1442,13 @@
       " .looksy-vf-session-modal__backdrop { position:absolute; inset:0; background:rgba(0,0,0,0.55); cursor:pointer; } " +
       "#" +
       SESSION_MODAL_ROOT_ID +
-      " .looksy-vf-session-modal__panel { position:relative; z-index:1; width:100%; max-width:420px; background:#fff; color:#0a0a0a; padding:28px 24px 22px; box-shadow:0 16px 48px rgba(0,0,0,0.22); box-sizing:border-box; } " +
+      " .looksy-vf-session-modal__panel { position:relative; z-index:1; width:100%; max-width:420px; background:#fff; color:#0a0a0a; padding:28px 24px 22px; box-shadow:0 16px 48px rgba(0,0,0,0.22); box-sizing:border-box; display:flex; flex-direction:column; align-items:stretch; } " +
       "#" +
       SESSION_MODAL_ROOT_ID +
-      " .looksy-vf-session-modal__text { margin:0 0 22px; font-size:15px; line-height:1.5; font-weight:400; } " +
+      " .looksy-vf-session-modal__text { margin:0 0 22px; font-size:15px; line-height:1.5; font-weight:400; text-align:left; } " +
       "#" +
       SESSION_MODAL_ROOT_ID +
-      " .looksy-vf-session-modal__ok { display:inline-flex; align-items:center; justify-content:center; min-width:120px; padding:12px 20px; border:none; background:#0a0a0a; color:#fff; font-size:14px; font-weight:600; cursor:pointer; } " +
+      " .looksy-vf-session-modal__ok { align-self:center; display:inline-flex; align-items:center; justify-content:center; min-width:120px; padding:12px 20px; border:none; background:#0a0a0a; color:#fff; font-size:14px; font-weight:600; cursor:pointer; } " +
       "#" +
       SESSION_MODAL_ROOT_ID +
       " .looksy-vf-session-modal__ok:hover { opacity:0.92; } " +
