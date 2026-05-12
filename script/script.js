@@ -1039,6 +1039,24 @@
   }
 
   function resolveButtonHostElement(targetImageElement, productElement) {
+    /**
+     * Shopify Horizon: на document в capture вешается делегат `on:click` (component.js).
+     * Он делает target.closest('[on:click]') — у zoom это сам slideshow-slide.
+     * Если кнопка примерки лежит внутри слайда, зум открывается раньше любых
+     * слушателей на кнопке; stopPropagation на кнопке бессилен. Хост — media-gallery.
+     */
+    if (targetImageElement && targetImageElement.closest) {
+      const zoomSlide = targetImageElement.closest("slideshow-slide");
+      if (
+        zoomSlide &&
+        zoomSlide.hasAttribute &&
+        zoomSlide.hasAttribute("on:click")
+      ) {
+        const gallery = targetImageElement.closest("media-gallery");
+        if (gallery) return gallery;
+      }
+    }
+
     // Для слайдеров крепим к стабильному viewport-контейнеру, а не к active-item
     // и не к длинному .t-slds__items-wrapper.
     const stableSliderContainer =
