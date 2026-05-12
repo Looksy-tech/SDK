@@ -1660,9 +1660,20 @@
     const text = document.createTextNode(shopConfig.button.text);
     button.appendChild(text);
 
+    /** Shopify Horizon: полноэкранный zoom-слой рядом с кнопкой — без этого тап может открыть и виджет, и zoom. */
+    function stopGestureBubbleToGallery(e) {
+      e.stopPropagation();
+    }
+    ["pointerdown", "touchstart", "touchend", "mousedown"].forEach(function (type) {
+      button.addEventListener(type, stopGestureBubbleToGallery, true);
+    });
+
     button.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
+      if (typeof e.stopImmediatePropagation === "function") {
+        e.stopImmediatePropagation();
+      }
 
       const effectiveProduct = isTildaPopupOnlyMode()
         ? (resolveOpenProductElement(document) || productElement)
