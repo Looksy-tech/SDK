@@ -6,12 +6,12 @@
   // =====================================================
   const WIDGET_URL = "https://widget.looksy.tech";
   const EN_WIDGET_URL = "https://en.widget.looksy.tech";
-  const ICON_URL = "https://s3.regru.cloud/looksy-widget/try_on.svg";
   const BUTTON_TEXT = "Примерить на себе";
   const EN_BUTTON_TEXT = "Try on";
   const Z_INDEX = 2147483646;
   const BUTTON_RENDER_DELAY_MS = 140;
   const ST305N_RELOAD_STEPS_MS = [120, 450, 900, 1600, 2600, 3800];
+  const ICON_URL = "https://s3.regru.cloud/looksy-widget/try_on.svg";
   // =====================================================
 
   // Получаем shopToken из data-атрибута текущего скрипта
@@ -19,6 +19,23 @@
   const SHOP_TOKEN = currentScript?.getAttribute('data-shop-token') || '';
   const DEBUG_MODE = currentScript?.getAttribute("data-debug") === "true";
   const LANG = currentScript?.getAttribute('data-lang') || '';
+  /** Внешняя кнопка на витрине: отдельный UI и иконка без S3 (как на site/Looksy.html). */
+  const IS_EN_WIDGET = LANG === "en";
+  const EN_LAUNCHER_MODIFIER = "virtual-fitting-button--en";
+  /** Поверх оверлея виджета (Z_INDEX) и кнопки L — блокировка повторного открытия */
+  const SESSION_MODAL_Z_INDEX = 2147483647;
+  const SESSION_MODAL_ROOT_ID = "looksy-vf-session-modal-root";
+  const SESSION_MODAL_STYLE_ID = "looksy-vf-session-modal-styles";
+  const SESSION_MODAL_COPY_RU = {
+    message:
+      "У вас уже есть активная примерка. Закройте текущую или дождитесь её окончания, чтобы начать новую.",
+    ok: "Понятно",
+  };
+  const SESSION_MODAL_COPY_EN = {
+    message:
+      "You already have an active try-on. Close the current one or wait for it to finish before starting a new one.",
+    ok: "OK",
+  };
   const DATA_WIDGET_URL = (currentScript && currentScript.getAttribute("data-widget-url") || "").trim();
   const RESOLVED_WIDGET_URL = DATA_WIDGET_URL || (LANG === 'en' ? EN_WIDGET_URL : WIDGET_URL);
 
@@ -168,8 +185,8 @@
       "Дженга"
     ],
     widgetUrl: RESOLVED_WIDGET_URL,
-    iconUrl: ICON_URL,
     buttonText: LANG === 'en' ? EN_BUTTON_TEXT : BUTTON_TEXT,
+    iconUrl: ICON_URL,
     zIndex: Z_INDEX,
     shopToken: SHOP_TOKEN,
   };
@@ -198,6 +215,7 @@
   let iframe = null;
   let overlay = null;
   let currentProduct = null;
+  var sessionModalEscapeHandler = null;
   let productsProcessQueued = false;
   let productsProcessTimer = null;
 
@@ -336,6 +354,53 @@
     const style = document.createElement("style");
     style.id = "virtual-fitting-styles";
     style.textContent = `
+      ${
+        IS_EN_WIDGET
+          ? `
+      .${WIDGET_CONFIG.buttonClass}.${EN_LAUNCHER_MODIFIER} {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        z-index: 999;
+        box-sizing: border-box;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        padding: 10px 16px 10px 18px;
+        border: none;
+        border-radius: 0;
+        background: #0a0a0a;
+        color: #ffffff;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        white-space: nowrap;
+        cursor: pointer;
+        transition: padding-right 0.2s ease;
+        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        height: auto;
+      }
+      .${WIDGET_CONFIG.buttonClass}.${EN_LAUNCHER_MODIFIER}:hover {
+        padding-right: 22px;
+      }
+      .${WIDGET_CONFIG.buttonClass}.${EN_LAUNCHER_MODIFIER} .virtual-fitting-button-star {
+        display: inline-block;
+        font-size: 9px;
+        line-height: 1;
+        transform: translateY(-1px);
+        flex-shrink: 0;
+      }
+      .t-slds__bgimg .${WIDGET_CONFIG.buttonClass}.${EN_LAUNCHER_MODIFIER},
+      .js-product-img .${WIDGET_CONFIG.buttonClass}.${EN_LAUNCHER_MODIFIER} {
+        right: 0;
+        bottom: 0;
+      }
+      `
+          : `
       .${WIDGET_CONFIG.buttonClass} {
         position: absolute;
         right: 12px;
@@ -371,6 +436,8 @@
       .js-product-img .${WIDGET_CONFIG.buttonClass} {
         right: 12px;
         bottom: 12px;
+      }
+      `
       }
       .t-store__prod-popup__slider,
       .t-slds,
@@ -424,11 +491,27 @@
         transform: scale(1);
       }
       @media (max-width: 768px) {
+        ${
+          IS_EN_WIDGET
+            ? `
+        .${WIDGET_CONFIG.buttonClass}.${EN_LAUNCHER_MODIFIER} {
+          padding: 9px 14px 9px 16px;
+          font-size: 10px;
+          letter-spacing: 0.18em;
+        }
+        .${WIDGET_CONFIG.buttonClass}.${EN_LAUNCHER_MODIFIER}:hover {
+          padding-right: 20px;
+        }
+        .${WIDGET_CONFIG.buttonClass}.${EN_LAUNCHER_MODIFIER} .virtual-fitting-button-star {
+          font-size: 8px;
+        }
+        `
+            : `
         .${WIDGET_CONFIG.buttonClass} {
-          right: 10px;
-          bottom: 10px;
           height: ${shopConfig.button.height - 3}px;
           font-size: ${shopConfig.button.font_size - 1}px;
+        }
+        `
         }
         .${WIDGET_CONFIG.overlayClass} {
           align-items: flex-end;
@@ -1280,6 +1363,11 @@
   }
 
   function openWidget(productData) {
+    if (isWidgetSessionActive()) {
+      showActiveSessionModal();
+      return;
+    }
+
     currentProduct = productData;
 
     // Создаём iframe если ещё не создан
@@ -1310,6 +1398,7 @@
   }
 
   function closeWidget() {
+    dismissSessionModal();
     generationInProgress = false;
     if (overlay) {
       overlay.classList.remove("active");
@@ -1327,6 +1416,111 @@
     }, 150);
 
     currentProduct = null;
+  }
+
+  function isWidgetSessionActive() {
+    if (!overlay) return false;
+    return (
+      overlay.classList.contains("active") ||
+      overlay.classList.contains("active_processing") ||
+      overlay.classList.contains(MINIMIZED_CLASS)
+    );
+  }
+
+  function ensureSessionModalStyles() {
+    if (document.getElementById(SESSION_MODAL_STYLE_ID)) return;
+    var style = document.createElement("style");
+    style.id = SESSION_MODAL_STYLE_ID;
+    style.textContent =
+      "#" +
+      SESSION_MODAL_ROOT_ID +
+      " { position:fixed; inset:0; z-index:" +
+      SESSION_MODAL_Z_INDEX +
+      "; display:flex; align-items:center; justify-content:center; padding:20px; box-sizing:border-box; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif; -webkit-font-smoothing:antialiased; } " +
+      "#" +
+      SESSION_MODAL_ROOT_ID +
+      " .looksy-vf-session-modal__backdrop { position:absolute; inset:0; background:rgba(0,0,0,0.55); cursor:pointer; } " +
+      "#" +
+      SESSION_MODAL_ROOT_ID +
+      " .looksy-vf-session-modal__panel { position:relative; z-index:1; width:100%; max-width:420px; background:#fff; color:#0a0a0a; padding:28px 24px 22px; box-shadow:0 16px 48px rgba(0,0,0,0.22); box-sizing:border-box; } " +
+      "#" +
+      SESSION_MODAL_ROOT_ID +
+      " .looksy-vf-session-modal__text { margin:0 0 22px; font-size:15px; line-height:1.5; font-weight:400; } " +
+      "#" +
+      SESSION_MODAL_ROOT_ID +
+      " .looksy-vf-session-modal__ok { display:inline-flex; align-items:center; justify-content:center; min-width:120px; padding:12px 20px; border:none; background:#0a0a0a; color:#fff; font-size:14px; font-weight:600; cursor:pointer; } " +
+      "#" +
+      SESSION_MODAL_ROOT_ID +
+      " .looksy-vf-session-modal__ok:hover { opacity:0.92; } " +
+      "#" +
+      SESSION_MODAL_ROOT_ID +
+      " .looksy-vf-session-modal__ok:focus { outline:2px solid #0a0a0a; outline-offset:2px; } ";
+    document.head.appendChild(style);
+  }
+
+  function dismissSessionModal() {
+    var root = document.getElementById(SESSION_MODAL_ROOT_ID);
+    if (root && root.parentNode) {
+      root.parentNode.removeChild(root);
+    }
+    if (sessionModalEscapeHandler) {
+      document.removeEventListener("keydown", sessionModalEscapeHandler);
+      sessionModalEscapeHandler = null;
+    }
+  }
+
+  function showActiveSessionModal() {
+    if (document.getElementById(SESSION_MODAL_ROOT_ID)) return;
+    ensureSessionModalStyles();
+    var copy = IS_EN_WIDGET ? SESSION_MODAL_COPY_EN : SESSION_MODAL_COPY_RU;
+
+    var root = document.createElement("div");
+    root.id = SESSION_MODAL_ROOT_ID;
+    root.setAttribute("role", "dialog");
+    root.setAttribute("aria-modal", "true");
+
+    var backdrop = document.createElement("div");
+    backdrop.className = "looksy-vf-session-modal__backdrop";
+    backdrop.addEventListener("click", dismissSessionModal);
+
+    var panel = document.createElement("div");
+    panel.className = "looksy-vf-session-modal__panel";
+    panel.addEventListener("click", function (e) {
+      e.stopPropagation();
+    });
+
+    var p = document.createElement("p");
+    p.className = "looksy-vf-session-modal__text";
+    p.textContent = copy.message;
+
+    var ok = document.createElement("button");
+    ok.type = "button";
+    ok.className = "looksy-vf-session-modal__ok";
+    ok.textContent = copy.ok;
+    ok.addEventListener("click", function (e) {
+      e.preventDefault();
+      dismissSessionModal();
+    });
+
+    panel.appendChild(p);
+    panel.appendChild(ok);
+    root.appendChild(backdrop);
+    root.appendChild(panel);
+    document.body.appendChild(root);
+
+    sessionModalEscapeHandler = function (ev) {
+      if (ev.key === "Escape" || ev.key === "Esc") {
+        ev.preventDefault();
+        dismissSessionModal();
+      }
+    };
+    document.addEventListener("keydown", sessionModalEscapeHandler);
+
+    window.setTimeout(function () {
+      try {
+        ok.focus();
+      } catch (e) {}
+    }, 0);
   }
 
   function isTildaSingleColor(productElement) {
@@ -1441,20 +1635,28 @@
       : productElement.querySelector(`.${WIDGET_CONFIG.buttonClass}`);
 
     const button = document.createElement("button");
-    button.className = WIDGET_CONFIG.buttonClass;
+    button.className = IS_EN_WIDGET
+      ? WIDGET_CONFIG.buttonClass + " " + EN_LAUNCHER_MODIFIER
+      : WIDGET_CONFIG.buttonClass;
     button.type = "button";
     if (isTildaPopupOnlyMode()) {
       button.setAttribute(PRODUCT_BTN_ATTR, "true");
     }
 
-    // Добавляем иконку
-    const icon = document.createElement("img");
-    icon.src = WIDGET_CONFIG.iconUrl;
-    icon.alt = "";
-    icon.setAttribute("aria-hidden", "true");
-    button.appendChild(icon);
+    if (IS_EN_WIDGET) {
+      const star = document.createElement("span");
+      star.className = "virtual-fitting-button-star";
+      star.setAttribute("aria-hidden", "true");
+      star.textContent = "\u2726";
+      button.appendChild(star);
+    } else {
+      const icon = document.createElement("img");
+      icon.src = WIDGET_CONFIG.iconUrl;
+      icon.alt = "";
+      icon.setAttribute("aria-hidden", "true");
+      button.appendChild(icon);
+    }
 
-    // Добавляем текст
     const text = document.createTextNode(shopConfig.button.text);
     button.appendChild(text);
 
