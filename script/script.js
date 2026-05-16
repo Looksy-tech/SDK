@@ -668,10 +668,11 @@
 
     iframe = document.createElement("iframe");
     iframe.id = WIDGET_CONFIG.iframeId;
-    iframe.setAttribute(
-      "sandbox",
-      "allow-same-origin allow-scripts allow-forms allow-popups allow-modals allow-downloads",
-    );
+    // TEMP: sandbox removed for GA4 debug
+    // iframe.setAttribute(
+    //   "sandbox",
+    //   "allow-same-origin allow-scripts allow-forms allow-popups allow-modals allow-downloads",
+    // );
     iframe.setAttribute(
       "allow",
       "camera; microphone; web-share; clipboard-read; clipboard-write",
