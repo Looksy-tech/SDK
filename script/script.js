@@ -6,6 +6,7 @@
   // =====================================================
   const WIDGET_URL = "https://widget.looksy.tech";
   const EN_WIDGET_URL = "https://en.widget.looksy.tech";
+  const RU_WIDGET_URL = "https://ru.widget.looksy.tech";
   const BUTTON_TEXT = "Примерить на себе";
   const EN_BUTTON_TEXT = "Try on";
   const Z_INDEX = 2147483646;
@@ -37,7 +38,8 @@
     ok: "OK",
   };
   const DATA_WIDGET_URL = (currentScript && currentScript.getAttribute("data-widget-url") || "").trim();
-  const RESOLVED_WIDGET_URL = DATA_WIDGET_URL || (LANG === 'en' ? EN_WIDGET_URL : WIDGET_URL);
+  const IS_RU_TOKEN = SHOP_TOKEN.startsWith('ru_');
+  const RESOLVED_WIDGET_URL = DATA_WIDGET_URL || (LANG === 'en' ? EN_WIDGET_URL : IS_RU_TOKEN ? RU_WIDGET_URL : WIDGET_URL);
 
   if (!SHOP_TOKEN) {
     console.error('[Looksy] Missing data-shop-token attribute on script tag');
