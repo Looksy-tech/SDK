@@ -62,40 +62,62 @@
     priceAttribute: "data-fitting-price",
     imageAttribute: "data-fitting-image",
     onlyOpenCardFirstImage: true,
-    openCardSelector: ".t-store__prod-popup.t-popup_show, .t-store__prod-popup_showed, .t-popup_show .t-store__prod-popup, .t-popup_show .js-store-prod-all, .t-popup_show .js-product-single-wrapper, .t-popup_show .t-store__prod-popup__container",
+    openCardSelector: ".t-store__prod-popup.t-popup_show, .t-store__prod-popup_showed, .t-popup_show .t-store__prod-popup, .t-popup_show .js-store-prod-all, .t-popup_show .js-product-single-wrapper, .t-popup_show .t-store__prod-popup__container, .t-catalog__prod-popup.t-popup_show, .t-catalog__prod-popup_showed, .t-popup_show .t-catalog__prod-popup, .t-popup_show .js-catalog-prod-all, .t-popup_show .t-catalog__prod-popup__container",
     openCardProductSelectors: [
       ".js-store-prod-all",
+      ".js-catalog-prod-all",
       ".js-product-single-wrapper",
       ".t-store__prod-popup",
+      ".t-catalog__prod-popup",
       ".t-store__prod-popup__container",
+      ".t-catalog__prod-popup__container",
       ".t-store__prod-popup__content",
+      ".t-catalog__prod-popup__content",
       ".js-store-product",
+      ".js-catalog-product",
       ".t-store__product-snippet",
+      ".t-catalog__product-snippet",
     ],
     productContainerSelectors: [
       "[data-fitting-product]",
       ".js-store-prod-all",
+      ".js-catalog-prod-all",
       ".js-product-single-wrapper",
       ".t-store__prod-popup",
+      ".t-catalog__prod-popup",
       ".t-store__prod-popup__container",
+      ".t-catalog__prod-popup__container",
       ".t-store__prod-popup__content",
+      ".t-catalog__prod-popup__content",
       ".js-store-product",
+      ".js-catalog-product",
       ".t-store__product-snippet",
+      ".t-catalog__product-snippet",
       ".t-store__card",
+      ".t-catalog__card",
       ".js-product",
       ".js-product-wrapper",
       ".t-store__prod-popup__slider",
+      ".t-catalog__prod-popup__slider",
     ],
     firstPhotoSelectors: [
       // Попап: специфичные селекторы первого слайда
       ".t-store__prod-popup .t-slds__imgwrapper .js-product-img",
+      ".t-catalog__prod-popup .t-slds__imgwrapper .js-product-img",
       ".t-store__prod-popup .t-slds__imgwrapper .t-bgimg",
+      ".t-catalog__prod-popup .t-slds__imgwrapper .t-bgimg",
       ".t-store__prod-popup .t-slds__imgwrapper .t-slds__bgimg",
+      ".t-catalog__prod-popup .t-slds__imgwrapper .t-slds__bgimg",
       ".t-store__prod-popup__slider .t-slds__item:first-child .t-bgimg",
+      ".t-catalog__prod-popup__slider .t-slds__item:first-child .t-bgimg",
       ".t-store__prod-popup__slider .t-slds__item:first-child img",
+      ".t-catalog__prod-popup__slider .t-slds__item:first-child img",
       ".t-store__prod-popup__slider .t-slds__item:first-child [data-original]",
+      ".t-catalog__prod-popup__slider .t-slds__item:first-child [data-original]",
       ".t-store__prod-popup__imgwrapper .t-bgimg",
+      ".t-catalog__prod-popup__imgwrapper .t-bgimg",
       ".t-store__prod-popup__imgwrapper img",
+      ".t-catalog__prod-popup__imgwrapper img",
       // Одиночная страница товара: первый слайд по DOM-порядку
       ".t-slds__wrapper:first-child .js-product-img",
       ".t-slds__wrapper:first-child .t-bgimg",
@@ -107,8 +129,11 @@
       ".t-slds__item:first-child img",
       // Fallback: активный слайд (только если первый не найден)
       ".t-store__prod-popup__slider .t-slds__item_active .t-bgimg",
+      ".t-catalog__prod-popup__slider .t-slds__item_active .t-bgimg",
       ".t-store__prod-popup__slider .t-slds__item_active img",
+      ".t-catalog__prod-popup__slider .t-slds__item_active img",
       ".t-store__prod-popup__slider .t-slds__item_active .js-product-img",
+      ".t-catalog__prod-popup__slider .t-slds__item_active .js-product-img",
       ".t-slds__item_active .js-product-img",
       ".t-slds__item_active .t-bgimg",
       ".js-product-img.t-bgimg",
@@ -118,12 +143,17 @@
       "[data-fitting-product]",
       ".js-product",
       ".t-store__card",
+      ".t-catalog__card",
       ".js-store-prod-all",
+      ".js-catalog-prod-all",
       ".js-product-wrapper",
       ".js-product-single-wrapper",
       ".t-store__prod-popup__content",
+      ".t-catalog__prod-popup__content",
       ".js-store-product",
+      ".js-catalog-product",
       ".t-store__product-snippet",
+      ".t-catalog__product-snippet",
     ],
     imageSelectors: [
       "img[data-fitting-image]",
@@ -135,6 +165,7 @@
       ".t-slds__imgwrapper .t-slds__bgimg",
       ".t-slds__bgimg",
       ".t-store__card__bgimg",
+      ".t-catalog__card__bgimg",
       ".t-bgimg",
       "[data-original]",
       "img",
@@ -143,8 +174,11 @@
       ".js-product-name",
       ".js-product-title",
       ".js-store-prod-name",
+      ".js-catalog-prod-name",
       ".t-store__prod-popup__title",
+      ".t-catalog__prod-popup__name",
       ".t-store__card__title",
+      ".t-catalog__card__title",
       "[itemprop='name']",
       "h1",
       "h2",
@@ -153,17 +187,25 @@
     priceSelectors: [
       ".js-product-price",
       ".js-store-prod-price-val",
+      ".js-catalog-prod-price-val",
       ".t-store__prod-popup__price-value",
+      ".t-catalog__prod-popup__price-value",
       ".t-store__prod-popup__price",
+      ".t-catalog__prod-popup__price",
       ".t-store__card__price-value",
+      ".t-catalog__card__price-value",
       ".t-store__card__price",
+      ".t-catalog__card__price",
       "[itemprop='price']",
       "[data-price]",
       "[data-product-price]",
     ],
     descriptionSelectors: [
       ".js-store-prod-all-text",
+      ".js-catalog-prod-all-text",
+      ".js-catalog-prod-text",
       ".t-store__prod-popup__description",
+      ".t-catalog__prod-popup__text",
       "[itemprop='description']",
     ],
     descriptionCutMarkers: [
@@ -173,10 +215,15 @@
     ],
     st305nRootSelectors: [
       ".t-store__grid-cont",
+      ".t-catalog__grid-cont",
       ".js-store-grid-cont",
+      ".js-catalog-grid-cont",
       ".t-store__card",
+      ".t-catalog__card",
       ".js-store-product",
+      ".js-catalog-product",
       ".t-store__product-snippet",
+      ".t-catalog__product-snippet",
     ],
     excludedProductNameKeywords: [
       "Сертификат",
@@ -442,6 +489,7 @@
       `
       }
       .t-store__prod-popup__slider,
+      .t-catalog__prod-popup__slider,
       .t-slds,
       .t-slds__main,
       .t-slds__container {
@@ -798,7 +846,7 @@
 
     if (context && context.closest) {
       const contextualRoot = context.closest(
-        ".js-store-prod-all, .js-product-single-wrapper, .t-store__prod-popup, .t-popup_show, .js-store-product, .t-store__product-snippet",
+        ".js-store-prod-all, .js-catalog-prod-all, .js-product-single-wrapper, .t-store__prod-popup, .t-catalog__prod-popup, .t-popup_show, .js-store-product, .js-catalog-product, .t-store__product-snippet, .t-catalog__product-snippet",
       );
       if (contextualRoot && roots.indexOf(contextualRoot) === -1) {
         roots.push(contextualRoot);
@@ -825,29 +873,28 @@
 
     // Fallback для Tilda: иногда в открытой карточке нет class-маркера show,
     // но есть активный слайд товара.
-    const activeSlideImage =
-      document.querySelector(".t-store__prod-popup .t-slds__item_active .js-product-img") ||
-      document.querySelector(".t-store__prod-popup .t-slds__item_active .t-bgimg") ||
-      document.querySelector(".t-store__prod-popup .t-slds__item_active .t-slds__bgimg") ||
-      document.querySelector(".t-popup_show .t-store__prod-popup .t-slds__item_active .js-product-img") ||
-      document.querySelector(".t-popup_show .t-store__prod-popup .t-slds__item_active .t-bgimg") ||
-      document.querySelector(".t-popup_show .t-store__prod-popup .t-slds__item_active .t-slds__bgimg") ||
-      document.querySelector(".t-popup_show .t-slds__item_active .js-product-img") ||
-      document.querySelector(".t-popup_show .t-slds__item_active .t-bgimg") ||
-      document.querySelector(".t-popup_show .t-slds__item_active .t-slds__bgimg") ||
-      document.querySelector(".js-store-product .t-slds__item_active .js-product-img") ||
-      document.querySelector(".js-store-product .t-slds__item_active .t-bgimg") ||
-      document.querySelector(".js-store-product .t-slds__item_active .t-slds__bgimg") ||
-      document.querySelector(".t-store__product-snippet .t-slds__item_active .js-product-img") ||
-      document.querySelector(".t-store__product-snippet .t-slds__item_active .t-bgimg") ||
-      document.querySelector(".t-store__product-snippet .t-slds__item_active .t-slds__bgimg") ||
-      document.querySelector(".js-store-prod-all .t-slds__item_active .js-product-img") ||
-      document.querySelector(".js-store-prod-all .t-slds__item_active .t-bgimg") ||
-      document.querySelector(".js-store-prod-all .t-slds__item_active .t-slds__bgimg");
+    const activeSlideImage = document.querySelector(
+      ".t-store__prod-popup .t-slds__item_active .js-product-img, .t-catalog__prod-popup .t-slds__item_active .js-product-img, " +
+      ".t-store__prod-popup .t-slds__item_active .t-bgimg, .t-catalog__prod-popup .t-slds__item_active .t-bgimg, " +
+      ".t-store__prod-popup .t-slds__item_active .t-slds__bgimg, .t-catalog__prod-popup .t-slds__item_active .t-slds__bgimg, " +
+      ".t-popup_show .t-store__prod-popup .t-slds__item_active .js-product-img, .t-popup_show .t-catalog__prod-popup .t-slds__item_active .js-product-img, " +
+      ".t-popup_show .t-store__prod-popup .t-slds__item_active .t-bgimg, .t-popup_show .t-catalog__prod-popup .t-slds__item_active .t-bgimg, " +
+      ".t-popup_show .t-store__prod-popup .t-slds__item_active .t-slds__bgimg, .t-popup_show .t-catalog__prod-popup .t-slds__item_active .t-slds__bgimg, " +
+      ".t-popup_show .t-slds__item_active .js-product-img, .t-popup_show .t-slds__item_active .t-bgimg, .t-popup_show .t-slds__item_active .t-slds__bgimg, " +
+      ".js-store-product .t-slds__item_active .js-product-img, .js-catalog-product .t-slds__item_active .js-product-img, " +
+      ".js-store-product .t-slds__item_active .t-bgimg, .js-catalog-product .t-slds__item_active .t-bgimg, " +
+      ".js-store-product .t-slds__item_active .t-slds__bgimg, .js-catalog-product .t-slds__item_active .t-slds__bgimg, " +
+      ".t-store__product-snippet .t-slds__item_active .js-product-img, .t-catalog__product-snippet .t-slds__item_active .js-product-img, " +
+      ".t-store__product-snippet .t-slds__item_active .t-bgimg, .t-catalog__product-snippet .t-slds__item_active .t-bgimg, " +
+      ".t-store__product-snippet .t-slds__item_active .t-slds__bgimg, .t-catalog__product-snippet .t-slds__item_active .t-slds__bgimg, " +
+      ".js-store-prod-all .t-slds__item_active .js-product-img, .js-catalog-prod-all .t-slds__item_active .js-product-img, " +
+      ".js-store-prod-all .t-slds__item_active .t-bgimg, .js-catalog-prod-all .t-slds__item_active .t-bgimg, " +
+      ".js-store-prod-all .t-slds__item_active .t-slds__bgimg, .js-catalog-prod-all .t-slds__item_active .t-slds__bgimg",
+    );
 
     if (activeSlideImage && isElementVisible(activeSlideImage)) {
       const activeSliderContext = activeSlideImage.closest(
-        ".js-store-prod-all, .js-product-single-wrapper, .t-store__prod-popup, .t-store__prod-popup__slider, .t-slds__items-wrapper, .t-popup_show, .js-store-product, .t-store__product-snippet",
+        ".js-store-prod-all, .js-catalog-prod-all, .js-product-single-wrapper, .t-store__prod-popup, .t-catalog__prod-popup, .t-store__prod-popup__slider, .t-catalog__prod-popup__slider, .t-slds__items-wrapper, .t-popup_show, .js-store-product, .js-catalog-product, .t-store__product-snippet, .t-catalog__product-snippet",
       );
       if (
         activeSliderContext &&
@@ -865,25 +912,25 @@
     if (!element || !element.closest) return false;
 
     const popupContext = element.closest(
-      ".t-store__prod-popup, .js-store-prod-all, .js-product-single-wrapper, .t-popup_show, .js-store-product, .t-store__product-snippet",
+      ".t-store__prod-popup, .t-catalog__prod-popup, .js-store-prod-all, .js-catalog-prod-all, .js-product-single-wrapper, .t-popup_show, .js-store-product, .js-catalog-product, .t-store__product-snippet, .t-catalog__product-snippet",
     );
     if (!popupContext) return false;
 
     const storeContainerHint =
       (popupContext.matches &&
-        popupContext.matches(".t-store__prod-popup, .js-store-prod-all, .js-product-single-wrapper, .js-store-product, .t-store__product-snippet")) ||
+        popupContext.matches(".t-store__prod-popup, .t-catalog__prod-popup, .js-store-prod-all, .js-catalog-prod-all, .js-product-single-wrapper, .js-store-product, .js-catalog-product, .t-store__product-snippet, .t-catalog__product-snippet")) ||
       Boolean(
         popupContext.querySelector(
-          ".t-store__prod-popup, .js-store-prod-all, .js-product-single-wrapper, .js-store-product, .t-store__product-snippet",
+          ".t-store__prod-popup, .t-catalog__prod-popup, .js-store-prod-all, .js-catalog-prod-all, .js-product-single-wrapper, .js-store-product, .js-catalog-product, .t-store__product-snippet, .t-catalog__product-snippet",
         ),
       );
 
     const productMeta = popupContext.querySelector(
-      ".js-product-name, .js-product-price, .js-store-prod-name, .js-store-prod-price-val, .t-store__prod-popup__title, .t-store__prod-popup__price, [data-product-price], [data-price]",
+      ".js-product-name, .js-product-price, .js-store-prod-name, .js-catalog-prod-name, .js-store-prod-price-val, .js-catalog-prod-price-val, .t-store__prod-popup__title, .t-catalog__prod-popup__name, .t-store__prod-popup__price, .t-catalog__prod-popup__price, [data-product-price], [data-price]",
     );
 
     const productSliderSignals = popupContext.querySelector(
-      ".t-store__prod-popup__slider, .t-slds__item_active .js-product-img, .t-slds__item_active .t-bgimg, .t-slds__imgwrapper[data-img-zoom-url], .t-slds__item [data-img-zoom-url]",
+      ".t-store__prod-popup__slider, .t-catalog__prod-popup__slider, .t-slds__item_active .js-product-img, .t-slds__item_active .t-bgimg, .t-slds__imgwrapper[data-img-zoom-url], .t-slds__item [data-img-zoom-url]",
     );
 
     const activeProductSliderSignals = popupContext.querySelector(
@@ -901,11 +948,15 @@
     const context = contextElement && contextElement.nodeType === 1 ? contextElement : document;
     const tildaPopupSelectors = [
       ".t-store__prod-popup",
+      ".t-catalog__prod-popup",
       ".t-popup",
       ".js-store-prod-all",
+      ".js-catalog-prod-all",
       ".js-product-single-wrapper",
       ".js-store-product",
+      ".js-catalog-product",
       ".t-store__product-snippet",
+      ".t-catalog__product-snippet",
     ];
 
     for (let i = 0; i < tildaPopupSelectors.length; i++) {
@@ -920,7 +971,7 @@
   function isTildaStorefront() {
     return Boolean(
       document.querySelector(
-        ".t-store__card, .t-store__parts-switch-wrapper, .t-store__prod-popup, .js-store-prod-all, .js-product-single-wrapper, .js-store-product, .t-store__product-snippet",
+        ".t-store__card, .t-catalog__card, .t-store__parts-switch-wrapper, .t-catalog__parts-switch-wrapper, .t-store__prod-popup, .t-catalog__prod-popup, .js-store-prod-all, .js-catalog-prod-all, .js-product-single-wrapper, .js-store-product, .js-catalog-product, .t-store__product-snippet, .t-catalog__product-snippet",
       ),
     );
   }
@@ -1064,7 +1115,7 @@
     // и не к длинному .t-slds__items-wrapper.
     const stableSliderContainer =
       (targetImageElement && targetImageElement.closest && targetImageElement.closest(
-        ".t-store__prod-popup__slider, .t-slds, .t-slds__main, .t-slds__container",
+        ".t-store__prod-popup__slider, .t-catalog__prod-popup__slider, .t-slds, .t-slds__main, .t-slds__container",
       )) ||
       null;
 
@@ -1074,7 +1125,7 @@
 
     const preferredContainer =
       (targetImageElement && targetImageElement.closest && targetImageElement.closest(
-        ".t-slds__imgwrapper, .t-store__prod-popup__imgwrapper, [data-fitting-image-container]",
+        ".t-slds__imgwrapper, .t-store__prod-popup__imgwrapper, .t-catalog__prod-popup__imgwrapper, [data-fitting-image-container]",
       )) ||
       null;
 
@@ -1103,7 +1154,7 @@
     pushContext(resolveOpenProductElement(productElement));
     pushContext(getOpenCardRoot(productElement));
     if (productElement && productElement.closest) {
-      pushContext(productElement.closest(".js-store-prod-all, .js-product-single-wrapper, .t-store__prod-popup"));
+      pushContext(productElement.closest(".js-store-prod-all, .js-catalog-prod-all, .js-product-single-wrapper, .t-store__prod-popup, .t-catalog__prod-popup"));
     }
 
     return contexts;
@@ -1286,13 +1337,19 @@
   function resolveFallbackProductElement() {
     return (
       document.querySelector(".t-popup_show .js-store-prod-all") ||
+      document.querySelector(".t-popup_show .js-catalog-prod-all") ||
       document.querySelector(".t-popup_show .js-product-single-wrapper") ||
       document.querySelector(".t-popup_show .t-store__prod-popup") ||
+      document.querySelector(".t-popup_show .t-catalog__prod-popup") ||
       document.querySelector(".js-store-product") ||
+      document.querySelector(".js-catalog-product") ||
       document.querySelector(".t-store__product-snippet") ||
+      document.querySelector(".t-catalog__product-snippet") ||
       document.querySelector(".js-store-prod-all") ||
+      document.querySelector(".js-catalog-prod-all") ||
       document.querySelector(".js-product-single-wrapper") ||
       document.querySelector(".t-store__prod-popup") ||
+      document.querySelector(".t-catalog__prod-popup") ||
       null
     );
   }
@@ -1553,7 +1610,7 @@
     ];
 
     var context = (productElement && productElement.closest &&
-      productElement.closest(".t-store__prod-popup, .js-store-prod-all, .js-product-single-wrapper")) ||
+      productElement.closest(".t-store__prod-popup, .t-catalog__prod-popup, .js-store-prod-all, .js-catalog-prod-all, .js-product-single-wrapper")) ||
       document;
 
     for (var i = 0; i < colorSelectors.length; i++) {
@@ -1831,10 +1888,10 @@
           const el = node;
           if (
             (el.matches && el.matches(
-              ".t-popup_show, .t-store__prod-popup, .t-store__prod-popup_showed, .js-store-prod-all, .js-product-single-wrapper, .t-slds__item, .t-slds__items-wrapper, .t-slds__imgwrapper, .js-product-img, .t-bgimg",
+              ".t-popup_show, .t-store__prod-popup, .t-store__prod-popup_showed, .t-catalog__prod-popup, .t-catalog__prod-popup_showed, .js-store-prod-all, .js-catalog-prod-all, .js-product-single-wrapper, .t-slds__item, .t-slds__items-wrapper, .t-slds__imgwrapper, .js-product-img, .t-bgimg",
             )) ||
             (el.querySelector && el.querySelector(
-              ".t-popup_show, .t-store__prod-popup, .t-store__prod-popup_showed, .js-store-prod-all, .js-product-single-wrapper, .t-slds__item, .t-slds__items-wrapper, .t-slds__imgwrapper, .js-product-img, .t-bgimg",
+              ".t-popup_show, .t-store__prod-popup, .t-store__prod-popup_showed, .t-catalog__prod-popup, .t-catalog__prod-popup_showed, .js-store-prod-all, .js-catalog-prod-all, .js-product-single-wrapper, .t-slds__item, .t-slds__items-wrapper, .t-slds__imgwrapper, .js-product-img, .t-bgimg",
             ))
           ) {
             shouldReprocess = true;
