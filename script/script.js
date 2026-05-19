@@ -63,7 +63,7 @@
     priceAttribute: "data-fitting-price",
     imageAttribute: "data-fitting-image",
     onlyOpenCardFirstImage: true,
-    openCardSelector: ".t-store__prod-popup.t-popup_show, .t-store__prod-popup_showed, .t-popup_show .t-store__prod-popup, .t-popup_show .js-store-prod-all, .t-popup_show .js-product-single-wrapper, .t-popup_show .t-store__prod-popup__container, .t-catalog__prod-popup.t-popup_show, .t-catalog__prod-popup_showed, .t-popup_show .t-catalog__prod-popup, .t-popup_show .js-catalog-prod-all, .t-popup_show .t-catalog__prod-popup__container",
+    openCardSelector: ".t-store__prod-popup.t-popup_show, .t-store__prod-popup_showed, .t-popup_show .t-store__prod-popup, .t-popup_show .js-store-prod-all, .t-popup_show .js-product-single-wrapper, .t-popup_show .t-store__prod-popup__container, .t-catalog__prod-popup.t-popup_show, .t-catalog__prod-popup_showed, .t-popup_show .t-catalog__prod-popup, .t-popup_show .js-catalog-prod-all, .t-popup_show .t-catalog__prod-popup__container, .t-popup_show .js-catalog-product, .t-catalog__product-popup.t-popup_show, .t-popup_show .t-catalog__product-popup",
     openCardProductSelectors: [
       ".js-store-prod-all",
       ".js-catalog-prod-all",
@@ -76,6 +76,7 @@
       ".t-catalog__prod-popup__content",
       ".js-store-product",
       ".js-catalog-product",
+      ".t-catalog__product-popup",
       ".t-store__product-snippet",
       ".t-catalog__product-snippet",
     ],
@@ -92,6 +93,7 @@
       ".t-catalog__prod-popup__content",
       ".js-store-product",
       ".js-catalog-product",
+      ".t-catalog__product-popup",
       ".t-store__product-snippet",
       ".t-catalog__product-snippet",
       ".t-store__card",
@@ -100,6 +102,7 @@
       ".js-product-wrapper",
       ".t-store__prod-popup__slider",
       ".t-catalog__prod-popup__slider",
+      ".js-catalog-desktop-custom-gallery",
     ],
     firstPhotoSelectors: [
       // Попап: специфичные селекторы первого слайда
@@ -119,6 +122,15 @@
       ".t-catalog__prod-popup__imgwrapper .t-bgimg",
       ".t-store__prod-popup__imgwrapper img",
       ".t-catalog__prod-popup__imgwrapper img",
+      // T1291 t-catalog: custom desktop gallery (новый каталог, напр. TOOMATCH)
+      ".t-popup_show .js-catalog-desktop-custom-gallery .t-img",
+      ".t-catalog__prod-popup .js-catalog-desktop-custom-gallery .t-img",
+      ".t-popup_show .js-catalog-product .js-catalog-desktop-custom-gallery .t-img",
+      ".js-catalog-product .js-catalog-desktop-custom-gallery .t-img",
+      ".t-popup_show .js-catalog-product .t-slds__main .t-img",
+      ".t-popup_show .js-catalog-product .t-slds__main img",
+      ".js-catalog-product .t-slds__main .t-img",
+      ".js-catalog-desktop-custom-gallery img",
       // Одиночная страница товара: первый слайд по DOM-порядку
       ".t-slds__wrapper:first-child .js-product-img",
       ".t-slds__wrapper:first-child .t-bgimg",
@@ -167,6 +179,10 @@
       ".t-slds__bgimg",
       ".t-store__card__bgimg",
       ".t-catalog__card__bgimg",
+      ".js-catalog-desktop-custom-gallery .t-img",
+      ".js-catalog-desktop-custom-gallery img",
+      ".js-catalog-product .t-slds__main .t-img",
+      ".js-catalog-product .t-slds__main img",
       ".t-bgimg",
       "[data-original]",
       "img",
@@ -853,7 +869,7 @@
 
     if (context && context.closest) {
       const contextualRoot = context.closest(
-        ".js-store-prod-all, .js-catalog-prod-all, .js-product-single-wrapper, .t-store__prod-popup, .t-catalog__prod-popup, .t-popup_show, .js-store-product, .js-catalog-product, .t-store__product-snippet, .t-catalog__product-snippet",
+        ".js-store-prod-all, .js-catalog-prod-all, .js-product-single-wrapper, .t-store__prod-popup, .t-catalog__prod-popup, .t-catalog__product-popup, .t-popup_show, .js-store-product, .js-catalog-product, .js-catalog-desktop-custom-gallery, .t-store__product-snippet, .t-catalog__product-snippet",
       );
       if (contextualRoot && roots.indexOf(contextualRoot) === -1) {
         roots.push(contextualRoot);
@@ -896,12 +912,14 @@
       ".t-store__product-snippet .t-slds__item_active .t-slds__bgimg, .t-catalog__product-snippet .t-slds__item_active .t-slds__bgimg, " +
       ".js-store-prod-all .t-slds__item_active .js-product-img, .js-catalog-prod-all .t-slds__item_active .js-product-img, " +
       ".js-store-prod-all .t-slds__item_active .t-bgimg, .js-catalog-prod-all .t-slds__item_active .t-bgimg, " +
-      ".js-store-prod-all .t-slds__item_active .t-slds__bgimg, .js-catalog-prod-all .t-slds__item_active .t-slds__bgimg",
+      ".js-store-prod-all .t-slds__item_active .t-slds__bgimg, .js-catalog-prod-all .t-slds__item_active .t-slds__bgimg, " +
+      ".t-popup_show .js-catalog-desktop-custom-gallery .t-img, .t-popup_show .js-catalog-product .js-catalog-desktop-custom-gallery .t-img, " +
+      ".js-catalog-product .js-catalog-desktop-custom-gallery .t-img, .js-catalog-product .t-slds__main .t-img",
     );
 
     if (activeSlideImage && isElementVisible(activeSlideImage)) {
       const activeSliderContext = activeSlideImage.closest(
-        ".js-store-prod-all, .js-catalog-prod-all, .js-product-single-wrapper, .t-store__prod-popup, .t-catalog__prod-popup, .t-store__prod-popup__slider, .t-catalog__prod-popup__slider, .t-slds__items-wrapper, .t-popup_show, .js-store-product, .js-catalog-product, .t-store__product-snippet, .t-catalog__product-snippet",
+        ".js-store-prod-all, .js-catalog-prod-all, .js-product-single-wrapper, .t-store__prod-popup, .t-catalog__prod-popup, .t-store__prod-popup__slider, .t-catalog__prod-popup__slider, .t-slds__items-wrapper, .t-popup_show, .js-store-product, .js-catalog-product, .js-catalog-desktop-custom-gallery, .t-store__product-snippet, .t-catalog__product-snippet",
       );
       if (
         activeSliderContext &&
@@ -919,16 +937,16 @@
     if (!element || !element.closest) return false;
 
     const popupContext = element.closest(
-      ".t-store__prod-popup, .t-catalog__prod-popup, .js-store-prod-all, .js-catalog-prod-all, .js-product-single-wrapper, .t-popup_show, .js-store-product, .js-catalog-product, .t-store__product-snippet, .t-catalog__product-snippet",
+      ".t-store__prod-popup, .t-catalog__prod-popup, .t-catalog__product-popup, .js-store-prod-all, .js-catalog-prod-all, .js-product-single-wrapper, .t-popup_show, .js-store-product, .js-catalog-product, .js-catalog-desktop-custom-gallery, .t-store__product-snippet, .t-catalog__product-snippet",
     );
     if (!popupContext) return false;
 
     const storeContainerHint =
       (popupContext.matches &&
-        popupContext.matches(".t-store__prod-popup, .t-catalog__prod-popup, .js-store-prod-all, .js-catalog-prod-all, .js-product-single-wrapper, .js-store-product, .js-catalog-product, .t-store__product-snippet, .t-catalog__product-snippet")) ||
+        popupContext.matches(".t-store__prod-popup, .t-catalog__prod-popup, .t-catalog__product-popup, .js-store-prod-all, .js-catalog-prod-all, .js-product-single-wrapper, .js-store-product, .js-catalog-product, .js-catalog-desktop-custom-gallery, .t-store__product-snippet, .t-catalog__product-snippet")) ||
       Boolean(
         popupContext.querySelector(
-          ".t-store__prod-popup, .t-catalog__prod-popup, .js-store-prod-all, .js-catalog-prod-all, .js-product-single-wrapper, .js-store-product, .js-catalog-product, .t-store__product-snippet, .t-catalog__product-snippet",
+          ".t-store__prod-popup, .t-catalog__prod-popup, .t-catalog__product-popup, .js-store-prod-all, .js-catalog-prod-all, .js-product-single-wrapper, .js-store-product, .js-catalog-product, .js-catalog-desktop-custom-gallery, .t-store__product-snippet, .t-catalog__product-snippet",
         ),
       );
 
@@ -937,7 +955,8 @@
     );
 
     const productSliderSignals = popupContext.querySelector(
-      ".t-store__prod-popup__slider, .t-catalog__prod-popup__slider, .t-slds__item_active .js-product-img, .t-slds__item_active .t-bgimg, .t-slds__imgwrapper[data-img-zoom-url], .t-slds__item [data-img-zoom-url]",
+      ".t-store__prod-popup__slider, .t-catalog__prod-popup__slider, .t-slds__item_active .js-product-img, .t-slds__item_active .t-bgimg, .t-slds__imgwrapper[data-img-zoom-url], .t-slds__item [data-img-zoom-url], " +
+      ".js-catalog-desktop-custom-gallery .t-img, .js-catalog-desktop-custom-gallery img, .js-catalog-product .js-catalog-desktop-custom-gallery .t-img, .js-catalog-product .t-slds__main .t-img, .js-catalog-product .t-slds__main img",
     );
 
     const activeProductSliderSignals = popupContext.querySelector(
@@ -956,12 +975,14 @@
     const tildaPopupSelectors = [
       ".t-store__prod-popup",
       ".t-catalog__prod-popup",
+      ".t-catalog__product-popup",
       ".t-popup",
       ".js-store-prod-all",
       ".js-catalog-prod-all",
       ".js-product-single-wrapper",
       ".js-store-product",
       ".js-catalog-product",
+      ".js-catalog-desktop-custom-gallery",
       ".t-store__product-snippet",
       ".t-catalog__product-snippet",
     ];
@@ -978,7 +999,7 @@
   function isTildaStorefront() {
     return Boolean(
       document.querySelector(
-        ".t-store__card, .t-catalog__card, .t-store__parts-switch-wrapper, .t-catalog__parts-switch-wrapper, .t-store__prod-popup, .t-catalog__prod-popup, .js-store-prod-all, .js-catalog-prod-all, .js-product-single-wrapper, .js-store-product, .js-catalog-product, .t-store__product-snippet, .t-catalog__product-snippet",
+        ".t-store__card, .t-catalog__card, .t-store__parts-switch-wrapper, .t-catalog__parts-switch-wrapper, .t-store__prod-popup, .t-catalog__prod-popup, .t-catalog__product-popup, .js-store-prod-all, .js-catalog-prod-all, .js-product-single-wrapper, .js-store-product, .js-catalog-product, .js-catalog-desktop-custom-gallery, .js-catalog-has-new-parts-02-26, .t-store__product-snippet, .t-catalog__product-snippet",
       ),
     );
   }
@@ -1122,7 +1143,7 @@
     // и не к длинному .t-slds__items-wrapper.
     const stableSliderContainer =
       (targetImageElement && targetImageElement.closest && targetImageElement.closest(
-        ".t-store__prod-popup__slider, .t-catalog__prod-popup__slider, .t-slds, .t-slds__main, .t-slds__container",
+        ".t-store__prod-popup__slider, .t-catalog__prod-popup__slider, .t-slds, .t-slds__main, .t-slds__container, .js-catalog-desktop-custom-gallery",
       )) ||
       null;
 
@@ -1132,7 +1153,7 @@
 
     const preferredContainer =
       (targetImageElement && targetImageElement.closest && targetImageElement.closest(
-        ".t-slds__imgwrapper, .t-store__prod-popup__imgwrapper, .t-catalog__prod-popup__imgwrapper, [data-fitting-image-container]",
+        ".t-slds__imgwrapper, .t-store__prod-popup__imgwrapper, .t-catalog__prod-popup__imgwrapper, .js-catalog-desktop-custom-gallery, [data-fitting-image-container]",
       )) ||
       null;
 
@@ -1345,6 +1366,8 @@
     return (
       document.querySelector(".t-popup_show .js-store-prod-all") ||
       document.querySelector(".t-popup_show .js-catalog-prod-all") ||
+      document.querySelector(".t-popup_show .js-catalog-product") ||
+      document.querySelector(".t-popup_show .t-catalog__product-popup") ||
       document.querySelector(".t-popup_show .js-product-single-wrapper") ||
       document.querySelector(".t-popup_show .t-store__prod-popup") ||
       document.querySelector(".t-popup_show .t-catalog__prod-popup") ||
@@ -1921,10 +1944,10 @@
           const el = node;
           if (
             (el.matches && el.matches(
-              ".t-popup_show, .t-store__prod-popup, .t-store__prod-popup_showed, .t-catalog__prod-popup, .t-catalog__prod-popup_showed, .js-store-prod-all, .js-catalog-prod-all, .js-product-single-wrapper, .t-slds__item, .t-slds__items-wrapper, .t-slds__imgwrapper, .js-product-img, .t-bgimg",
+              ".t-popup_show, .t-store__prod-popup, .t-store__prod-popup_showed, .t-catalog__prod-popup, .t-catalog__prod-popup_showed, .js-store-prod-all, .js-catalog-prod-all, .js-product-single-wrapper, .t-slds__item, .t-slds__items-wrapper, .t-slds__imgwrapper, .js-product-img, .t-bgimg, .js-catalog-desktop-custom-gallery, .t-img",
             )) ||
             (el.querySelector && el.querySelector(
-              ".t-popup_show, .t-store__prod-popup, .t-store__prod-popup_showed, .t-catalog__prod-popup, .t-catalog__prod-popup_showed, .js-store-prod-all, .js-catalog-prod-all, .js-product-single-wrapper, .t-slds__item, .t-slds__items-wrapper, .t-slds__imgwrapper, .js-product-img, .t-bgimg",
+              ".t-popup_show, .t-store__prod-popup, .t-store__prod-popup_showed, .t-catalog__prod-popup, .t-catalog__prod-popup_showed, .js-store-prod-all, .js-catalog-prod-all, .js-product-single-wrapper, .t-slds__item, .t-slds__items-wrapper, .t-slds__imgwrapper, .js-product-img, .t-bgimg, .js-catalog-desktop-custom-gallery, .t-img",
             ))
           ) {
             shouldReprocess = true;
