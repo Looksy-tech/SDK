@@ -16,7 +16,8 @@
   // =====================================================
 
   // Получаем shopToken из data-атрибута текущего скрипта
-  const currentScript = document.currentScript;
+  const currentScript = document.currentScript ||
+    document.querySelector('script[data-shop-token]');
   const SHOP_TOKEN = currentScript?.getAttribute('data-shop-token') || '';
   const DEBUG_MODE = currentScript?.getAttribute("data-debug") === "true";
   const LANG = currentScript?.getAttribute('data-lang') || '';
@@ -279,6 +280,12 @@
       font_size: 14,
       height: 37,
       border_radius: 7,
+      icon_url: null,
+      icon_size: 18,
+      icon_offset_x: 0,
+      icon_offset_y: 0,
+      offset_x: 0,
+      offset_y: 0,
     },
     iframe: {
       primary_button_color: "#0a0a0b",
@@ -1460,6 +1467,7 @@
           image: productData.image,
           name: productData.name,
           price: productData.price,
+          external_id: productData.external_id,
         }),
       ),
     });
@@ -1694,12 +1702,14 @@
     }
 
     const description = resolveProductDescription(productElement);
+    const externalId = productElement.getAttribute("data-fitting-id") || undefined;
 
     return {
       image: imageSrc,
       name: name,
       price: price,
       description: description || undefined,
+      external_id: externalId,
     };
   }
 
@@ -1721,7 +1731,24 @@
       button.setAttribute(PRODUCT_BTN_ATTR, "true");
     }
 
-    if (IS_EN_WIDGET) {
+    var customIconUrl = shopConfig.button.icon_url;
+    if (customIconUrl) {
+      const icon = document.createElement("img");
+      icon.src = customIconUrl;
+      icon.alt = "";
+      icon.setAttribute("aria-hidden", "true");
+      var iconSize = shopConfig.button.icon_size || 18;
+      icon.style.width = iconSize + "px";
+      icon.style.height = iconSize + "px";
+      icon.style.objectFit = "contain";
+      icon.style.flexShrink = "0";
+      var ix = shopConfig.button.icon_offset_x || 0;
+      var iy = shopConfig.button.icon_offset_y || 0;
+      if (ix !== 0 || iy !== 0) {
+        icon.style.transform = "translate(" + ix + "px, " + iy + "px)";
+      }
+      button.appendChild(icon);
+    } else if (IS_EN_WIDGET) {
       const star = document.createElement("span");
       star.className = "virtual-fitting-button-star";
       star.setAttribute("aria-hidden", "true");
@@ -1733,6 +1760,12 @@
       icon.alt = "";
       icon.setAttribute("aria-hidden", "true");
       button.appendChild(icon);
+    }
+
+    var bx = shopConfig.button.offset_x || 0;
+    var by = shopConfig.button.offset_y || 0;
+    if (bx !== 0 || by !== 0) {
+      button.style.transform = "translate(" + bx + "px, " + (-by) + "px)";
     }
 
     const text = document.createTextNode(shopConfig.button.text);
