@@ -956,110 +956,77 @@ fetch('/api/products')
 
 ## React (для SPA)
 
-Подключайте SDK один раз (например, в `index.html` или в корневом layout), а в карточках вызывайте только `window.VirtualFitting.init()` после рендера/обновления товаров.
+Подключайте SDK один раз в `index.html` (или в root layout), а `window.VirtualFitting.init()` вызывайте на уровне страницы/роута после рендера контента, не внутри каждой карточки товара.
+
+Пример инициализации при смене маршрута:
 
 ```tsx
-import { useEffect } from 'react';
+function useLooksyInitOnRouteChange() {
+  const location = useLocation();
 
-interface Product {
-  id: string;
-  name: string;
-  price: string;
-  image: string;
-}
-
-declare global {
-  interface Window {
-    VirtualFitting?: {
-      open: (productData?: unknown) => void;
-      close: () => void;
-      init: () => void;
-    };
-  }
-}
-
-export default function ProductCard({ product }: { product: Product }) {
   useEffect(() => {
-    if (window.VirtualFitting) {
-      window.VirtualFitting.init();
-    }
-  }, [product]);
+    const frame = requestAnimationFrame(() => {
+      if (window.VirtualFitting) {
+        window.VirtualFitting.init();
+      }
+    });
 
-  return (
-    <div 
-      data-fitting-product
-      data-fitting-name={product.name}
-      data-fitting-price={product.price}
-    >
-      <img 
-        src={product.image}
-        alt={product.name}
-        data-fitting-image
-      />
-    </div>
-  );
+    return () => cancelAnimationFrame(frame);
+  }, [location.pathname]);
 }
 ```
 
 ## Vue.js
 
-Подключайте SDK один раз на уровне приложения, а не в каждом компоненте карточки.
-
-### 1. Подключение SDK (один раз)
-
-Вариант A (`index.html`):
+Подключайте SDK один раз в `index.html`, а `window.VirtualFitting.init()` вызывайте на уровне приложения при смене маршрута, не внутри карточки товара.
 
 ```html
 <script
+  defer
   src="https://looksy.tech/min-script.js"
-  data-shop-token="YOUR_SHOP_TOKEN">
+  data-shop-token="YOUR_SHOP_TOKEN"
+  data-lang="en">
 </script>
 ```
 
-Вариант B (`App.vue`, если нужна динамическая вставка):
+Пример инициализации в `App.vue`:
 
 ```vue
 <script setup>
-import { onMounted } from 'vue';
+import { nextTick, watch } from "vue";
+import { useRoute } from "vue-router";
 
-onMounted(() => {
-  if (!document.querySelector('script[data-looksy-sdk]')) {
-    const script = document.createElement('script');
-    script.src = 'https://looksy.tech/min-script.js';
-    script.setAttribute('data-shop-token', 'YOUR_SHOP_TOKEN');
-    script.setAttribute('data-looksy-sdk', 'true');
-    document.body.appendChild(script);
-  }
-});
+const route = useRoute();
+
+watch(
+  () => route.path,
+  async () => {
+    await nextTick();
+    if (window.VirtualFitting) {
+      window.VirtualFitting.init();
+    }
+  },
+  { immediate: true }
+);
 </script>
 ```
 
-### 2. Компонент карточки товара
+Карточка/страница товара должна содержать `data-fitting-*`, а кнопка должна якориться к блоку фото:
 
 ```vue
-<template>
-  <div 
-    data-fitting-product
-    :data-fitting-name="product.name"
-    :data-fitting-price="product.price"
-  >
-    <img 
-      :src="product.image"
-      :alt="product.name"
-      data-fitting-image
-    />
-  </div>
-</template>
-
-<script setup>
-import { onUpdated } from 'vue';
-
-defineProps(['product']);
-
-onUpdated(() => {
-  if (window.VirtualFitting) {
-    window.VirtualFitting.init();
-  }
-});
-</script>
+<div
+  class="product-media"
+  data-fitting-product
+  :data-fitting-name="product.name"
+  :data-fitting-price="product.price"
+  :data-fitting-image="product.tryOnImage"
+>
+  <img
+    :src="product.image"
+    :alt="product.name"
+    :data-fitting-image="product.tryOnImage"
+  />
+</div>
 ```
+
+`product.image` можно оставить локальным для UI, но `product.tryOnImage` должен быть публично доступным URL.

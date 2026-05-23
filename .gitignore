@@ -1,3 +1,8 @@
 node_modules/
 .DS_Store
 script/script.min.js
+dist/
+build/
+.vite/
+coverage/
+*.log
