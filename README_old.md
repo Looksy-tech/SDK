@@ -8,7 +8,6 @@
 - [Data-атрибуты](#data-атрибуты)
 - [Принцип работы](#принцип-работы)
 - [Примеры интеграции для популярных CMS](#примеры-интеграции-для-популярных-cms)
-- [WooCommerce (WordPress)](#woocommerce-wordpress)
 - [Tilda](#tilda)
 - [Вёрстка на чистом HTML/CSS/JS](#вёрстка-на-чистом-htmlcssjs)
 - [React (для SPA)](#react-для-spa)
@@ -52,7 +51,7 @@
 
 | Атрибут | Элемент | Описание | По умолчанию |
 |---------|---------|----------|--------------|
-| `data-fitting-name` | Контейнер | Название товара | Сначала ищется в тексте карточки/заголовках, затем берётся из `alt` изображения |
+| `data-fitting-name` | Контейнер | Название товара | Берется из `alt` изображения |
 | `data-fitting-price` | Контейнер | Цена товара | Пустая строка |
 
 ---
@@ -131,307 +130,115 @@ Data-атрибуты — это способ «пометить» HTML-элем
 
 
 
-## WooCommerce (WordPress)
+## WordPress
 
-### Рекомендуемый способ: через плагин Code Snippets
-
-Этот способ подходит для большинства магазинов WooCommerce. Не нужно редактировать файлы темы, искать `footer.php` или создавать `single-product.php`.
-
-Не используйте этот способ одновременно с ручной вставкой скрипта в `footer.php`, чтобы SDK не подключился дважды.
-
-### 1. Установите плагин Code Snippets
-
-1. Откройте админку WordPress.
-2. Перейдите в раздел `Плагины -> Добавить новый`.
-3. В поиске введите `Code Snippets`.
-4. Установите и активируйте плагин.
-5. Убедитесь, что в меню появился раздел `Сниппеты` или `Code Snippets`.
-
-### 2. Создайте новый PHP-сниппет
-
-1. Перейдите в `Сниппеты -> Добавить новый`.
-2. Укажите название, например `Looksy WooCommerce Widget`.
-3. Вставьте код ниже.
-4. Замените `YOUR_SHOP_TOKEN` на токен вашего магазина.
-5. При необходимости измените язык через `data-lang`.
-
-Доступные варианты:
-
-```text
-data-lang="en" - английский интерфейс и кнопка Try on
-data-lang="ru" или отсутствие data-lang - русский/default режим
-```
-
-### 3. Вставьте код
+### 1. Добавление скрипта в footer.php
 
 ```php
-add_action('wp_footer', function () {
-    if (!function_exists('is_product') || !is_product()) {
-        return;
-    }
-
-    global $product;
-
-    if (!$product) {
-        return;
-    }
-
-    $product_name = $product->get_name();
-    $product_price = wp_strip_all_tags(wc_price($product->get_price()));
-    ?>
-    <script>
-    (function () {
-        function markLooksyProduct() {
-            const productImage =
-                document.querySelector('.woocommerce-product-gallery__image img') ||
-                document.querySelector('.wp-block-woocommerce-product-image-gallery img') ||
-                document.querySelector('.wc-block-components-product-image img') ||
-                document.querySelector('main img');
-
-            if (!productImage) {
-                console.warn('[Looksy] WooCommerce product image not found');
-                return;
-            }
-
-            const container =
-                productImage.closest('.woocommerce-product-gallery__image') ||
-                productImage.closest('.wp-block-woocommerce-product-image-gallery') ||
-                productImage.closest('figure') ||
-                productImage.parentElement;
-
-            if (!container) {
-                console.warn('[Looksy] WooCommerce product image container not found');
-                return;
-            }
-
-            container.setAttribute('data-fitting-product', '');
-            container.setAttribute('data-fitting-name', <?php echo wp_json_encode($product_name); ?>);
-            container.setAttribute('data-fitting-price', <?php echo wp_json_encode($product_price); ?>);
-
-            productImage.setAttribute('data-fitting-image', '');
-
-            console.log('[Looksy] WooCommerce product marked', {
-                name: <?php echo wp_json_encode($product_name); ?>,
-                price: <?php echo wp_json_encode($product_price); ?>,
-                image: productImage.currentSrc || productImage.src
-            });
-        }
-
-        markLooksyProduct();
-    })();
-    </script>
-
-    <script
-        src="https://looksy.tech/min-script.js"
-        data-shop-token="YOUR_SHOP_TOKEN"
-        data-lang="en"
-        data-debug="true">
-    </script>
-    <?php
-}, 99);
+<?php
+// В файле footer.php вашей темы, перед </body>
+?>
+<script src="https://looksy.tech/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
+<?php wp_footer(); ?>
+</body>
+</html>
 ```
 
-### 4. Активируйте сниппет
+### 2. Настройка шаблона товара WooCommerce
 
-1. Выберите режим запуска `Run snippet everywhere`.
-2. Нажмите `Save Changes and Activate`.
-3. Убедитесь, что сниппет включен.
+Создайте файл `single-product.php` в вашей теме:
 
-Если сниппет сохранен, но не активирован, виджет не появится на сайте.
-
-### 5. Проверьте работу на странице товара
-
-Откройте любую страницу товара WooCommerce, например:
-
-```text
-/product/product-name/
-```
-
-Ожидаемый результат:
-
-- на изображении товара появляется кнопка примерки;
-- при клике открывается виджет Looksy;
-- в консоли браузера появляются сообщения `[Looksy]`, если включен `data-debug="true"`.
-
-### 6. Если кнопка не появилась
-
-Откройте DevTools -> `Console`.
-
-Проверьте, есть ли сообщение:
-
-```text
-[Looksy] WooCommerce product marked
-```
-
-Если такого сообщения нет, проверьте:
-
-- сниппет активирован;
-- выбран режим `Run snippet everywhere`;
-- открыта именно страница товара;
-- у товара есть основное изображение;
-- магазин не в режиме `Coming Soon`.
-
-Если появляется сообщение:
-
-```text
-[Looksy] WooCommerce product image not found
-```
-
-значит тема использует нестандартную разметку изображения. В этом случае нужна ручная разметка товара или отдельная настройка селектора.
-
-### 7. Как отключить debug-режим
-
-Замените:
-
-```html
-data-debug="true"
-```
-
-на:
-
-```html
-data-debug="false"
-```
-
-или удалите атрибут.
-
-### 8. Как изменить язык кнопки
-
-Для английской кнопки:
-
-```html
-<script
-  src="https://looksy.tech/min-script.js"
-  data-shop-token="YOUR_SHOP_TOKEN"
-  data-lang="en">
-</script>
-```
-
-Для русского/default режима уберите `data-lang` или укажите:
-
-```html
-data-lang="ru"
-```
-
-### 9. Ручная интеграция для разработчиков
-
-Если тема сильно изменяет стандартную WooCommerce-разметку, можно разметить товар вручную:
-
-```html
-<div
-  data-fitting-product
-  data-fitting-name="Product name"
-  data-fitting-price="$49">
-  <img
-    src="https://example.com/product.jpg"
-    alt="Product name"
-    data-fitting-image />
+```php
+<div class="product" 
+     data-fitting-product 
+     data-fitting-name="<?php echo esc_attr(get_the_title()); ?>" 
+     data-fitting-price="<?php echo esc_attr(get_woocommerce_currency_symbol() . $product->get_price()); ?>">
+    
+    <?php if (has_post_thumbnail()): ?>
+        <img src="<?php echo get_the_post_thumbnail_url(get_the_ID(), 'full'); ?>" 
+             alt="<?php echo esc_attr(get_the_title()); ?>"
+             data-fitting-image />
+    <?php endif; ?>
+    
 </div>
 ```
 
-`data-fitting-product` ставится на контейнер одного товара.
+### 3. Через плагин Code Snippets
 
-`data-fitting-image` ставится на изображение товара внутри этого контейнера.
+```php
+add_action('wp_footer', function() {
+    ?>
+    <script src="https://looksy.tech/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
+    <?php
+});
 
-`data-fitting-name` и `data-fitting-price` передают название и цену товара в виджет.
-
-### 10. Не рекомендуется для обычных пользователей
-
-Не редактируйте `footer.php` и не создавайте `single-product.php`, если вы не разработчик темы.
+add_filter('woocommerce_product_thumbnails_columns', function() {
+    add_action('woocommerce_product_thumbnails', function() {
+        global $product;
+        ?>
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const productImage = document.querySelector('.woocommerce-product-gallery__image img');
+            if (productImage) {
+                const container = productImage.closest('.woocommerce-product-gallery__image');
+                container.setAttribute('data-fitting-product', '');
+                container.setAttribute('data-fitting-name', '<?php echo esc_js($product->get_name()); ?>');
+                container.setAttribute('data-fitting-price', '<?php echo esc_js(wc_price($product->get_price())); ?>');
+                productImage.setAttribute('data-fitting-image', '');
+            }
+        });
+        </script>
+        <?php
+    });
+});
+```
 
 ## Shopify
 
-### С чего начать после входа в Shopify Admin
-
-1. В левом меню откройте `Sales channels -> Online Store`.
-2. В блоке `Current theme` нажмите `...` (или `Actions`) -> `Edit code`.
-
-### 1. Подключите SDK только на страницах товара
-
-1. В редакторе файлов откройте `Layout/theme.liquid`.
-2. Найдите существующий блок `{% if request.page_type == 'product' %}`.
-3. Внутри этого блока, ниже по коду и перед его `{% endif %}`, добавьте наш SDK-скрипт:
+### 1. Добавление скрипта в theme.liquid
 
 ```liquid
-<script
-  defer
-  src="https://looksy.tech/min-script.js"
-  data-shop-token="YOUR_SHOP_TOKEN"
-  data-lang="en">
-</script>
+<!-- Перед закрывающим тегом </body> в theme.liquid -->
+<script src="https://looksy.tech/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
+</body>
 ```
 
-4. Больше в этом шаге ничего не меняйте: не добавляйте новый `if`, не переносите существующий код.
+### 2. Настройка шаблона товара
 
-Почему подключаем только в `product`:
-
-- виджет нужен именно в карточке товара, где есть фото/цена/название для примерки;
-- скрипт не запускается на лишних страницах (home, cart, blog), меньше нагрузка;
-- не возникает лишней инициализации логики галереи и `variant:update` там, где этих элементов нет.
-
-`request.page_type == 'product'` — стандартный Shopify-флаг типа страницы (не зависит от темы).
-
-### 2. Добавьте разметку товара (обязательный шаг)
-
-Не выходя из `Edit code`:
-
-1. Откройте файл `snippets/product-information-content.liquid`.
-2. Найдите `<div class="product-information__media" ...>`.
-3. Добавьте в этот `div` атрибуты `data-fitting-*` только для product page.
+В файле `product-template.liquid` или `product.liquid`:
 
 ```liquid
-<div
-  class="product-information__media"
-  data-testid="product-information-media"
-  {% if request.page_type == 'product' %}
-    data-fitting-product
-    data-fitting-name="{{ product.title | escape }}"
-    data-fitting-price="{{ product.price | money }}"
+<div data-fitting-product 
+     data-fitting-name="{{ product.title }}" 
+     data-fitting-price="{{ product.price | money }}">
+  
+  {% if product.featured_image %}
+    <img src="{{ product.featured_image | img_url: 'master' }}" 
+         alt="{{ product.title }}"
+         data-fitting-image />
   {% endif %}
->
-  {{ media_gallery }}
+  
 </div>
 ```
 
-#### Пример:
-
-Было:
+### 3. Для продуктов в коллекции
 
 ```liquid
-<div
-  class="product-information__media"
-  data-testid="product-information-media"
->
-  {{ media_gallery }}
-</div>
+{% for product in collection.products %}
+  <div class="product-card" 
+       data-fitting-product 
+       data-fitting-name="{{ product.title }}" 
+       data-fitting-price="{{ product.price | money }}">
+    
+    <a href="{{ product.url }}">
+      <img src="{{ product.featured_image | img_url: 'large' }}" 
+           alt="{{ product.title }}"
+           data-fitting-image />
+    </a>
+    
+  </div>
+{% endfor %}
 ```
-
-Стало:
-
-```liquid
-<div
-  class="product-information__media"
-  data-testid="product-information-media"
-  {% if request.page_type == 'product' %}
-    data-fitting-product
-    data-fitting-name="{{ product.title | escape }}"
-    data-fitting-price="{{ product.price | money }}"
-  {% endif %}
->
-  {{ media_gallery }}
-</div>
-```
-
-Почему правим именно этот блок:
-
-- в этой теме контейнер `.product-information__media` — стабильный корень галереи товара;
-- на product page он получает `data-fitting-product`, `data-fitting-name`, `data-fitting-price`, и SDK однозначно понимает, где товар;
-- ваш product-only скрипт в `theme.liquid` (логика `variant:update`, привязка кнопки к `media-gallery`, синхронизация активного фото) опирается на этот же контейнер, поэтому правки работают согласованно.
-
-### 3. Сохраните изменения
-
-1. Нажмите `Save`.
-2. Если тема не опубликована, нажмите `Publish` для текущей версии темы.
 
 ## Битрикс (1C-Bitrix)
 
@@ -727,8 +534,6 @@ fetch('/api/products')
 
 ## React (для SPA)
 
-Подключайте SDK один раз (например, в `index.html` или в корневом layout), а в карточках вызывайте только `window.VirtualFitting.init()` после рендера/обновления товаров.
-
 ```tsx
 import { useEffect } from 'react';
 
@@ -739,17 +544,19 @@ interface Product {
   image: string;
 }
 
-declare global {
-  interface Window {
-    VirtualFitting?: {
-      open: (productData?: unknown) => void;
-      close: () => void;
-      init: () => void;
-    };
-  }
-}
-
 export default function ProductCard({ product }: { product: Product }) {
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://looksy.tech/min-script.js';
+    script.setAttribute('data-shop-token', 'YOUR_SHOP_TOKEN');
+    script.async = true;
+    document.body.appendChild(script);
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
   useEffect(() => {
     if (window.VirtualFitting) {
       window.VirtualFitting.init();
@@ -774,39 +581,6 @@ export default function ProductCard({ product }: { product: Product }) {
 
 ## Vue.js
 
-Подключайте SDK один раз на уровне приложения, а не в каждом компоненте карточки.
-
-### 1. Подключение SDK (один раз)
-
-Вариант A (`index.html`):
-
-```html
-<script
-  src="https://looksy.tech/min-script.js"
-  data-shop-token="YOUR_SHOP_TOKEN">
-</script>
-```
-
-Вариант B (`App.vue`, если нужна динамическая вставка):
-
-```vue
-<script setup>
-import { onMounted } from 'vue';
-
-onMounted(() => {
-  if (!document.querySelector('script[data-looksy-sdk]')) {
-    const script = document.createElement('script');
-    script.src = 'https://looksy.tech/min-script.js';
-    script.setAttribute('data-shop-token', 'YOUR_SHOP_TOKEN');
-    script.setAttribute('data-looksy-sdk', 'true');
-    document.body.appendChild(script);
-  }
-});
-</script>
-```
-
-### 2. Компонент карточки товара
-
 ```vue
 <template>
   <div 
@@ -823,9 +597,16 @@ onMounted(() => {
 </template>
 
 <script setup>
-import { onUpdated } from 'vue';
+import { onMounted, onUpdated } from 'vue';
 
-defineProps(['product']);
+const props = defineProps(['product']);
+
+onMounted(() => {
+  const script = document.createElement('script');
+  script.src = 'https://looksy.tech/min-script.js';
+  script.setAttribute('data-shop-token', 'YOUR_SHOP_TOKEN');
+  document.body.appendChild(script);
+});
 
 onUpdated(() => {
   if (window.VirtualFitting) {
