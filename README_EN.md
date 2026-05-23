@@ -253,11 +253,7 @@ If the snippet is saved but not activated, the widget will not appear on the sit
 
 ### 5. Check the product page
 
-Open any WooCommerce product page, for example:
-
-```text
-/product/product-name/
-```
+Open any WooCommerce product page, for example `/product/product-name/`.
 
 Expected result:
 
@@ -294,17 +290,9 @@ the theme uses non-standard image markup. In this case, use manual product marku
 
 ### 7. How to enable and disable debug mode
 
-For testing, add:
+For testing, add the `data-debug="true"` attribute.
 
-```html
-data-debug="true"
-```
-
-After testing, remove this attribute or replace it with:
-
-```html
-data-debug="false"
-```
+After testing, remove it or replace it with `data-debug="false"`.
 
 ### 8. How to change the button language
 
@@ -319,11 +307,7 @@ For the English button:
 </script>
 ```
 
-For Russian/default mode, remove `data-lang` or set:
-
-```html
-data-lang="ru"
-```
+For Russian/default mode, remove `data-lang` or set `data-lang="ru"`.
 
 ### 9. Manual integration for developers
 
@@ -367,13 +351,7 @@ After installation, the SDK receives the current product data: image, name, and 
 
 ### 1. Add the SDK in `theme.liquid`
 
-In the file editor, open:
-
-```txt
-layout/theme.liquid
-```
-
-Find the closing tag:
+In the file editor, open `layout/theme.liquid` and find the closing tag:
 
 ```liquid
 </body>
@@ -404,25 +382,13 @@ If there is no such block, add a new block before `</body>`:
 
 Replace `YOUR_SHOP_TOKEN` with your store token.
 
-The SDK must be connected only once. If the theme already contains this line:
-
-```txt
-https://looksy.tech/min-script.js
-```
-
-do not add the same script again.
+The SDK must be connected only once. If the theme already contains the line `https://looksy.tech/min-script.js`, do not add the same script again.
 
 ### 2. Add product markup
 
 Now find the template that outputs the main product image or gallery.
 
-In some themes, this file is called:
-
-```txt
-snippets/product-information-content.liquid
-```
-
-It may contain this block:
+In some themes, this file is called `snippets/product-information-content.liquid`. It may contain this block:
 
 ```liquid
 <div
@@ -465,49 +431,16 @@ In the Shopify code editor, search one by one for:
 
 ```txt
 product-information__media
-```
-
-```txt
 media_gallery
-```
-
-```txt
 media-gallery
-```
-
-```txt
 product.media
-```
-
-```txt
 product.featured_media
-```
-
-```txt
 product.featured_image
-```
-
-```txt
 product__media
-```
-
-```txt
 product-media
-```
-
-```txt
 product-gallery
-```
-
-```txt
 main-product
-```
-
-```txt
 {{ product.title
-```
-
-```txt
 {{ product.price
 ```
 
@@ -566,11 +499,7 @@ If the template exposes a regular `<img>`, you can use the standard option:
 3. Refresh the page.
 4. Check whether the `Try on` button appears.
 
-Test on a product page, for example:
-
-```txt
-/products/product-name
-```
+Test on a product page, for example `/products/product-name`.
 
 ### 6. Check via DevTools
 
@@ -588,25 +517,11 @@ If the button does not appear, temporarily enable debug mode:
 {% endif %}
 ```
 
-Open DevTools -> `Elements` and check that the page contains:
+Open DevTools -> `Elements` and check that the page contains the `data-fitting-product` attribute.
 
-```txt
-data-fitting-product
-```
+Then check that there is a `data-fitting-image` attribute, or that the image URL is passed through `data-fitting-image` on the container.
 
-Then check that there is an image:
-
-```txt
-data-fitting-image
-```
-
-or that the image URL is passed through `data-fitting-image` on the container.
-
-In DevTools -> `Network`, check that the following file is loaded:
-
-```txt
-min-script.js
-```
+In DevTools -> `Network`, check that `min-script.js` is loaded.
 
 There should be only one SDK script on the page.
 
@@ -775,31 +690,9 @@ Manual `data-fitting-*` markup is usually not required.
 
 ### 2. Open the code insertion section
 
-In site settings, open:
+In site settings, open `More -> Code Injection` or, depending on the Tilda interface, `Site Settings -> Code Injection`.
 
-```txt
-More -> Code Injection
-```
-
-or, depending on the Tilda interface:
-
-```txt
-Site Settings -> Code Injection
-```
-
-Find the block for adding HTML code before the closing `</body>` tag.
-
-It is usually called:
-
-```txt
-Before closing BODY tag
-```
-
-or:
-
-```txt
-Before </body>
-```
+Find the block for adding HTML code before the closing `</body>` tag. It is usually called `Before closing BODY tag` or `Before </body>`.
 
 Click `Edit code`.
 
@@ -828,11 +721,7 @@ In Tilda, changes in site settings are applied to published pages after republis
 
 ### 5. Test the integration
 
-Open the published site and test the flow:
-
-```txt
-catalog -> product card -> open product -> product photo
-```
+Open the published site and test the flow: catalog → product card → open product → product photo.
 
 Expected result:
 
@@ -855,19 +744,7 @@ Also check that:
 
 ### 7. How to disable debug mode
 
-After testing, you can replace:
-
-```html
-data-debug="true"
-```
-
-with:
-
-```html
-data-debug="false"
-```
-
-or remove the attribute:
+After testing, replace `data-debug="true"` with `data-debug="false"`, or remove the attribute entirely:
 
 ```html
 <script
