@@ -341,97 +341,262 @@ data-lang="ru"
 
 ## Shopify
 
+### Назначение
+
+Инструкция подключает кнопку `Try on` на странице товара Shopify.
+
+После установки SDK получает данные текущего товара: изображение, название и цену. Кнопка добавляется к основному изображению товара.
+
 ### С чего начать после входа в Shopify Admin
 
 1. В левом меню откройте `Sales channels -> Online Store`.
-2. В блоке `Current theme` нажмите `...` (или `Actions`) -> `Edit code`.
+2. В блоке `Current theme` нажмите `...` или `Actions`.
+3. Выберите `Edit code`.
 
-### 1. Подключите SDK только на страницах товара
+### 1. Подключите SDK в `theme.liquid`
 
-1. В редакторе файлов откройте `Layout/theme.liquid`.
-2. Найдите существующий блок `{% if request.page_type == 'product' %}`.
-3. Внутри этого блока, ниже по коду и перед его `{% endif %}`, добавьте наш SDK-скрипт:
+В редакторе файлов откройте:
 
-```liquid
-<script
-  defer
-  src="https://looksy.tech/min-script.js"
-  data-shop-token="YOUR_SHOP_TOKEN"
-  data-lang="en">
-</script>
+```txt
+layout/theme.liquid
 ```
 
-4. Больше в этом шаге ничего не меняйте: не добавляйте новый `if`, не переносите существующий код.
-
-Почему подключаем только в `product`:
-
-- виджет нужен именно в карточке товара, где есть фото/цена/название для примерки;
-- скрипт не запускается на лишних страницах (home, cart, blog), меньше нагрузка;
-- не возникает лишней инициализации логики галереи и `variant:update` там, где этих элементов нет.
-
-`request.page_type == 'product'` — стандартный Shopify-флаг типа страницы (не зависит от темы).
-
-### 2. Добавьте разметку товара (обязательный шаг)
-
-Не выходя из `Edit code`:
-
-1. Откройте файл `snippets/product-information-content.liquid`.
-2. Найдите `<div class="product-information__media" ...>`.
-3. Добавьте в этот `div` атрибуты `data-fitting-*` только для product page.
+Найдите закрывающий тег:
 
 ```liquid
-<div
-  class="product-information__media"
-  data-testid="product-information-media"
-  {% if request.page_type == 'product' %}
-    data-fitting-product
-    data-fitting-name="{{ product.title | escape }}"
-    data-fitting-price="{{ product.price | money }}"
-  {% endif %}
->
-  {{ media_gallery }}
-</div>
+</body>
 ```
 
-#### Пример:
-
-Было:
+Если рядом с ним уже есть блок:
 
 ```liquid
-<div
-  class="product-information__media"
-  data-testid="product-information-media"
->
-  {{ media_gallery }}
-</div>
+{% if request.page_type == 'product' %}
+  ...
+{% endif %}
 ```
 
-Стало:
+добавьте SDK внутрь существующего блока, перед его `{% endif %}`.
+
+Если такого блока нет, добавьте новый блок перед `</body>`:
+
+```liquid
+{% if request.page_type == 'product' %}
+  <script
+    defer
+    src="https://looksy.tech/min-script.js"
+    data-shop-token="YOUR_SHOP_TOKEN"
+    data-lang="en">
+  </script>
+{% endif %}
+```
+
+Замените `YOUR_SHOP_TOKEN` на токен вашего магазина.
+
+SDK должен быть подключён один раз. Если в теме уже есть строка:
+
+```txt
+https://looksy.tech/min-script.js
+```
+
+не добавляйте второй такой же скрипт.
+
+### 2. Добавьте разметку товара
+
+Теперь нужно найти шаблон, который выводит основное изображение или галерею товара.
+
+В некоторых темах этот файл называется:
+
+```txt
+snippets/product-information-content.liquid
+```
+
+В нём может быть блок:
 
 ```liquid
 <div
   class="product-information__media"
   data-testid="product-information-media"
-  {% if request.page_type == 'product' %}
-    data-fitting-product
-    data-fitting-name="{{ product.title | escape }}"
-    data-fitting-price="{{ product.price | money }}"
-  {% endif %}
 >
   {{ media_gallery }}
 </div>
 ```
 
-Почему правим именно этот блок:
+Добавьте в этот div атрибуты:
+```
+data-fitting-product
+data-fitting-name="{{ product.title | escape }}"
+data-fitting-price="{{ product.price | money }}"
+```
 
-- в этой теме контейнер `.product-information__media` — стабильный корень галереи товара;
-- на product page он получает `data-fitting-product`, `data-fitting-name`, `data-fitting-price`, и SDK однозначно понимает, где товар;
-- ваш product-only скрипт в `theme.liquid` (логика `variant:update`, привязка кнопки к `media-gallery`, синхронизация активного фото) опирается на этот же контейнер, поэтому правки работают согласованно.
+В итоге должно получиться так:
 
-### 3. Сохраните изменения
+```liquid
+<div
+  class="product-information__media"
+  data-testid="product-information-media"
+  data-fitting-product
+  data-fitting-name="{{ product.title | escape }}"
+  data-fitting-price="{{ product.price | money }}"
+>
+  {{ media_gallery }}
+</div>
+```
+
+В этом примере `.product-information__media` — контейнер галереи товара. Атрибуты `data-fitting-*` передают SDK данные текущего товара.
+
+### 3. Если файл называется иначе
+
+Shopify-темы могут использовать разные названия файлов и блоков. Если вы не нашли `snippets/product-information-content.liquid`, используйте поиск по коду темы.
+
+В редакторе Shopify есть поиск по файлам темы. Ищите по очереди:
+
+```txt
+product-information__media
+```
+
+```txt
+media_gallery
+```
+
+```txt
+media-gallery
+```
+
+```txt
+product.media
+```
+
+```txt
+product.featured_media
+```
+
+```txt
+product.featured_image
+```
+
+```txt
+product__media
+```
+
+```txt
+product-media
+```
+
+```txt
+product-gallery
+```
+
+```txt
+main-product
+```
+
+```txt
+{{ product.title
+```
+
+```txt
+{{ product.price
+```
+
+Нужно найти блок, который выводит главное изображение или галерею товара на странице товара.
+
+Обычно рядом с нужным местом встречаются переменные:
+
+```liquid
+{{ product.title }}
+{{ product.price }}
+{{ product.media }}
+{{ product.featured_media }}
+{{ product.featured_image }}
+```
+
+или классы:
+
+```txt
+product__media
+product-media
+product-gallery
+media-gallery
+product-single__media
+product-information__media
+```
+
+### 4. Вариант с передачей изображения через контейнер
+
+Если в теме сложно добавить `data-fitting-image` прямо на `<img>`, можно передать URL изображения на контейнере товара:
+
+```liquid
+<div
+  class="YOUR_PRODUCT_MEDIA_CONTAINER"
+  data-fitting-product
+  data-fitting-name="{{ product.title | escape }}"
+  data-fitting-price="{{ product.price | money }}"
+  data-fitting-image="{{ product.featured_image | image_url: width: 1200 }}"
+>
+  ...
+</div>
+```
+
+Если в шаблоне доступен обычный `<img>`, можно использовать стандартный вариант:
+
+```liquid
+<img
+  src="{{ product.featured_image | image_url: width: 1200 }}"
+  alt="{{ product.title | escape }}"
+  data-fitting-image>
+```
+
+### 5. Сохраните и проверьте
 
 1. Нажмите `Save`.
-2. Если тема не опубликована, нажмите `Publish` для текущей версии темы.
+2. Откройте страницу товара.
+3. Обновите страницу.
+4. Проверьте, появилась ли кнопка `Try on`.
+
+Проверять нужно страницу товара, например:
+
+```txt
+/products/product-name
+```
+
+### 6. Проверка через DevTools
+
+Если кнопка не появилась, временно включите debug-режим:
+
+```liquid
+{% if request.page_type == 'product' %}
+  <script
+    defer
+    src="https://looksy.tech/min-script.js"
+    data-shop-token="YOUR_SHOP_TOKEN"
+    data-lang="en"
+    data-debug="true">
+  </script>
+{% endif %}
+```
+
+Откройте DevTools -> `Elements` и проверьте, что на странице есть:
+
+```txt
+data-fitting-product
+```
+
+Затем проверьте, что есть изображение:
+
+```txt
+data-fitting-image
+```
+
+или что URL изображения передан на контейнере через `data-fitting-image`.
+
+В DevTools -> `Network` проверьте, что загружается:
+
+```txt
+min-script.js
+```
+
+На странице должен быть один подключённый SDK.
+
 
 ## Битрикс (1C-Bitrix)
 
@@ -584,56 +749,139 @@ $_imageHelper = $this->helper('Magento\Catalog\Helper\Image');
 
 ## Tilda
 
-### Важно для Tilda
+### Что делает интеграция
 
-Для большинства магазинов на Tilda (включая блоки ST315N, ST320N, ST305N) достаточно только подключения скрипта с `data-shop-token`.
+Для Tilda достаточно добавить один скрипт в настройки сайта. После этого Looksy SDK сам отслеживает открытие карточки товара, находит изображение, название и цену товара и добавляет кнопку примерки в открытой карточке.
 
-Скрипт сам:
-- отслеживает изменения DOM через Observer;
-- ищет товар, изображение, название и цену по цепочке фолбэков селекторов;
-- обновляет кнопку при открытии попапа карточки и смене слайдов;
-- делает повторные проверки после загрузки и после `pageshow` (важно для переходов назад/вперёд и релоада).
+Ручная разметка `data-fitting-*` обычно не требуется.
 
-Ручная разметка `data-fitting-*` остается доступной как fallback-режим для нестандартной верстки.
+### 1. Откройте настройки сайта
 
-### Для владельцев сайтов на Tilda
+1. Войдите в аккаунт Tilda.
+2. Откройте нужный сайт.
+3. Перейдите в раздел **Настройки сайта**.
 
-1. Подключите скрипт один раз перед закрывающим `</body>` (или в глобальном коде сайта), а не только внутри отдельной страницы.
-2. Убедитесь, что передан корректный `data-shop-token`.
-3. Опубликуйте сайт и проверьте сценарий: каталог → открытие карточки товара → первая фотография.
-4. Если на странице есть кеш или ленивые блоки, проверьте также релоад и возврат кнопкой браузера "назад".
+### 2. Откройте раздел вставки кода
 
-Ожидаемое поведение для Tilda storefront:
-- кнопка показывается в открытой карточке товара;
-- кнопка привязана к фото товара (в первую очередь к активному/первому слайду);
-- в каталоге без открытой карточки кнопка не должна отображаться.
+В настройках сайта откройте:
 
-### Для разработчиков на Tilda
-
-#### Рекомендуемый способ подключения
-
-```html
-<script src="https://looksy.tech/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
+```txt
+Ещё -> Вставка кода
 ```
 
-Скрипт сам работает с типичными Tilda-структурами (`img`, `data-original`, `data-img-zoom-url`, `background-image`) и повторно обрабатывает DOM при изменениях.
+или, в зависимости от интерфейса Tilda:
 
-#### Когда использовать ручные `data-fitting-*`
+```txt
+Настройки сайта -> Вставка кода
+```
 
-Используйте ручную разметку, если:
-- у вас сильно кастомный Zero Block или внешний HTML внутри Tilda;
-- название/цена рендерятся нестандартно и не находятся селекторами;
-- вы хотите полностью контролировать, где появляется кнопка.
+Найдите блок для добавления HTML-кода перед закрывающим тегом `</body>`.
 
-Минимальный пример ручной разметки в Tilda-блоке HTML:
+Обычно он называется:
+
+```txt
+Перед закрывающим тегом BODY
+```
+
+или:
+
+```txt
+Before </body>
+```
+
+Нажмите `Редактировать код`.
+
+### 3. Вставьте код Looksy
+
+Добавьте этот код:
 
 ```html
-<div data-fitting-product data-fitting-name="Название" data-fitting-price="2990 ₽">
-  <img src="product.jpg" alt="Название" data-fitting-image />
+<script
+  defer
+  src="https://lava-radiators.store/min-script.js"
+  data-shop-token="0a738a6a-8221-4bd3-bc2d-d12cb60282e0"
+  data-debug="true">
+</script>
+```
+
+Важно: для Tilda оставьте атрибут `defer`.
+
+### 4. Сохраните изменения
+
+1. Нажмите `Сохранить`.
+2. Вернитесь к сайту.
+3. Опубликуйте сайт заново.
+
+В Tilda изменения в настройках сайта применяются на опубликованных страницах после повторной публикации.
+
+### 5. Проверьте работу
+
+Откройте опубликованный сайт и проверьте сценарий:
+
+```txt
+каталог -> карточка товара -> открытие товара -> фото товара
+```
+
+Ожидаемый результат:
+
+- кнопка примерки появляется в открытой карточке товара;
+- кнопка привязана к фото товара;
+- при клике открывается виджет Looksy.
+
+### 6. Если кнопка не появилась
+
+Откройте DevTools -> `Console` и проверьте, есть ли сообщения `[Looksy]`.
+
+Также проверьте:
+
+- скрипт добавлен именно в настройках сайта, а не только на одной странице;
+- сайт был заново опубликован после сохранения кода;
+- в коде есть `data-shop-token`;
+- атрибут `defer` не удалён;
+- в карточке товара есть изображение товара;
+- на странице нет второго подключения `min-script.js`.
+
+### 7. Как отключить debug-режим
+
+После проверки можно заменить:
+
+```html
+data-debug="true"
+```
+
+на:
+
+```html
+data-debug="false"
+```
+
+или удалить атрибут:
+
+```html
+<script
+  defer
+  src="https://lava-radiators.store/min-script.js"
+  data-shop-token="0a738a6a-8221-4bd3-bc2d-d12cb60282e0">
+</script>
+```
+
+### Для нестандартной вёрстки
+
+Если используется кастомный Zero Block или собственная HTML-разметка товара, можно вручную пометить товар:
+
+```html
+<div
+  data-fitting-product
+  data-fitting-name="Название товара"
+  data-fitting-price="2990 ₽">
+  <img
+    src="product.jpg"
+    alt="Название товара"
+    data-fitting-image>
 </div>
 ```
 
-После динамической вставки товаров вручную вызовите:
+После динамической вставки товара можно вызвать:
 
 ```html
 <script>
@@ -642,25 +890,6 @@ $_imageHelper = $this->helper('Magento\Catalog\Helper\Image');
   }
 </script>
 ```
-
-### Чеклист диагностики Tilda
-
-Если кнопка не появилась:
-
-1. Проверьте, что скрипт загружен на опубликованной странице (Network/Elements).
-2. Проверьте наличие `data-shop-token` в теге скрипта.
-3. Включите `data-debug="true"` и откройте консоль: должны быть логи `[Looksy]`.
-4. Проверьте, не блокирует ли кнопку кастомный слой с большим `z-index`.
-5. Если карточка/слайдер вставляются поздно кастомным кодом, после вставки вызовите `window.VirtualFitting.init()`.
-
-### Пример подключения через T123
-
-```html
-<!-- Блок T123 -> HTML-код -->
-<script src="https://looksy.tech/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
-```
-
-Рекомендуется дублировать подключение в глобальном коде сайта Tilda, если карточки товара открываются на страницах, где нет конкретного T123-блока.
 
 ## Вёрстка на чистом HTML/CSS/JS
 
