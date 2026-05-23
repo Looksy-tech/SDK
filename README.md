@@ -8,7 +8,6 @@
 - [Data-атрибуты](#data-атрибуты)
 - [Принцип работы](#принцип-работы)
 - [Примеры интеграции для популярных CMS](#примеры-интеграции-для-популярных-cms)
-- [WooCommerce (WordPress)](#woocommerce-wordpress)
 - [Tilda](#tilda)
 - [Вёрстка на чистом HTML/CSS/JS](#вёрстка-на-чистом-htmlcssjs)
 - [React (для SPA)](#react-для-spa)
@@ -52,7 +51,7 @@
 
 | Атрибут | Элемент | Описание | По умолчанию |
 |---------|---------|----------|--------------|
-| `data-fitting-name` | Контейнер | Название товара | Сначала ищется в тексте карточки/заголовках, затем берётся из `alt` изображения |
+| `data-fitting-name` | Контейнер | Название товара | Берется из `alt` изображения |
 | `data-fitting-price` | Контейнер | Цена товара | Пустая строка |
 
 ---
@@ -131,472 +130,115 @@ Data-атрибуты — это способ «пометить» HTML-элем
 
 
 
-## WooCommerce (WordPress)
+## WordPress
 
-### Рекомендуемый способ: через плагин Code Snippets
-
-Этот способ подходит для большинства магазинов WooCommerce. Не нужно редактировать файлы темы, искать `footer.php` или создавать `single-product.php`.
-
-Не используйте этот способ одновременно с ручной вставкой скрипта в `footer.php`, чтобы SDK не подключился дважды.
-
-### 1. Установите плагин Code Snippets
-
-1. Откройте админку WordPress.
-2. Перейдите в раздел `Плагины -> Добавить новый`.
-3. В поиске введите `Code Snippets`.
-4. Установите и активируйте плагин.
-5. Убедитесь, что в меню появился раздел `Сниппеты` или `Code Snippets`.
-
-### 2. Создайте новый PHP-сниппет
-
-1. Перейдите в `Сниппеты -> Добавить новый`.
-2. Укажите название, например `Looksy WooCommerce Widget`.
-3. Вставьте код ниже.
-4. Замените `YOUR_SHOP_TOKEN` на токен вашего магазина.
-5. При необходимости измените язык через `data-lang`.
-
-Доступные варианты:
-
-```text
-data-lang="en" - английский интерфейс и кнопка Try on
-data-lang="ru" или отсутствие data-lang - русский/default режим
-```
-
-### 3. Вставьте код
+### 1. Добавление скрипта в footer.php
 
 ```php
-add_action('wp_footer', function () {
-    if (!function_exists('is_product') || !is_product()) {
-        return;
-    }
-
-    global $product;
-
-    if (!$product) {
-        return;
-    }
-
-    $product_name = $product->get_name();
-    $product_price = wp_strip_all_tags(wc_price($product->get_price()));
-    ?>
-    <script>
-    (function () {
-        function markLooksyProduct() {
-            const productImage =
-                document.querySelector('.woocommerce-product-gallery__image img') ||
-                document.querySelector('.wp-block-woocommerce-product-image-gallery img') ||
-                document.querySelector('.wc-block-components-product-image img') ||
-                document.querySelector('main img');
-
-            if (!productImage) {
-                console.warn('[Looksy] WooCommerce product image not found');
-                return;
-            }
-
-            const container =
-                productImage.closest('.woocommerce-product-gallery__image') ||
-                productImage.closest('.wp-block-woocommerce-product-image-gallery') ||
-                productImage.closest('figure') ||
-                productImage.parentElement;
-
-            if (!container) {
-                console.warn('[Looksy] WooCommerce product image container not found');
-                return;
-            }
-
-            container.setAttribute('data-fitting-product', '');
-            container.setAttribute('data-fitting-name', <?php echo wp_json_encode($product_name); ?>);
-            container.setAttribute('data-fitting-price', <?php echo wp_json_encode($product_price); ?>);
-
-            productImage.setAttribute('data-fitting-image', '');
-
-            console.log('[Looksy] WooCommerce product marked', {
-                name: <?php echo wp_json_encode($product_name); ?>,
-                price: <?php echo wp_json_encode($product_price); ?>,
-                image: productImage.currentSrc || productImage.src
-            });
-        }
-
-        markLooksyProduct();
-    })();
-    </script>
-
-    <script
-        src="https://looksy.tech/min-script.js"
-        data-shop-token="YOUR_SHOP_TOKEN"
-        data-lang="en"
-        data-debug="true">
-    </script>
-    <?php
-}, 99);
+<?php
+// В файле footer.php вашей темы, перед </body>
+?>
+<script src="https://looksy.tech/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
+<?php wp_footer(); ?>
+</body>
+</html>
 ```
 
-### 4. Активируйте сниппет
+### 2. Настройка шаблона товара WooCommerce
 
-1. Выберите режим запуска `Run snippet everywhere`.
-2. Нажмите `Save Changes and Activate`.
-3. Убедитесь, что сниппет включен.
+Создайте файл `single-product.php` в вашей теме:
 
-Если сниппет сохранен, но не активирован, виджет не появится на сайте.
-
-### 5. Проверьте работу на странице товара
-
-Откройте любую страницу товара WooCommerce, например:
-
-```text
-/product/product-name/
-```
-
-Ожидаемый результат:
-
-- на изображении товара появляется кнопка примерки;
-- при клике открывается виджет Looksy;
-- в консоли браузера появляются сообщения `[Looksy]`, если включен `data-debug="true"`.
-
-### 6. Если кнопка не появилась
-
-Откройте DevTools -> `Console`.
-
-Проверьте, есть ли сообщение:
-
-```text
-[Looksy] WooCommerce product marked
-```
-
-Если такого сообщения нет, проверьте:
-
-- сниппет активирован;
-- выбран режим `Run snippet everywhere`;
-- открыта именно страница товара;
-- у товара есть основное изображение;
-- магазин не в режиме `Coming Soon`.
-
-Если появляется сообщение:
-
-```text
-[Looksy] WooCommerce product image not found
-```
-
-значит тема использует нестандартную разметку изображения. В этом случае нужна ручная разметка товара или отдельная настройка селектора.
-
-### 7. Как отключить debug-режим
-
-Замените:
-
-```html
-data-debug="true"
-```
-
-на:
-
-```html
-data-debug="false"
-```
-
-или удалите атрибут.
-
-### 8. Как изменить язык кнопки
-
-Для английской кнопки:
-
-```html
-<script
-  src="https://looksy.tech/min-script.js"
-  data-shop-token="YOUR_SHOP_TOKEN"
-  data-lang="en">
-</script>
-```
-
-Для русского/default режима уберите `data-lang` или укажите:
-
-```html
-data-lang="ru"
-```
-
-### 9. Ручная интеграция для разработчиков
-
-Если тема сильно изменяет стандартную WooCommerce-разметку, можно разметить товар вручную:
-
-```html
-<div
-  data-fitting-product
-  data-fitting-name="Product name"
-  data-fitting-price="$49">
-  <img
-    src="https://example.com/product.jpg"
-    alt="Product name"
-    data-fitting-image />
+```php
+<div class="product" 
+     data-fitting-product 
+     data-fitting-name="<?php echo esc_attr(get_the_title()); ?>" 
+     data-fitting-price="<?php echo esc_attr(get_woocommerce_currency_symbol() . $product->get_price()); ?>">
+    
+    <?php if (has_post_thumbnail()): ?>
+        <img src="<?php echo get_the_post_thumbnail_url(get_the_ID(), 'full'); ?>" 
+             alt="<?php echo esc_attr(get_the_title()); ?>"
+             data-fitting-image />
+    <?php endif; ?>
+    
 </div>
 ```
 
-`data-fitting-product` ставится на контейнер одного товара.
+### 3. Через плагин Code Snippets
 
-`data-fitting-image` ставится на изображение товара внутри этого контейнера.
+```php
+add_action('wp_footer', function() {
+    ?>
+    <script src="https://looksy.tech/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
+    <?php
+});
 
-`data-fitting-name` и `data-fitting-price` передают название и цену товара в виджет.
-
-### 10. Не рекомендуется для обычных пользователей
-
-Не редактируйте `footer.php` и не создавайте `single-product.php`, если вы не разработчик темы.
+add_filter('woocommerce_product_thumbnails_columns', function() {
+    add_action('woocommerce_product_thumbnails', function() {
+        global $product;
+        ?>
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const productImage = document.querySelector('.woocommerce-product-gallery__image img');
+            if (productImage) {
+                const container = productImage.closest('.woocommerce-product-gallery__image');
+                container.setAttribute('data-fitting-product', '');
+                container.setAttribute('data-fitting-name', '<?php echo esc_js($product->get_name()); ?>');
+                container.setAttribute('data-fitting-price', '<?php echo esc_js(wc_price($product->get_price())); ?>');
+                productImage.setAttribute('data-fitting-image', '');
+            }
+        });
+        </script>
+        <?php
+    });
+});
+```
 
 ## Shopify
 
-### Назначение
-
-Инструкция подключает кнопку `Try on` на странице товара Shopify.
-
-После установки SDK получает данные текущего товара: изображение, название и цену. Кнопка добавляется к основному изображению товара.
-
-### С чего начать после входа в Shopify Admin
-
-1. В левом меню откройте `Sales channels -> Online Store`.
-2. В блоке `Current theme` нажмите `...` или `Actions`.
-3. Выберите `Edit code`.
-
-### 1. Подключите SDK в `theme.liquid`
-
-В редакторе файлов откройте:
-
-```txt
-layout/theme.liquid
-```
-
-Найдите закрывающий тег:
+### 1. Добавление скрипта в theme.liquid
 
 ```liquid
+<!-- Перед закрывающим тегом </body> в theme.liquid -->
+<script src="https://looksy.tech/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
 </body>
 ```
 
-Если рядом с ним уже есть блок:
+### 2. Настройка шаблона товара
+
+В файле `product-template.liquid` или `product.liquid`:
 
 ```liquid
-{% if request.page_type == 'product' %}
-  ...
-{% endif %}
-```
-
-добавьте SDK внутрь существующего блока, перед его `{% endif %}`.
-
-Если такого блока нет, добавьте новый блок перед `</body>`:
-
-```liquid
-{% if request.page_type == 'product' %}
-  <script
-    defer
-    src="https://looksy.tech/min-script.js"
-    data-shop-token="YOUR_SHOP_TOKEN"
-    data-lang="en">
-  </script>
-{% endif %}
-```
-
-Замените `YOUR_SHOP_TOKEN` на токен вашего магазина.
-
-SDK должен быть подключён один раз. Если в теме уже есть строка:
-
-```txt
-https://looksy.tech/min-script.js
-```
-
-не добавляйте второй такой же скрипт.
-
-### 2. Добавьте разметку товара
-
-Теперь нужно найти шаблон, который выводит основное изображение или галерею товара.
-
-В некоторых темах этот файл называется:
-
-```txt
-snippets/product-information-content.liquid
-```
-
-В нём может быть блок:
-
-```liquid
-<div
-  class="product-information__media"
-  data-testid="product-information-media"
->
-  {{ media_gallery }}
+<div data-fitting-product 
+     data-fitting-name="{{ product.title }}" 
+     data-fitting-price="{{ product.price | money }}">
+  
+  {% if product.featured_image %}
+    <img src="{{ product.featured_image | img_url: 'master' }}" 
+         alt="{{ product.title }}"
+         data-fitting-image />
+  {% endif %}
+  
 </div>
 ```
 
-Добавьте в этот div атрибуты:
-```
-data-fitting-product
-data-fitting-name="{{ product.title | escape }}"
-data-fitting-price="{{ product.price | money }}"
-```
-
-В итоге должно получиться так:
+### 3. Для продуктов в коллекции
 
 ```liquid
-<div
-  class="product-information__media"
-  data-testid="product-information-media"
-  data-fitting-product
-  data-fitting-name="{{ product.title | escape }}"
-  data-fitting-price="{{ product.price | money }}"
->
-  {{ media_gallery }}
-</div>
+{% for product in collection.products %}
+  <div class="product-card" 
+       data-fitting-product 
+       data-fitting-name="{{ product.title }}" 
+       data-fitting-price="{{ product.price | money }}">
+    
+    <a href="{{ product.url }}">
+      <img src="{{ product.featured_image | img_url: 'large' }}" 
+           alt="{{ product.title }}"
+           data-fitting-image />
+    </a>
+    
+  </div>
+{% endfor %}
 ```
-
-В этом примере `.product-information__media` — контейнер галереи товара. Атрибуты `data-fitting-*` передают SDK данные текущего товара.
-
-### 3. Если файл называется иначе
-
-Shopify-темы могут использовать разные названия файлов и блоков. Если вы не нашли `snippets/product-information-content.liquid`, используйте поиск по коду темы.
-
-В редакторе Shopify есть поиск по файлам темы. Ищите по очереди:
-
-```txt
-product-information__media
-```
-
-```txt
-media_gallery
-```
-
-```txt
-media-gallery
-```
-
-```txt
-product.media
-```
-
-```txt
-product.featured_media
-```
-
-```txt
-product.featured_image
-```
-
-```txt
-product__media
-```
-
-```txt
-product-media
-```
-
-```txt
-product-gallery
-```
-
-```txt
-main-product
-```
-
-```txt
-{{ product.title
-```
-
-```txt
-{{ product.price
-```
-
-Нужно найти блок, который выводит главное изображение или галерею товара на странице товара.
-
-Обычно рядом с нужным местом встречаются переменные:
-
-```liquid
-{{ product.title }}
-{{ product.price }}
-{{ product.media }}
-{{ product.featured_media }}
-{{ product.featured_image }}
-```
-
-или классы:
-
-```txt
-product__media
-product-media
-product-gallery
-media-gallery
-product-single__media
-product-information__media
-```
-
-### 4. Вариант с передачей изображения через контейнер
-
-Если в теме сложно добавить `data-fitting-image` прямо на `<img>`, можно передать URL изображения на контейнере товара:
-
-```liquid
-<div
-  class="YOUR_PRODUCT_MEDIA_CONTAINER"
-  data-fitting-product
-  data-fitting-name="{{ product.title | escape }}"
-  data-fitting-price="{{ product.price | money }}"
-  data-fitting-image="{{ product.featured_image | image_url: width: 1200 }}"
->
-  ...
-</div>
-```
-
-Если в шаблоне доступен обычный `<img>`, можно использовать стандартный вариант:
-
-```liquid
-<img
-  src="{{ product.featured_image | image_url: width: 1200 }}"
-  alt="{{ product.title | escape }}"
-  data-fitting-image>
-```
-
-### 5. Сохраните и проверьте
-
-1. Нажмите `Save`.
-2. Откройте страницу товара.
-3. Обновите страницу.
-4. Проверьте, появилась ли кнопка `Try on`.
-
-Проверять нужно страницу товара, например:
-
-```txt
-/products/product-name
-```
-
-### 6. Проверка через DevTools
-
-Если кнопка не появилась, временно включите debug-режим:
-
-```liquid
-{% if request.page_type == 'product' %}
-  <script
-    defer
-    src="https://looksy.tech/min-script.js"
-    data-shop-token="YOUR_SHOP_TOKEN"
-    data-lang="en"
-    data-debug="true">
-  </script>
-{% endif %}
-```
-
-Откройте DevTools -> `Elements` и проверьте, что на странице есть:
-
-```txt
-data-fitting-product
-```
-
-Затем проверьте, что есть изображение:
-
-```txt
-data-fitting-image
-```
-
-или что URL изображения передан на контейнере через `data-fitting-image`.
-
-В DevTools -> `Network` проверьте, что загружается:
-
-```txt
-min-script.js
-```
-
-На странице должен быть один подключённый SDK.
-
 
 ## Битрикс (1C-Bitrix)
 
@@ -749,139 +391,56 @@ $_imageHelper = $this->helper('Magento\Catalog\Helper\Image');
 
 ## Tilda
 
-### Что делает интеграция
+### Важно для Tilda
 
-Для Tilda достаточно добавить один скрипт в настройки сайта. После этого Looksy SDK сам отслеживает открытие карточки товара, находит изображение, название и цену товара и добавляет кнопку примерки в открытой карточке.
+Для большинства магазинов на Tilda (включая блоки ST315N, ST320N, ST305N) достаточно только подключения скрипта с `data-shop-token`.
 
-Ручная разметка `data-fitting-*` обычно не требуется.
+Скрипт сам:
+- отслеживает изменения DOM через Observer;
+- ищет товар, изображение, название и цену по цепочке фолбэков селекторов;
+- обновляет кнопку при открытии попапа карточки и смене слайдов;
+- делает повторные проверки после загрузки и после `pageshow` (важно для переходов назад/вперёд и релоада).
 
-### 1. Откройте настройки сайта
+Ручная разметка `data-fitting-*` остается доступной как fallback-режим для нестандартной верстки.
 
-1. Войдите в аккаунт Tilda.
-2. Откройте нужный сайт.
-3. Перейдите в раздел **Настройки сайта**.
+### Для владельцев сайтов на Tilda
 
-### 2. Откройте раздел вставки кода
+1. Подключите скрипт один раз перед закрывающим `</body>` (или в глобальном коде сайта), а не только внутри отдельной страницы.
+2. Убедитесь, что передан корректный `data-shop-token`.
+3. Опубликуйте сайт и проверьте сценарий: каталог → открытие карточки товара → первая фотография.
+4. Если на странице есть кеш или ленивые блоки, проверьте также релоад и возврат кнопкой браузера "назад".
 
-В настройках сайта откройте:
+Ожидаемое поведение для Tilda storefront:
+- кнопка показывается в открытой карточке товара;
+- кнопка привязана к фото товара (в первую очередь к активному/первому слайду);
+- в каталоге без открытой карточки кнопка не должна отображаться.
 
-```txt
-Ещё -> Вставка кода
-```
+### Для разработчиков на Tilda
 
-или, в зависимости от интерфейса Tilda:
-
-```txt
-Настройки сайта -> Вставка кода
-```
-
-Найдите блок для добавления HTML-кода перед закрывающим тегом `</body>`.
-
-Обычно он называется:
-
-```txt
-Перед закрывающим тегом BODY
-```
-
-или:
-
-```txt
-Before </body>
-```
-
-Нажмите `Редактировать код`.
-
-### 3. Вставьте код Looksy
-
-Добавьте этот код:
+#### Рекомендуемый способ подключения
 
 ```html
-<script
-  defer
-  src="https://lava-radiators.store/min-script.js"
-  data-shop-token="0a738a6a-8221-4bd3-bc2d-d12cb60282e0"
-  data-debug="true">
-</script>
+<script src="https://looksy.tech/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
 ```
 
-Важно: для Tilda оставьте атрибут `defer`.
+Скрипт сам работает с типичными Tilda-структурами (`img`, `data-original`, `data-img-zoom-url`, `background-image`) и повторно обрабатывает DOM при изменениях.
 
-### 4. Сохраните изменения
+#### Когда использовать ручные `data-fitting-*`
 
-1. Нажмите `Сохранить`.
-2. Вернитесь к сайту.
-3. Опубликуйте сайт заново.
+Используйте ручную разметку, если:
+- у вас сильно кастомный Zero Block или внешний HTML внутри Tilda;
+- название/цена рендерятся нестандартно и не находятся селекторами;
+- вы хотите полностью контролировать, где появляется кнопка.
 
-В Tilda изменения в настройках сайта применяются на опубликованных страницах после повторной публикации.
-
-### 5. Проверьте работу
-
-Откройте опубликованный сайт и проверьте сценарий:
-
-```txt
-каталог -> карточка товара -> открытие товара -> фото товара
-```
-
-Ожидаемый результат:
-
-- кнопка примерки появляется в открытой карточке товара;
-- кнопка привязана к фото товара;
-- при клике открывается виджет Looksy.
-
-### 6. Если кнопка не появилась
-
-Откройте DevTools -> `Console` и проверьте, есть ли сообщения `[Looksy]`.
-
-Также проверьте:
-
-- скрипт добавлен именно в настройках сайта, а не только на одной странице;
-- сайт был заново опубликован после сохранения кода;
-- в коде есть `data-shop-token`;
-- атрибут `defer` не удалён;
-- в карточке товара есть изображение товара;
-- на странице нет второго подключения `min-script.js`.
-
-### 7. Как отключить debug-режим
-
-После проверки можно заменить:
+Минимальный пример ручной разметки в Tilda-блоке HTML:
 
 ```html
-data-debug="true"
-```
-
-на:
-
-```html
-data-debug="false"
-```
-
-или удалить атрибут:
-
-```html
-<script
-  defer
-  src="https://lava-radiators.store/min-script.js"
-  data-shop-token="0a738a6a-8221-4bd3-bc2d-d12cb60282e0">
-</script>
-```
-
-### Для нестандартной вёрстки
-
-Если используется кастомный Zero Block или собственная HTML-разметка товара, можно вручную пометить товар:
-
-```html
-<div
-  data-fitting-product
-  data-fitting-name="Название товара"
-  data-fitting-price="2990 ₽">
-  <img
-    src="product.jpg"
-    alt="Название товара"
-    data-fitting-image>
+<div data-fitting-product data-fitting-name="Название" data-fitting-price="2990 ₽">
+  <img src="product.jpg" alt="Название" data-fitting-image />
 </div>
 ```
 
-После динамической вставки товара можно вызвать:
+После динамической вставки товаров вручную вызовите:
 
 ```html
 <script>
@@ -890,6 +449,25 @@ data-debug="false"
   }
 </script>
 ```
+
+### Чеклист диагностики Tilda
+
+Если кнопка не появилась:
+
+1. Проверьте, что скрипт загружен на опубликованной странице (Network/Elements).
+2. Проверьте наличие `data-shop-token` в теге скрипта.
+3. Включите `data-debug="true"` и откройте консоль: должны быть логи `[Looksy]`.
+4. Проверьте, не блокирует ли кнопку кастомный слой с большим `z-index`.
+5. Если карточка/слайдер вставляются поздно кастомным кодом, после вставки вызовите `window.VirtualFitting.init()`.
+
+### Пример подключения через T123
+
+```html
+<!-- Блок T123 -> HTML-код -->
+<script src="https://looksy.tech/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
+```
+
+Рекомендуется дублировать подключение в глобальном коде сайта Tilda, если карточки товара открываются на страницах, где нет конкретного T123-блока.
 
 ## Вёрстка на чистом HTML/CSS/JS
 
@@ -956,77 +534,84 @@ fetch('/api/products')
 
 ## React (для SPA)
 
-Подключайте SDK один раз в `index.html` (или в root layout), а `window.VirtualFitting.init()` вызывайте на уровне страницы/роута после рендера контента, не внутри каждой карточки товара.
-
-Пример инициализации при смене маршрута:
-
 ```tsx
-function useLooksyInitOnRouteChange() {
-  const location = useLocation();
+import { useEffect } from 'react';
+
+interface Product {
+  id: string;
+  name: string;
+  price: string;
+  image: string;
+}
+
+export default function ProductCard({ product }: { product: Product }) {
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://looksy.tech/min-script.js';
+    script.setAttribute('data-shop-token', 'YOUR_SHOP_TOKEN');
+    script.async = true;
+    document.body.appendChild(script);
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
 
   useEffect(() => {
-    const frame = requestAnimationFrame(() => {
-      if (window.VirtualFitting) {
-        window.VirtualFitting.init();
-      }
-    });
+    if (window.VirtualFitting) {
+      window.VirtualFitting.init();
+    }
+  }, [product]);
 
-    return () => cancelAnimationFrame(frame);
-  }, [location.pathname]);
+  return (
+    <div 
+      data-fitting-product
+      data-fitting-name={product.name}
+      data-fitting-price={product.price}
+    >
+      <img 
+        src={product.image}
+        alt={product.name}
+        data-fitting-image
+      />
+    </div>
+  );
 }
 ```
 
 ## Vue.js
 
-Подключайте SDK один раз в `index.html`, а `window.VirtualFitting.init()` вызывайте на уровне приложения при смене маршрута, не внутри карточки товара.
-
-```html
-<script
-  defer
-  src="https://looksy.tech/min-script.js"
-  data-shop-token="YOUR_SHOP_TOKEN"
-  data-lang="en">
-</script>
-```
-
-Пример инициализации в `App.vue`:
-
 ```vue
+<template>
+  <div 
+    data-fitting-product
+    :data-fitting-name="product.name"
+    :data-fitting-price="product.price"
+  >
+    <img 
+      :src="product.image"
+      :alt="product.name"
+      data-fitting-image
+    />
+  </div>
+</template>
+
 <script setup>
-import { nextTick, watch } from "vue";
-import { useRoute } from "vue-router";
+import { onMounted, onUpdated } from 'vue';
 
-const route = useRoute();
+const props = defineProps(['product']);
 
-watch(
-  () => route.path,
-  async () => {
-    await nextTick();
-    if (window.VirtualFitting) {
-      window.VirtualFitting.init();
-    }
-  },
-  { immediate: true }
-);
+onMounted(() => {
+  const script = document.createElement('script');
+  script.src = 'https://looksy.tech/min-script.js';
+  script.setAttribute('data-shop-token', 'YOUR_SHOP_TOKEN');
+  document.body.appendChild(script);
+});
+
+onUpdated(() => {
+  if (window.VirtualFitting) {
+    window.VirtualFitting.init();
+  }
+});
 </script>
 ```
-
-Карточка/страница товара должна содержать `data-fitting-*`, а кнопка должна якориться к блоку фото:
-
-```vue
-<div
-  class="product-media"
-  data-fitting-product
-  :data-fitting-name="product.name"
-  :data-fitting-price="product.price"
-  :data-fitting-image="product.tryOnImage"
->
-  <img
-    :src="product.image"
-    :alt="product.name"
-    :data-fitting-image="product.tryOnImage"
-  />
-</div>
-```
-
-`product.image` можно оставить локальным для UI, но `product.tryOnImage` должен быть публично доступным URL.
