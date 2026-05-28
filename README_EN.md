@@ -1,6 +1,6 @@
-# Virtual Try-On Widget — Integration Script
+# Virtual Try-On Widget - Integration Script
 
-An embeddable script for adding virtual try-on functionality to e-commerce websites.
+Embeddable script for adding virtual clothing try-on functionality to e-commerce websites.
 
 ## Navigation
 
@@ -11,8 +11,8 @@ An embeddable script for adding virtual try-on functionality to e-commerce websi
 - [WooCommerce (WordPress)](#woocommerce-wordpress)
 - [Shopify](#shopify)
 - [Tilda](#tilda)
-- [Plain HTML/CSS/JS](#plain-htmlcssjs)
-- [React (SPA)](#react-spa)
+- [Plain HTML/CSS/JS Layout](#plain-htmlcssjs-layout)
+- [React (for SPA)](#react-for-spa)
 - [Vue.js](#vuejs)
 
 ## Quick Start
@@ -23,23 +23,28 @@ Add the script before the closing `</body>` tag:
 
 ```html
 <script
-  defer
-  src="https://looksy.tech/min-script.js"
-  data-shop-token="YOUR_SHOP_TOKEN"></script>
+	defer
+	src="https://looksy.tech/min-script.js"
+	data-shop-token="YOUR_SHOP_TOKEN"
+></script>
 ```
 
 ### 2. Mark up products
 
-Add data attributes to product elements:
+Add data attributes to the product elements:
 
 ```html
-<div class="product" 
-     data-fitting-product 
-     data-fitting-name="Product name" 
-     data-fitting-price="$49">
-  <img src="product.jpg" 
-       alt="Product" 
-       data-fitting-image />
+<div
+	class="product"
+	data-fitting-product
+	data-fitting-name="Product name"
+	data-fitting-price="$49"
+>
+	<img
+		src="product.jpg"
+		alt="Product"
+		data-fitting-image
+	/>
 </div>
 ```
 
@@ -47,29 +52,29 @@ Add data attributes to product elements:
 
 ### Required attributes
 
-| Attribute | Element | Description |
-|---------|---------|----------|
-| `data-fitting-product` | Container | Marks the product container |
-| `data-fitting-image` | `<img>` | Marks the product image |
+| Attribute              | Element   | Description                         |
+| ---------------------- | --------- | ----------------------------------- |
+| `data-fitting-product` | Container | Marks the product container         |
+| `data-fitting-image`   | `<img>`   | Marks the product image             |
 
 ### Optional attributes
 
-| Attribute | Element | Description | Default |
-|---------|---------|----------|--------------|
-| `data-fitting-name` | Container | Product name | First searched in card text/headings, then taken from the image `alt` |
-| `data-fitting-price` | Container | Product price | Empty string |
+| Attribute            | Element   | Description  | Default value                                                                 |
+| -------------------- | --------- | ------------ | ----------------------------------------------------------------------------- |
+| `data-fitting-name`  | Container | Product name | First searched in the card/headings text, then taken from the image `alt`     |
+| `data-fitting-price` | Container | Product price | Empty string                                                                  |
 
 ---
 
 ## How It Works
 
-This section explains how the widget script works under the hood. Understanding these principles will help you configure the integration for any platform.
+This section explains how the widget script works under the hood. Understanding these principles will help you configure the integration for almost any service.
 
 ### How the script finds products on the page
 
-When the script loads, it automatically scans the page for elements with specific **data attributes**. These attributes work like markers:
+When the script loads, it automatically scans the whole page for elements with specific **data attributes**. These attributes work like labels:
 
-```txt
+```
 Page
    │
    ├── <div data-fitting-product>  ← The script finds this element
@@ -80,36 +85,37 @@ Page
 
 **Selectors** are CSS rules used by the script to find elements:
 
-- `[data-fitting-product]` — finds all elements with the `data-fitting-product` attribute.
-- `img[data-fitting-image]` — finds all `<img>` elements with the `data-fitting-image` attribute.
+- `[data-fitting-product]` — finds all elements with the `data-fitting-product` attribute
+- `img[data-fitting-image]` — finds all `<img>` elements with the `data-fitting-image` attribute
 
-### Role of data attributes
+### The role of data attributes
 
-Data attributes are a way to “mark” HTML elements for the script without changing their appearance or default behavior:
+Data attributes let you “mark” HTML elements for the script without changing their appearance or default behaviour:
 
-| Attribute | Purpose |
-|---------|-------------|
-| `data-fitting-product` | Tells the script: “This is a product container; add a try-on button here.” |
-| `data-fitting-image` | Tells the script: “This is the product image; use it for try-on.” |
-| `data-fitting-name` | Passes the product name to the widget |
-| `data-fitting-price` | Passes the product price to the widget |
+| Attribute              | Why it is needed                                                        |
+| ---------------------- | ----------------------------------------------------------------------- |
+| `data-fitting-product` | Tells the script: “This is a product container, add the try-on button here” |
+| `data-fitting-image`   | Tells the script: “This is the product image, use it for the try-on”    |
+| `data-fitting-name`    | Passes the product name to the widget                                   |
+| `data-fitting-price`   | Passes the product price to the widget                                  |
 
 ### The `data-shop-token` attribute
 
-The shop token is passed through the `data-shop-token` attribute on the `<script>` tag:
+The shop token is passed through the `data-shop-token` attribute in the `<script>` tag:
 
 ```html
 <script
-  defer
-  src="https://looksy.tech/min-script.js"
-  data-shop-token="YOUR_SHOP_TOKEN"></script>
+	defer
+	src="https://looksy.tech/min-script.js"
+	data-shop-token="YOUR_SHOP_TOKEN"
+></script>
 ```
 
-The script automatically reads the token when it loads and uses it for:
+The script automatically reads the token on load and uses it to:
 
-- Identifying your store.
-- Authorizing requests to the widget API.
-- Applying personalized settings.
+- identify your store;
+- authorize requests to the widget API;
+- apply personalized settings.
 
 ### Debug mode
 
@@ -117,21 +123,22 @@ To enable diagnostic logs in the browser console, add `data-debug="true"`:
 
 ```html
 <script
-  defer
-  src="https://looksy.tech/min-script.js"
-  data-shop-token="YOUR_SHOP_TOKEN"
-  data-debug="true"></script>
+	defer
+	src="https://looksy.tech/min-script.js"
+	data-shop-token="YOUR_SHOP_TOKEN"
+	data-debug="true"
+></script>
 ```
 
 In this mode, the script writes diagnostic messages with the `[Looksy]` prefix.
 
 ### Public API
 
-After loading, the script exposes the `window.VirtualFitting` object:
+After the script loads, the `window.VirtualFitting` object becomes available:
 
-- `window.VirtualFitting.open(productData)` — open the widget programmatically.
-- `window.VirtualFitting.close()` — close the widget.
-- `window.VirtualFitting.init()` — rescan the page and reinitialize buttons. Useful after dynamically loading products.
+- `window.VirtualFitting.open(productData)` — opens the widget programmatically;
+- `window.VirtualFitting.close()` — closes the widget;
+- `window.VirtualFitting.init()` — rescans the page and reinitializes buttons. This is useful after products are loaded dynamically.
 
 ---
 
@@ -139,25 +146,25 @@ After loading, the script exposes the `window.VirtualFitting` object:
 
 ## Need help?
 
-If you have trouble integrating the widget or have questions, contact our team. We can help configure the widget for your specific platform.
+If you have trouble integrating the widget or have any questions, contact our team. We can help configure the widget for your specific service.
 
 ---
 
 ## WooCommerce (WordPress)
 
-### Recommended method: Code Snippets plugin
+### Recommended method: using the Code Snippets plugin
 
 This method works for most WooCommerce stores. You do not need to edit theme files, search for `footer.php`, or create `single-product.php`.
 
 Do not use this method together with manual script insertion in `footer.php`, otherwise the SDK may be loaded twice.
 
-### 1. Install Code Snippets
+### 1. Install the Code Snippets plugin
 
 1. Open the WordPress admin panel.
 2. Go to `Plugins -> Add New`.
 3. Search for `Code Snippets`.
 4. Install and activate the plugin.
-5. Make sure the `Snippets` or `Code Snippets` section appears in the menu.
+5. Make sure a `Snippets` or `Code Snippets` section appears in the menu.
 
 ### 2. Create a new PHP snippet
 
@@ -165,7 +172,7 @@ Do not use this method together with manual script insertion in `footer.php`, ot
 2. Set a name, for example `Looksy WooCommerce Widget`.
 3. Paste the code below.
 4. Replace `YOUR_SHOP_TOKEN` with your store token.
-5. If needed, change the language using `data-lang`.
+5. If needed, change the language via `data-lang`.
 
 Available options:
 
@@ -245,21 +252,21 @@ add_action('wp_footer', function () {
 
 ### 4. Activate the snippet
 
-1. Select `Run snippet everywhere`.
+1. Select the `Run snippet everywhere` mode.
 2. Click `Save Changes and Activate`.
 3. Make sure the snippet is enabled.
 
 If the snippet is saved but not activated, the widget will not appear on the site.
 
-### 5. Check the product page
+### 5. Test it on a product page
 
 Open any WooCommerce product page, for example `/product/product-name/`.
 
 Expected result:
 
-- A try-on button appears on the product image.
-- Clicking the button opens the Looksy widget.
-- Browser console messages with the `[Looksy]` prefix appear if `data-debug="true"` is temporarily enabled.
+- the try-on button appears on the product image;
+- clicking the button opens the Looksy widget;
+- `[Looksy]` messages appear in the browser console if you temporarily enabled `data-debug="true"`.
 
 ### 6. If the button does not appear
 
@@ -271,22 +278,22 @@ Check whether this message appears:
 [Looksy] WooCommerce product marked
 ```
 
-If the message is missing, check that:
+If the message is missing, check the following:
 
 - the snippet is activated;
 - `Run snippet everywhere` is selected;
-- you are on a product page;
+- you are viewing an actual product page;
 - the product has a main image;
 - the store is not in `Coming Soon` mode;
 - for testing, you can add `data-debug="true"` to the SDK tag.
 
-If this message appears:
+If you see this message:
 
 ```text
 [Looksy] WooCommerce product image not found
 ```
 
-the theme uses non-standard image markup. In this case, use manual product markup or configure a custom selector.
+then the theme uses non-standard image markup. In that case, you need manual product markup or a custom selector setup.
 
 ### 7. How to enable and disable debug mode
 
@@ -300,34 +307,36 @@ For the English button:
 
 ```html
 <script
-  defer
-  src="https://looksy.tech/min-script.js"
-  data-shop-token="YOUR_SHOP_TOKEN"
-  data-lang="en">
-</script>
+	defer
+	src="https://looksy.tech/min-script.js"
+	data-shop-token="YOUR_SHOP_TOKEN"
+	data-lang="en"
+></script>
 ```
 
 For Russian/default mode, remove `data-lang` or set `data-lang="ru"`.
 
 ### 9. Manual integration for developers
 
-If the theme significantly changes the standard WooCommerce markup, you can mark up the product manually:
+If the theme heavily changes the standard WooCommerce markup, you can mark up the product manually:
 
 ```html
 <div
-  data-fitting-product
-  data-fitting-name="Product name"
-  data-fitting-price="$49">
-  <img
-    src="https://example.com/product.jpg"
-    alt="Product name"
-    data-fitting-image />
+	data-fitting-product
+	data-fitting-name="Product name"
+	data-fitting-price="$49"
+>
+	<img
+		src="https://example.com/product.jpg"
+		alt="Product name"
+		data-fitting-image
+	/>
 </div>
 ```
 
-`data-fitting-product` is added to the container of one product.
+Place `data-fitting-product` on the container of a single product.
 
-`data-fitting-image` is added to the product image inside that container.
+Place `data-fitting-image` on the product image inside that container.
 
 `data-fitting-name` and `data-fitting-price` pass the product name and price to the widget.
 
@@ -339,15 +348,15 @@ Do not edit `footer.php` or create `single-product.php` unless you are a theme d
 
 ### Purpose
 
-This instruction adds the `Try on` button to the Shopify product page.
+This guide connects the `Try on` button to a Shopify product page.
 
 After installation, the SDK receives the current product data: image, name, and price. The button is added to the main product image.
 
-### Where to start in Shopify Admin
+### Where to start after logging in to Shopify Admin
 
 1. In the left menu, open `Sales channels -> Online Store`.
 2. In the `Current theme` block, click `...` or `Actions`.
-3. Select `Edit code`.
+3. Choose `Edit code`.
 
 ### 1. Add the SDK in `theme.liquid`
 
@@ -357,7 +366,7 @@ In the file editor, open `layout/theme.liquid` and find the closing tag:
 </body>
 ```
 
-If there is already a block near it:
+If there is already a block near it like this:
 
 ```liquid
 {% if request.page_type == 'product' %}
@@ -365,7 +374,7 @@ If there is already a block near it:
 {% endif %}
 ```
 
-add the SDK inside the existing block, before its `{% endif %}`.
+add the SDK inside the existing block before its `{% endif %}`.
 
 If there is no such block, add a new block before `</body>`:
 
@@ -382,13 +391,13 @@ If there is no such block, add a new block before `</body>`:
 
 Replace `YOUR_SHOP_TOKEN` with your store token.
 
-The SDK must be connected only once. If the theme already contains the line `https://looksy.tech/min-script.js`, do not add the same script again.
+The SDK must be connected only once. If the theme already contains `https://looksy.tech/min-script.js`, do not add the same script again.
 
 ### 2. Add product markup
 
-Now find the template that outputs the main product image or gallery.
+Now find the template that renders the main product image or product gallery.
 
-In some themes, this file is called `snippets/product-information-content.liquid`. It may contain this block:
+In some themes, this file is called `snippets/product-information-content.liquid`. It may contain a block like this:
 
 ```liquid
 <div
@@ -399,9 +408,9 @@ In some themes, this file is called `snippets/product-information-content.liquid
 </div>
 ```
 
-Add these attributes to this `div`:
+Add these attributes to the div:
 
-```liquid
+```text
 data-fitting-product
 data-fitting-name="{{ product.title | escape }}"
 data-fitting-price="{{ product.price | money }}"
@@ -421,55 +430,213 @@ The result should look like this:
 </div>
 ```
 
-In this example, `.product-information__media` is the product gallery container. The `data-fitting-*` attributes pass the current product data to the SDK.
+In this example, `.product-information__media` is the product gallery container. The `data-fitting-*` attributes pass current product data to the SDK.
 
 ### 3. If the file has a different name
 
-Shopify themes may use different file and block names. If you cannot find `snippets/product-information-content.liquid`, use the theme code search.
+If you cannot find `snippets/product-information-content.liquid` or this block:
 
-In the Shopify code editor, search one by one for:
-
-```txt
-product-information__media
-media_gallery
-media-gallery
-product.media
-product.featured_media
-product.featured_image
-product__media
-product-media
-product-gallery
-main-product
-{{ product.title
-{{ product.price
+```text
+<div
+  class="product-information__media"
+  data-testid="product-information-media"
+>
+  {{ media_gallery }}
+</div>
 ```
 
-You need to find the block that outputs the main product image or product gallery on the product page.
+try the fallback option through the file that renders a single product image.
 
-Usually, the correct place is near variables such as:
+In the Shopify editor, open `snippets/product-media.liquid`.
+
+There may be two markup variants.
+
+#### Variant A: the image is rendered through `image_tag`
+
+Find a block similar to this:
 
 ```liquid
-{{ product.title }}
-{{ product.price }}
-{{ product.media }}
-{{ product.featured_media }}
-{{ product.featured_image }}
+{{
+  media.preview_image
+  | image_url: width: 3840
+  | image_tag:
+    widths: widths,
+    alt: media.alt,
+    sizes: sizes,
+    loading: loading,
+    class: 'product-media__image'
+}}
 ```
 
-or classes such as:
+In this case, you do not need to rewrite `image_tag`. It is easier to add the attributes to the outer container of one image.
 
-```txt
-product__media
-product-media
-product-gallery
-media-gallery
-product-single__media
-product-information__media
+Find a block similar to this:
+
+```liquid
+<div
+  class="product-media"
+  style="--ratio: {{ media.aspect_ratio }}"
+  data-media-id="{{ media.id }}"
+>
 ```
 
-### 4. Option: pass the image through the container
+Replace it with:
 
-If it is difficult to add `data-fitting-image` directly to the `<img>`, you can pass the image URL through the product container:
+```liquid
+<div
+  class="product-media"
+  style="--ratio: {{ media.aspect_ratio }}"
+  data-media-id="{{ media.id }}"
+  {%- if media.position == 1 -%}
+    data-fitting-product
+    data-fitting-name="{{ selected_product.title | escape }}"
+    data-fitting-price="{{ selected_product.price | money }}"
+    data-fitting-image="{{ media.preview_image | image_url: width: 1200 }}"
+  {%- endif -%}
+>
+```
+
+The condition:
+
+```liquid
+{%- if media.position == 1 -%}
+```
+
+is needed so that the `Try on` button appears only on the first product image, not on every image in the gallery.
+
+After saving, open the product page and check whether the `Try on` button appears.
+
+Important: this method is a fallback. In some Shopify themes, `product-media.liquid` may be used not only for the main product image, but also for the image preview modal. If the button appears in the wrong place, return to searching for the main product gallery container.
+
+#### Variant B: the image is rendered as a regular `<img>`
+
+Find the block that renders the product image. It usually looks similar to this:
+
+```liquid
+{%- if media.media_type == 'image' -%}
+  <img
+    ...
+  >
+{%- endif -%}
+```
+
+Add the `data-fitting-*` attributes to this `<img>`.
+
+Example:
+
+```liquid
+{%- if media.media_type == 'image' -%}
+  <img
+    class="global-media-settings global-media-settings--no-shadow{% if variant_image %} product__media-item--variant{% endif %}"
+    srcset="
+      {%- if media.preview_image.width >= 550 -%}{{ media.preview_image | image_url: width: 550 }} 550w,{%- endif -%}
+      {%- if media.preview_image.width >= 1100 -%}{{ media.preview_image | image_url: width: 1100 }} 1100w,{%- endif -%}
+      {%- if media.preview_image.width >= 1445 -%}{{ media.preview_image | image_url: width: 1445 }} 1445w,{%- endif -%}
+      {%- if media.preview_image.width >= 1680 -%}{{ media.preview_image | image_url: width: 1680 }} 1680w,{%- endif -%}
+      {%- if media.preview_image.width >= 2048 -%}{{ media.preview_image | image_url: width: 2048 }} 2048w,{%- endif -%}
+      {{ media.preview_image | image_url }} {{ media.preview_image.width }}w
+    "
+    sizes="(min-width: 750px) calc(100vw - 22rem), 1100px"
+    src="{{ media.preview_image | image_url: width: 1445 }}"
+    alt="{{ media.alt | escape }}"
+    loading="lazy"
+    width="1100"
+    height="{{ 1100 | divided_by: media.preview_image.aspect_ratio | ceil }}"
+
+    data-fitting-product
+    data-fitting-name="{{ product.title | escape }}"
+    data-fitting-price="{{ product.price | money }}"
+    data-fitting-image="{{ media.preview_image | image_url: width: 1200 }}"
+    data-media-id="{{ media.id }}"
+  >
+{%- endif -%}
+```
+
+After saving, open the product page and check whether the `Try on` button appears.
+
+Important: this method is also a fallback. In some Shopify themes, `product-media.liquid` may be used not only for the main product image, but also for the image preview modal. If the button appears in the wrong place, return to searching for the main product gallery container.
+
+#### 3.1 If the button stretches across the whole image
+
+In some Shopify themes, gallery styles may stretch the `Try on` button across the whole image area. If the button appears but looks like a large black block over the entire image, open the file: `layout/theme.liquid`.
+
+Find the place where you added the SDK:
+
+```liquid
+{% if request.page_type == 'product' %}
+  <script
+    defer
+    src="https://looksy.tech/min-script.js"
+    data-shop-token="YOUR_SHOP_TOKEN"
+    data-lang="en">
+  </script>
+{% endif %}
+```
+
+Add CSS inside the same block, immediately after `<script>`:
+
+```liquid
+{% if request.page_type == 'product' %}
+  <script
+    defer
+    src="https://looksy.tech/min-script.js"
+    data-shop-token="YOUR_SHOP_TOKEN"
+    data-lang="en">
+  </script>
+
+  <style>
+    .virtual-fitting-button,
+    .virtual-fitting-button.virtual-fitting-button--en {
+      position: absolute !important;
+      top: auto !important;
+      left: auto !important;
+      right: 12px !important;
+      bottom: 12px !important;
+
+      width: auto !important;
+      height: auto !important;
+      min-width: 0 !important;
+      min-height: 0 !important;
+      max-width: none !important;
+      max-height: none !important;
+
+      padding: 10px 16px !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+
+      background: #0a0a0a !important;
+      color: #ffffff !important;
+      z-index: 20 !important;
+      object-fit: initial !important;
+      inset: auto 12px 12px auto !important;
+    }
+
+    .virtual-fitting-button img,
+    .virtual-fitting-button svg {
+      width: 16px !important;
+      height: 16px !important;
+      max-width: 16px !important;
+      max-height: 16px !important;
+      position: static !important;
+    }
+  </style>
+{% endif %}
+```
+
+If the SDK is already connected, do not add a second `<script>`. Add only the following block:
+
+```html
+<style>
+  ...
+</style>
+```
+
+inside the existing `{% if request.page_type == 'product' %}` condition.
+
+### 4. Passing the image through the container
+
+If it is difficult to add `data-fitting-image` directly to the `<img>` in the theme, you can pass the image URL on the product container:
 
 ```liquid
 <div
@@ -483,7 +650,7 @@ If it is difficult to add `data-fitting-image` directly to the `<img>`, you can 
 </div>
 ```
 
-If the template exposes a regular `<img>`, you can use the standard option:
+If a regular `<img>` is available in the template, you can use the standard variant:
 
 ```liquid
 <img
@@ -501,7 +668,7 @@ If the template exposes a regular `<img>`, you can use the standard option:
 
 Test on a product page, for example `/products/product-name`.
 
-### 6. Check via DevTools
+### 6. Testing with DevTools
 
 If the button does not appear, temporarily enable debug mode:
 
@@ -519,11 +686,11 @@ If the button does not appear, temporarily enable debug mode:
 
 Open DevTools -> `Elements` and check that the page contains the `data-fitting-product` attribute.
 
-Then check that there is a `data-fitting-image` attribute, or that the image URL is passed through `data-fitting-image` on the container.
+Then check that there is a `data-fitting-image` attribute, or that the image URL is passed on the container through `data-fitting-image`.
 
 In DevTools -> `Network`, check that `min-script.js` is loaded.
 
-There should be only one SDK script on the page.
+There should be only one SDK connection on the page.
 
 ## Bitrix (1C-Bitrix)
 
@@ -536,16 +703,16 @@ There should be only one SDK script on the page.
 <script defer src="https://looksy.tech/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
 ```
 
-### 2. Configure the product card
+### 2. Product page setup
 
 ```php
-<div class="product-detail" 
-     data-fitting-product 
-     data-fitting-name="<?=$arResult['NAME']?>" 
+<div class="product-detail"
+     data-fitting-product
+     data-fitting-name="<?=$arResult['NAME']?>"
      data-fitting-price="<?=$arResult['PRICES']['BASE']['PRINT_VALUE']?>">
 
     <?php if ($arResult['DETAIL_PICTURE']): ?>
-        <img src="<?=$arResult['DETAIL_PICTURE']['SRC']?>" 
+        <img src="<?=$arResult['DETAIL_PICTURE']['SRC']?>"
              alt="<?=$arResult['NAME']?>"
              data-fitting-image />
     <?php endif; ?>
@@ -557,12 +724,12 @@ There should be only one SDK script on the page.
 
 ```php
 <?php foreach ($arResult['ITEMS'] as $item): ?>
-    <div class="catalog-item" 
-         data-fitting-product 
-         data-fitting-name="<?=$item['NAME']?>" 
+    <div class="catalog-item"
+         data-fitting-product
+         data-fitting-name="<?=$item['NAME']?>"
          data-fitting-price="<?=$item['PRICES']['BASE']['PRINT_VALUE']?>">
 
-        <img src="<?=$item['PREVIEW_PICTURE']['SRC']?>" 
+        <img src="<?=$item['PREVIEW_PICTURE']['SRC']?>"
              alt="<?=$item['NAME']?>"
              data-fitting-image />
 
@@ -587,12 +754,12 @@ In `catalog/view/theme/default/template/common/footer.tpl`:
 In `catalog/view/theme/default/template/product/product.tpl`:
 
 ```php
-<div data-fitting-product 
-     data-fitting-name="<?php echo $heading_title; ?>" 
+<div data-fitting-product
+     data-fitting-name="<?php echo $heading_title; ?>"
      data-fitting-price="<?php echo $price; ?>">
 
     <?php if ($thumb) { ?>
-        <img src="<?php echo $thumb; ?>" 
+        <img src="<?php echo $thumb; ?>"
              alt="<?php echo $heading_title; ?>"
              data-fitting-image />
     <?php } ?>
@@ -602,15 +769,15 @@ In `catalog/view/theme/default/template/product/product.tpl`:
 
 ## PrestaShop
 
-### 1. Add in theme.js
+### 1. Add it in `theme.js`
 
 ```javascript
-$(document).ready(function() {
-    const script = document.createElement('script');
-    script.src = 'https://looksy.tech/min-script.js';
-    script.setAttribute('data-shop-token', 'YOUR_SHOP_TOKEN');
-    document.body.appendChild(script);
-});
+$(document).ready(function () {
+	const script = document.createElement('script')
+	script.src = 'https://looksy.tech/min-script.js'
+	script.setAttribute('data-shop-token', 'YOUR_SHOP_TOKEN')
+	document.body.appendChild(script)
+})
 ```
 
 ### 2. Product template
@@ -618,11 +785,11 @@ $(document).ready(function() {
 In `themes/your-theme/templates/catalog/product.tpl`:
 
 ```smarty
-<div data-fitting-product 
-     data-fitting-name="{$product.name}" 
+<div data-fitting-product
+     data-fitting-name="{$product.name}"
      data-fitting-price="{$product.price}">
 
-    <img src="{$product.cover.large.url}" 
+    <img src="{$product.cover.large.url}"
          alt="{$product.name}"
          data-fitting-image />
 
@@ -631,18 +798,18 @@ In `themes/your-theme/templates/catalog/product.tpl`:
 
 ## Magento 2
 
-### 1. Add via layout XML
+### 1. Add through layout XML
 
 Create `app/design/frontend/YourVendor/YourTheme/Magento_Theme/layout/default.xml`:
 
 ```xml
 <?xml version="1.0"?>
-<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
         <referenceContainer name="before.body.end">
-            <block class="Magento\Framework\View\Element\Template" 
-                   name="virtual.fitting.script" 
+            <block class="Magento\Framework\View\Element\Template"
+                   name="virtual.fitting.script"
                    template="Magento_Theme::virtual-fitting.phtml"/>
         </referenceContainer>
     </body>
@@ -663,11 +830,11 @@ $_product = $block->getProduct();
 $_imageHelper = $this->helper('Magento\Catalog\Helper\Image');
 ?>
 
-<div data-fitting-product 
-     data-fitting-name="<?= $block->escapeHtml($_product->getName()) ?>" 
+<div data-fitting-product
+     data-fitting-name="<?= $block->escapeHtml($_product->getName()) ?>"
      data-fitting-price="<?= $block->escapeHtml($_product->getFormattedPrice()) ?>">
 
-    <img src="<?= $block->escapeUrl($_imageHelper->init($_product, 'product_page_image_large')->getUrl()) ?>" 
+    <img src="<?= $block->escapeUrl($_imageHelper->init($_product, 'product_page_image_large')->getUrl()) ?>"
          alt="<?= $block->escapeHtml($_product->getName()) ?>"
          data-fitting-image />
 
@@ -678,7 +845,7 @@ $_imageHelper = $this->helper('Magento\Catalog\Helper\Image');
 
 ### What the integration does
 
-For Tilda, it is enough to add one script in the site settings. After that, Looksy SDK automatically tracks when a product card opens, finds the product image, name, and price, and adds the try-on button inside the opened card.
+For Tilda, it is usually enough to add one script in the site settings. After that, the Looksy SDK tracks product card opening, finds the product image, name, and price, and adds the try-on button to the opened product card.
 
 Manual `data-fitting-*` markup is usually not required.
 
@@ -690,7 +857,7 @@ Manual `data-fitting-*` markup is usually not required.
 
 ### 2. Open the code insertion section
 
-In site settings, open `More -> Code Injection` or, depending on the Tilda interface, `Site Settings -> Code Injection`.
+In the site settings, open `More -> Code insertion` or, depending on your Tilda interface, `Site Settings -> Code insertion`.
 
 Find the block for adding HTML code before the closing `</body>` tag. It is usually called `Before closing BODY tag` or `Before </body>`.
 
@@ -702,14 +869,14 @@ Add this code:
 
 ```html
 <script
-  defer
-  src="https://looksy.tech/min-script.js"
-  data-shop-token="YOUR_SHOP_TOKEN"
-  data-debug="true">
-</script>
+	defer
+	src="https://looksy.tech/min-script.js"
+	data-shop-token="YOUR_SHOP_TOKEN"
+	data-debug="true"
+></script>
 ```
 
-Important: keep the `defer` attribute for Tilda.
+Important: for Tilda, keep the `defer` attribute.
 
 ### 4. Save changes
 
@@ -717,7 +884,7 @@ Important: keep the `defer` attribute for Tilda.
 2. Return to the site.
 3. Publish the site again.
 
-In Tilda, changes in site settings are applied to published pages after republishing.
+In Tilda, changes made in site settings are applied to published pages only after republishing.
 
 ### 5. Test the integration
 
@@ -725,88 +892,98 @@ Open the published site and test the flow: catalog → product card → open pro
 
 Expected result:
 
-- the try-on button appears inside the opened product card;
+- the try-on button appears in the opened product card;
 - the button is attached to the product photo;
-- clicking it opens the Looksy widget.
+- clicking the button opens the Looksy widget.
 
 ### 6. If the button does not appear
 
-Open DevTools -> `Console` and check for `[Looksy]` messages.
+Open DevTools -> `Console` and check whether there are `[Looksy]` messages.
 
-Also check that:
+Also check the following:
 
-- the script was added in site settings, not only on one page;
+- the script was added in the site settings, not only on one page;
 - the site was republished after saving the code;
 - the code contains `data-shop-token`;
 - the `defer` attribute was not removed;
 - the product card contains a product image;
-- the page does not include `min-script.js` twice.
+- there is no second `min-script.js` connection on the page.
 
 ### 7. How to disable debug mode
 
-After testing, replace `data-debug="true"` with `data-debug="false"`, or remove the attribute entirely:
+After testing, replace `data-debug="true"` with `data-debug="false"` or remove the attribute:
 
 ```html
 <script
-  defer
-  src="https://looksy.tech/min-script.js"
-  data-shop-token="YOUR_SHOP_TOKEN">
-</script>
+	defer
+	src="https://looksy.tech/min-script.js"
+	data-shop-token="YOUR_SHOP_TOKEN"
+></script>
 ```
 
 ### For custom layouts
 
-If you use a custom Zero Block or your own HTML product markup, you can mark the product manually:
+If you use a custom Zero Block or custom HTML product markup, you can mark the product manually:
 
 ```html
 <div
-  data-fitting-product
-  data-fitting-name="Product name"
-  data-fitting-price="$49">
-  <img
-    src="product.jpg"
-    alt="Product name"
-    data-fitting-image>
+	data-fitting-product
+	data-fitting-name="Product name"
+	data-fitting-price="$49"
+>
+	<img
+		src="product.jpg"
+		alt="Product name"
+		data-fitting-image
+	/>
 </div>
 ```
 
-After dynamically inserting a product, you can call:
+After inserting a product dynamically, you can call:
 
 ```html
 <script>
-  if (window.VirtualFitting) {
-    window.VirtualFitting.init();
-  }
+	if (window.VirtualFitting) {
+		window.VirtualFitting.init()
+	}
 </script>
 ```
 
-## Plain HTML/CSS/JS
+## Plain HTML/CSS/JS Layout
 
 ### Product catalog
 
 ```html
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    <title>Catalog</title>
-</head>
-<body>
-    <div class="products">
-        <div class="product" 
-             data-fitting-product 
-             data-fitting-name="Basic T-shirt" 
-             data-fitting-price="$39">
-            <img src="images/tshirt.jpg" 
-                 alt="T-shirt"
-                 data-fitting-image />
-            <h3>Basic T-shirt</h3>
-            <p class="price">$39</p>
-        </div>
-    </div>
+	<head>
+		<meta charset="UTF-8" />
+		<title>Catalog</title>
+	</head>
+	<body>
+		<div class="products">
+			<div
+				class="product"
+				data-fitting-product
+				data-fitting-name="Basic T-shirt"
+				data-fitting-price="$29"
+			>
+				<img
+					src="images/tshirt.jpg"
+					alt="T-shirt"
+					data-fitting-image
+				/>
+				<h3>Basic T-shirt</h3>
+				<p class="price">$29</p>
+			</div>
+		</div>
 
-    <script defer src="https://looksy.tech/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
-</body>
+		<script
+			defer
+			src="https://looksy.tech/min-script.js"
+			data-shop-token="YOUR_SHOP_TOKEN"
+		></script>
+	</body>
 </html>
 ```
 
@@ -815,100 +992,99 @@ After dynamically inserting a product, you can call:
 ```html
 <div id="products-container"></div>
 
-<script defer src="https://looksy.tech/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
+<script
+	defer
+	src="https://looksy.tech/min-script.js"
+	data-shop-token="YOUR_SHOP_TOKEN"
+></script>
 <script>
-fetch('/api/products')
-    .then(res => res.json())
-    .then(products => {
-        const container = document.getElementById('products-container');
+	fetch('/api/products')
+		.then(res => res.json())
+		.then(products => {
+			const container = document.getElementById('products-container')
 
-        products.forEach(product => {
-            const div = document.createElement('div');
-            div.className = 'product';
-            div.setAttribute('data-fitting-product', '');
-            div.setAttribute('data-fitting-name', product.name);
-            div.setAttribute('data-fitting-price', product.price);
+			products.forEach(product => {
+				const div = document.createElement('div')
+				div.className = 'product'
+				div.setAttribute('data-fitting-product', '')
+				div.setAttribute('data-fitting-name', product.name)
+				div.setAttribute('data-fitting-price', product.price)
 
-            const img = document.createElement('img');
-            img.src = product.image;
-            img.alt = product.name;
-            img.setAttribute('data-fitting-image', '');
+				const img = document.createElement('img')
+				img.src = product.image
+				img.alt = product.name
+				img.setAttribute('data-fitting-image', '')
 
-            div.appendChild(img);
-            container.appendChild(div);
-        });
+				div.appendChild(img)
+				container.appendChild(div)
+			})
 
-        window.VirtualFitting.init();
-    });
+			window.VirtualFitting.init()
+		})
 </script>
 ```
 
-## React (SPA)
+## React (for SPA)
 
-Connect the SDK once in `index.html` or in the root layout. Call `window.VirtualFitting.init()` at the page/route level after content renders, not inside every product card.
+Connect the SDK once in `index.html` or in the root layout. Call `window.VirtualFitting.init()` at the page/route level after the content has rendered, not inside every product card.
 
 Example initialization on route change:
 
 ```tsx
 function useLooksyInitOnRouteChange() {
-  const location = useLocation();
+	const location = useLocation()
 
-  useEffect(() => {
-    const frame = requestAnimationFrame(() => {
-      if (window.VirtualFitting) {
-        window.VirtualFitting.init();
-      }
-    });
+	useEffect(() => {
+		const frame = requestAnimationFrame(() => {
+			if (window.VirtualFitting) {
+				window.VirtualFitting.init()
+			}
+		})
 
-    return () => cancelAnimationFrame(frame);
-  }, [location.pathname]);
+		return () => cancelAnimationFrame(frame)
+	}, [location.pathname])
 }
 ```
 
 ## Vue.js
 
-Connect the SDK once in `index.html`. Call `window.VirtualFitting.init()` at the app level on route changes, not inside the product card.
+Connect the SDK once in `index.html`, and call `window.VirtualFitting.init()` at the application level when the route changes, not inside the product card.
 
 ```html
 <script
-  defer
-  src="https://looksy.tech/min-script.js"
-  data-shop-token="YOUR_SHOP_TOKEN"
-  data-lang="en">
-</script>
+	defer
+	src="https://looksy.tech/min-script.js"
+	data-shop-token="YOUR_SHOP_TOKEN"
+	data-lang="en"
+></script>
 ```
 
 Example initialization in `App.vue`:
 
 ```vue
 <script setup>
-import { nextTick, watch } from "vue";
-import { useRoute } from "vue-router";
+import { nextTick, watch } from 'vue'
+import { useRoute } from 'vue-router'
 
-const route = useRoute();
+const route = useRoute()
 
 watch(
-  () => route.path,
-  async () => {
-    await nextTick();
-    if (window.VirtualFitting) {
-      window.VirtualFitting.init();
-    }
-  },
-  { immediate: true }
-);
+	() => route.path,
+	async () => {
+		await nextTick()
+		if (window.VirtualFitting) {
+			window.VirtualFitting.init()
+		}
+	},
+	{ immediate: true },
+)
 </script>
 ```
 
 The product card/page must contain `data-fitting-*`, and the button should be anchored to the photo block:
 
 ```vue
-<div
-  class="product-media"
-  data-fitting-product
-  :data-fitting-name="product.name"
-  :data-fitting-price="product.price"
->
+<div class="product-media" data-fitting-product :data-fitting-name="product.name" :data-fitting-price="product.price">
   <img
     :src="product.image"
     :alt="product.name"
@@ -917,15 +1093,15 @@ The product card/page must contain `data-fitting-*`, and the button should be an
 </div>
 ```
 
-If `img` uses a local or private URL, pass a public URL separately on the container:
+If the `img` uses a local or private URL, pass a public URL separately on the container:
 
 ```vue
 <div
-  class="product-media"
-  data-fitting-product
-  :data-fitting-name="product.name"
-  :data-fitting-price="product.price"
-  :data-fitting-image="product.tryOnImage"
+	class="product-media"
+	data-fitting-product
+	:data-fitting-name="product.name"
+	:data-fitting-price="product.price"
+	:data-fitting-image="product.tryOnImage"
 >
   <img :src="product.image" :alt="product.name" data-fitting-image />
 </div>

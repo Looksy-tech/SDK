@@ -23,9 +23,10 @@
 
 ```html
 <script
-  defer
-  src="https://looksy.tech/min-script.js"
-  data-shop-token="YOUR_SHOP_TOKEN"></script>
+	defer
+	src="https://looksy.tech/min-script.js"
+	data-shop-token="YOUR_SHOP_TOKEN"
+></script>
 ```
 
 ### 2. Разметка продуктов
@@ -33,13 +34,17 @@
 Добавьте data-атрибуты к элементам продуктов:
 
 ```html
-<div class="product" 
-     data-fitting-product 
-     data-fitting-name="Название товара" 
-     data-fitting-price="2990 ₽">
-  <img src="product.jpg" 
-       alt="Product" 
-       data-fitting-image />
+<div
+	class="product"
+	data-fitting-product
+	data-fitting-name="Название товара"
+	data-fitting-price="2990 ₽"
+>
+	<img
+		src="product.jpg"
+		alt="Product"
+		data-fitting-image
+	/>
 </div>
 ```
 
@@ -47,17 +52,17 @@
 
 ### Обязательные атрибуты
 
-| Атрибут | Элемент | Описание |
-|---------|---------|----------|
+| Атрибут                | Элемент   | Описание                    |
+| ---------------------- | --------- | --------------------------- |
 | `data-fitting-product` | Контейнер | Отмечает контейнер продукта |
-| `data-fitting-image` | `<img>` | Отмечает изображение товара |
+| `data-fitting-image`   | `<img>`   | Отмечает изображение товара |
 
 ### Опциональные атрибуты
 
-| Атрибут | Элемент | Описание | По умолчанию |
-|---------|---------|----------|--------------|
-| `data-fitting-name` | Контейнер | Название товара | Сначала ищется в тексте карточки/заголовках, затем берётся из `alt` изображения |
-| `data-fitting-price` | Контейнер | Цена товара | Пустая строка |
+| Атрибут              | Элемент   | Описание        | По умолчанию                                                                    |
+| -------------------- | --------- | --------------- | ------------------------------------------------------------------------------- |
+| `data-fitting-name`  | Контейнер | Название товара | Сначала ищется в тексте карточки/заголовках, затем берётся из `alt` изображения |
+| `data-fitting-price` | Контейнер | Цена товара     | Пустая строка                                                                   |
 
 ---
 
@@ -79,6 +84,7 @@
 ```
 
 **Селекторы** — это CSS-правила, по которым скрипт ищет элементы:
+
 - `[data-fitting-product]` — находит все элементы с атрибутом `data-fitting-product`
 - `img[data-fitting-image]` — находит все `<img>` с атрибутом `data-fitting-image`
 
@@ -86,13 +92,12 @@
 
 Data-атрибуты — это способ «пометить» HTML-элементы для скрипта, не влияя на их внешний вид или поведение:
 
-| Атрибут | Зачем нужен |
-|---------|-------------|
-| `data-fitting-product` | Говорит скрипту: «Это контейнер товара, добавь сюда кнопку примерки» |
-| `data-fitting-image` | Говорит скрипту: «Это изображение товара, используй его для примерки» |
-| `data-fitting-name` | Передаёт название товара в виджет |
-| `data-fitting-price` | Передаёт цену товара в виджет |
-
+| Атрибут                | Зачем нужен                                                           |
+| ---------------------- | --------------------------------------------------------------------- |
+| `data-fitting-product` | Говорит скрипту: «Это контейнер товара, добавь сюда кнопку примерки»  |
+| `data-fitting-image`   | Говорит скрипту: «Это изображение товара, используй его для примерки» |
+| `data-fitting-name`    | Передаёт название товара в виджет                                     |
+| `data-fitting-price`   | Передаёт цену товара в виджет                                         |
 
 ### Атрибут data-shop-token
 
@@ -100,12 +105,14 @@ Data-атрибуты — это способ «пометить» HTML-элем
 
 ```html
 <script
-  defer
-  src="https://looksy.tech/min-script.js"
-  data-shop-token="YOUR_SHOP_TOKEN"></script>
+	defer
+	src="https://looksy.tech/min-script.js"
+	data-shop-token="YOUR_SHOP_TOKEN"
+></script>
 ```
 
 Скрипт автоматически извлекает токен при загрузке и использует его для:
+
 - Идентификации вашего магазина
 - Авторизации запросов к API виджета
 - Персонализации настроек
@@ -116,10 +123,11 @@ Data-атрибуты — это способ «пометить» HTML-элем
 
 ```html
 <script
-  defer
-  src="https://looksy.tech/min-script.js"
-  data-shop-token="YOUR_SHOP_TOKEN"
-  data-debug="true"></script>
+	defer
+	src="https://looksy.tech/min-script.js"
+	data-shop-token="YOUR_SHOP_TOKEN"
+	data-debug="true"
+></script>
 ```
 
 В этом режиме скрипт пишет диагностические сообщения с префиксом `[Looksy]`.
@@ -299,11 +307,11 @@ add_action('wp_footer', function () {
 
 ```html
 <script
-  defer
-  src="https://looksy.tech/min-script.js"
-  data-shop-token="YOUR_SHOP_TOKEN"
-  data-lang="en">
-</script>
+	defer
+	src="https://looksy.tech/min-script.js"
+	data-shop-token="YOUR_SHOP_TOKEN"
+	data-lang="en"
+></script>
 ```
 
 Для русского/default режима уберите `data-lang` или укажите `data-lang="ru"`.
@@ -314,13 +322,15 @@ add_action('wp_footer', function () {
 
 ```html
 <div
-  data-fitting-product
-  data-fitting-name="Product name"
-  data-fitting-price="$49">
-  <img
-    src="https://example.com/product.jpg"
-    alt="Product name"
-    data-fitting-image />
+	data-fitting-product
+	data-fitting-name="Product name"
+	data-fitting-price="$49"
+>
+	<img
+		src="https://example.com/product.jpg"
+		alt="Product name"
+		data-fitting-image
+	/>
 </div>
 ```
 
@@ -399,6 +409,7 @@ SDK должен быть подключён один раз. Если в тем
 ```
 
 Добавьте в этот div атрибуты:
+
 ```
 data-fitting-product
 data-fitting-name="{{ product.title | escape }}"
@@ -423,45 +434,197 @@ data-fitting-price="{{ product.price | money }}"
 
 ### 3. Если файл называется иначе
 
-Shopify-темы могут использовать разные названия файлов и блоков. Если вы не нашли `snippets/product-information-content.liquid`, используйте поиск по коду темы.
+Если вы не нашли файл `snippets/product-information-content.liquid` или блок:
 
-В редакторе Shopify есть поиск по файлам темы. Ищите по очереди:
-
-```txt
-product-information__media
-media_gallery
-media-gallery
-product.media
-product.featured_media
-product.featured_image
-product__media
-product-media
-product-gallery
-main-product
+```
+<div
+  class="product-information__media"
+  data-testid="product-information-media"
+>
+  {{ media_gallery }}
+</div>
 ```
 
-Нужно найти блок, который выводит главное изображение или галерею товара на странице товара.
+попробуйте запасной вариант через файл, который выводит отдельное изображение товара.
 
-Обычно рядом с нужным местом встречаются переменные:
+В редакторе Shopify откройте файл `snippets/product-media.liquid`
 
-```liquid
-{{ product.title }}
-{{ product.price }}
-{{ product.media }}
-{{ product.featured_media }}
-{{ product.featured_image }}
+Дальше возможны два варианта разметки.
+
+#### Вариант A: изображение выводится через image_tag
+
+Найдите блок примерно такого вида:
+
+```
+{{
+  media.preview_image
+  | image_url: width: 3840
+  | image_tag:
+    widths: widths,
+    alt: media.alt,
+    sizes: sizes,
+    loading: loading,
+    class: 'product-media__image'
+}}
 ```
 
-или классы:
+В этом случае не нужно переписывать image_tag. Проще добавить атрибуты на внешний контейнер одного изображения.
 
-```txt
-product__media
-product-media
-product-gallery
-media-gallery
-product-single__media
-product-information__media
+Найдите блок примерно такого вида:
+
+<div
+  class="product-media"
+  style="--ratio: {{ media.aspect_ratio }}"
+  data-media-id="{{ media.id }}"
+>
+
+Замените его на:
+
+<div
+  class="product-media"
+  style="--ratio: {{ media.aspect_ratio }}"
+  data-media-id="{{ media.id }}"
+  {%- if media.position == 1 -%}
+    data-fitting-product
+    data-fitting-name="{{ selected_product.title | escape }}"
+    data-fitting-price="{{ selected_product.price | money }}"
+    data-fitting-image="{{ media.preview_image | image_url: width: 1200 }}"
+  {%- endif -%}
+>
+
+Условие:
+
+{%- if media.position == 1 -%}
+
+нужно для того, чтобы кнопка Try on появилась только на первом изображении товара, а не на всех фото в галерее.
+
+После сохранения откройте страницу товара и проверьте, появилась ли кнопка Try on.
+
+Важно: этот способ является запасным. В некоторых Shopify-темах файл product-media.liquid может использоваться не только для основной картинки товара, но и для модального окна просмотра изображения. Если кнопка появилась не там, где нужно, вернитесь к поиску основного контейнера галереи товара.
+
+Найдите блок, который выводит изображение товара. Обычно он выглядит примерно так:
+
 ```
+{%- if media.media_type == 'image' -%}
+  <img
+    ...
+  >
+{%- endif -%}
+```
+
+Добавьте в этот <img> атрибуты `data-fitting-*.`
+
+Пример:
+
+```
+{%- if media.media_type == 'image' -%}
+  <img
+    class="global-media-settings global-media-settings--no-shadow{% if variant_image %} product__media-item--variant{% endif %}"
+    srcset="
+      {%- if media.preview_image.width >= 550 -%}{{ media.preview_image | image_url: width: 550 }} 550w,{%- endif -%}
+      {%- if media.preview_image.width >= 1100 -%}{{ media.preview_image | image_url: width: 1100 }} 1100w,{%- endif -%}
+      {%- if media.preview_image.width >= 1445 -%}{{ media.preview_image | image_url: width: 1445 }} 1445w,{%- endif -%}
+      {%- if media.preview_image.width >= 1680 -%}{{ media.preview_image | image_url: width: 1680 }} 1680w,{%- endif -%}
+      {%- if media.preview_image.width >= 2048 -%}{{ media.preview_image | image_url: width: 2048 }} 2048w,{%- endif -%}
+      {{ media.preview_image | image_url }} {{ media.preview_image.width }}w
+    "
+    sizes="(min-width: 750px) calc(100vw - 22rem), 1100px"
+    src="{{ media.preview_image | image_url: width: 1445 }}"
+    alt="{{ media.alt | escape }}"
+    loading="lazy"
+    width="1100"
+    height="{{ 1100 | divided_by: media.preview_image.aspect_ratio | ceil }}"
+
+    data-fitting-product
+    data-fitting-name="{{ product.title | escape }}"
+    data-fitting-price="{{ product.price | money }}"
+    data-fitting-image="{{ media.preview_image | image_url: width: 1200 }}"
+    data-media-id="{{ media.id }}"
+  >
+{%- endif -%}
+```
+
+После сохранения откройте страницу товара и проверьте, появилась ли кнопка Try on.
+
+Важно: этот способ является запасным. В некоторых Shopify-темах файл product-media.liquid может использоваться не только для основной картинки товара, но и для модального окна просмотра изображения. Если кнопка появилась не там, где нужно, вернитесь к поиску основного контейнера галереи товара.
+
+#### 3.1 Если кнопка растянулась на всю картинку
+
+В некоторых Shopify-темах стили галереи могут растянуть кнопку `Try on` на всю область изображения. Если кнопка появилась, но выглядит как большой чёрный блок поверх всей картинки, откройте файл: `layout/theme.liquid`
+
+Найдите место, где вы подключили SDK:
+
+```
+{% if request.page_type == 'product' %}
+  <script
+    defer
+    src="https://looksy.tech/min-script.js"
+    data-shop-token="YOUR_SHOP_TOKEN"
+    data-lang="en">
+  </script>
+{% endif %}
+```
+
+Добавьте CSS внутрь этого же блока, сразу после <script>:
+
+```
+{% if request.page_type == 'product' %}
+  <script
+    defer
+    src="https://looksy.tech/min-script.js"
+    data-shop-token="YOUR_SHOP_TOKEN"
+    data-lang="en">
+  </script>
+
+  <style>
+    .virtual-fitting-button,
+    .virtual-fitting-button.virtual-fitting-button--en {
+      position: absolute !important;
+      top: auto !important;
+      left: auto !important;
+      right: 12px !important;
+      bottom: 12px !important;
+
+      width: auto !important;
+      height: auto !important;
+      min-width: 0 !important;
+      min-height: 0 !important;
+      max-width: none !important;
+      max-height: none !important;
+
+      padding: 10px 16px !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+
+      background: #0a0a0a !important;
+      color: #ffffff !important;
+      z-index: 20 !important;
+      object-fit: initial !important;
+      inset: auto 12px 12px auto !important;
+    }
+
+    .virtual-fitting-button img,
+    .virtual-fitting-button svg {
+      width: 16px !important;
+      height: 16px !important;
+      max-width: 16px !important;
+      max-height: 16px !important;
+      position: static !important;
+    }
+  </style>
+{% endif %}
+```
+
+Если SDK уже подключён, не добавляйте второй <script>. Добавьте только блок:
+
+```
+<style>
+  ...
+</style>
+```
+
+внутрь существующего условия `{% if request.page_type == 'product' %}`.
 
 ### 4. Вариант с передачей изображения через контейнер
 
@@ -521,7 +684,6 @@ product-information__media
 
 На странице должен быть один подключённый SDK.
 
-
 ## Битрикс (1C-Bitrix)
 
 ### 1. Подключение в шаблоне
@@ -536,17 +698,17 @@ product-information__media
 ### 2. Настройка карточки товара
 
 ```php
-<div class="product-detail" 
-     data-fitting-product 
-     data-fitting-name="<?=$arResult['NAME']?>" 
+<div class="product-detail"
+     data-fitting-product
+     data-fitting-name="<?=$arResult['NAME']?>"
      data-fitting-price="<?=$arResult['PRICES']['BASE']['PRINT_VALUE']?>">
-    
+
     <?php if ($arResult['DETAIL_PICTURE']): ?>
-        <img src="<?=$arResult['DETAIL_PICTURE']['SRC']?>" 
+        <img src="<?=$arResult['DETAIL_PICTURE']['SRC']?>"
              alt="<?=$arResult['NAME']?>"
              data-fitting-image />
     <?php endif; ?>
-    
+
 </div>
 ```
 
@@ -554,15 +716,15 @@ product-information__media
 
 ```php
 <?php foreach ($arResult['ITEMS'] as $item): ?>
-    <div class="catalog-item" 
-         data-fitting-product 
-         data-fitting-name="<?=$item['NAME']?>" 
+    <div class="catalog-item"
+         data-fitting-product
+         data-fitting-name="<?=$item['NAME']?>"
          data-fitting-price="<?=$item['PRICES']['BASE']['PRINT_VALUE']?>">
-        
-        <img src="<?=$item['PREVIEW_PICTURE']['SRC']?>" 
+
+        <img src="<?=$item['PREVIEW_PICTURE']['SRC']?>"
              alt="<?=$item['NAME']?>"
              data-fitting-image />
-        
+
     </div>
 <?php endforeach; ?>
 ```
@@ -584,16 +746,16 @@ product-information__media
 В файле `catalog/view/theme/default/template/product/product.tpl`:
 
 ```php
-<div data-fitting-product 
-     data-fitting-name="<?php echo $heading_title; ?>" 
+<div data-fitting-product
+     data-fitting-name="<?php echo $heading_title; ?>"
      data-fitting-price="<?php echo $price; ?>">
-    
+
     <?php if ($thumb) { ?>
-        <img src="<?php echo $thumb; ?>" 
+        <img src="<?php echo $thumb; ?>"
              alt="<?php echo $heading_title; ?>"
              data-fitting-image />
     <?php } ?>
-    
+
 </div>
 ```
 
@@ -602,12 +764,12 @@ product-information__media
 ### 1. Добавление в theme.js
 
 ```javascript
-$(document).ready(function() {
-    const script = document.createElement('script');
-    script.src = 'https://looksy.tech/min-script.js';
-    script.setAttribute('data-shop-token', 'YOUR_SHOP_TOKEN');
-    document.body.appendChild(script);
-});
+$(document).ready(function () {
+	const script = document.createElement('script')
+	script.src = 'https://looksy.tech/min-script.js'
+	script.setAttribute('data-shop-token', 'YOUR_SHOP_TOKEN')
+	document.body.appendChild(script)
+})
 ```
 
 ### 2. Шаблон товара
@@ -615,14 +777,14 @@ $(document).ready(function() {
 В `themes/your-theme/templates/catalog/product.tpl`:
 
 ```smarty
-<div data-fitting-product 
-     data-fitting-name="{$product.name}" 
+<div data-fitting-product
+     data-fitting-name="{$product.name}"
      data-fitting-price="{$product.price}">
-    
-    <img src="{$product.cover.large.url}" 
+
+    <img src="{$product.cover.large.url}"
          alt="{$product.name}"
          data-fitting-image />
-    
+
 </div>
 ```
 
@@ -634,12 +796,12 @@ $(document).ready(function() {
 
 ```xml
 <?xml version="1.0"?>
-<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
         <referenceContainer name="before.body.end">
-            <block class="Magento\Framework\View\Element\Template" 
-                   name="virtual.fitting.script" 
+            <block class="Magento\Framework\View\Element\Template"
+                   name="virtual.fitting.script"
                    template="Magento_Theme::virtual-fitting.phtml"/>
         </referenceContainer>
     </body>
@@ -660,14 +822,14 @@ $_product = $block->getProduct();
 $_imageHelper = $this->helper('Magento\Catalog\Helper\Image');
 ?>
 
-<div data-fitting-product 
-     data-fitting-name="<?= $block->escapeHtml($_product->getName()) ?>" 
+<div data-fitting-product
+     data-fitting-name="<?= $block->escapeHtml($_product->getName()) ?>"
      data-fitting-price="<?= $block->escapeHtml($_product->getFormattedPrice()) ?>">
-    
-    <img src="<?= $block->escapeUrl($_imageHelper->init($_product, 'product_page_image_large')->getUrl()) ?>" 
+
+    <img src="<?= $block->escapeUrl($_imageHelper->init($_product, 'product_page_image_large')->getUrl()) ?>"
          alt="<?= $block->escapeHtml($_product->getName()) ?>"
          data-fitting-image />
-    
+
 </div>
 ```
 
@@ -699,11 +861,11 @@ $_imageHelper = $this->helper('Magento\Catalog\Helper\Image');
 
 ```html
 <script
-  defer
-  src="https://looksy.tech/min-script.js"
-  data-shop-token="YOUR_SHOP_TOKEN"
-  data-debug="true">
-</script>
+	defer
+	src="https://looksy.tech/min-script.js"
+	data-shop-token="YOUR_SHOP_TOKEN"
+	data-debug="true"
+></script>
 ```
 
 Важно: для Tilda оставьте атрибут `defer`.
@@ -745,10 +907,10 @@ $_imageHelper = $this->helper('Magento\Catalog\Helper\Image');
 
 ```html
 <script
-  defer
-  src="https://looksy.tech/min-script.js"
-  data-shop-token="YOUR_SHOP_TOKEN">
-</script>
+	defer
+	src="https://looksy.tech/min-script.js"
+	data-shop-token="YOUR_SHOP_TOKEN"
+></script>
 ```
 
 ### Для нестандартной вёрстки
@@ -757,13 +919,15 @@ $_imageHelper = $this->helper('Magento\Catalog\Helper\Image');
 
 ```html
 <div
-  data-fitting-product
-  data-fitting-name="Название товара"
-  data-fitting-price="2990 ₽">
-  <img
-    src="product.jpg"
-    alt="Название товара"
-    data-fitting-image>
+	data-fitting-product
+	data-fitting-name="Название товара"
+	data-fitting-price="2990 ₽"
+>
+	<img
+		src="product.jpg"
+		alt="Название товара"
+		data-fitting-image
+	/>
 </div>
 ```
 
@@ -771,9 +935,9 @@ $_imageHelper = $this->helper('Magento\Catalog\Helper\Image');
 
 ```html
 <script>
-  if (window.VirtualFitting) {
-    window.VirtualFitting.init();
-  }
+	if (window.VirtualFitting) {
+		window.VirtualFitting.init()
+	}
 </script>
 ```
 
@@ -784,26 +948,34 @@ $_imageHelper = $this->helper('Magento\Catalog\Helper\Image');
 ```html
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    <title>Каталог</title>
-</head>
-<body>
-    <div class="products">
-        <div class="product" 
-             data-fitting-product 
-             data-fitting-name="Футболка базовая" 
-             data-fitting-price="1990 ₽">
-            <img src="images/tshirt.jpg" 
-                 alt="Футболка"
-                 data-fitting-image />
-            <h3>Футболка базовая</h3>
-            <p class="price">1990 ₽</p>
-        </div>
-    </div>
+	<head>
+		<meta charset="UTF-8" />
+		<title>Каталог</title>
+	</head>
+	<body>
+		<div class="products">
+			<div
+				class="product"
+				data-fitting-product
+				data-fitting-name="Футболка базовая"
+				data-fitting-price="1990 ₽"
+			>
+				<img
+					src="images/tshirt.jpg"
+					alt="Футболка"
+					data-fitting-image
+				/>
+				<h3>Футболка базовая</h3>
+				<p class="price">1990 ₽</p>
+			</div>
+		</div>
 
-    <script defer src="https://looksy.tech/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
-</body>
+		<script
+			defer
+			src="https://looksy.tech/min-script.js"
+			data-shop-token="YOUR_SHOP_TOKEN"
+		></script>
+	</body>
 </html>
 ```
 
@@ -812,31 +984,35 @@ $_imageHelper = $this->helper('Magento\Catalog\Helper\Image');
 ```html
 <div id="products-container"></div>
 
-<script defer src="https://looksy.tech/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
+<script
+	defer
+	src="https://looksy.tech/min-script.js"
+	data-shop-token="YOUR_SHOP_TOKEN"
+></script>
 <script>
-fetch('/api/products')
-    .then(res => res.json())
-    .then(products => {
-        const container = document.getElementById('products-container');
-        
-        products.forEach(product => {
-            const div = document.createElement('div');
-            div.className = 'product';
-            div.setAttribute('data-fitting-product', '');
-            div.setAttribute('data-fitting-name', product.name);
-            div.setAttribute('data-fitting-price', product.price);
-            
-            const img = document.createElement('img');
-            img.src = product.image;
-            img.alt = product.name;
-            img.setAttribute('data-fitting-image', '');
-            
-            div.appendChild(img);
-            container.appendChild(div);
-        });
-        
-        window.VirtualFitting.init();
-    });
+	fetch('/api/products')
+		.then(res => res.json())
+		.then(products => {
+			const container = document.getElementById('products-container')
+
+			products.forEach(product => {
+				const div = document.createElement('div')
+				div.className = 'product'
+				div.setAttribute('data-fitting-product', '')
+				div.setAttribute('data-fitting-name', product.name)
+				div.setAttribute('data-fitting-price', product.price)
+
+				const img = document.createElement('img')
+				img.src = product.image
+				img.alt = product.name
+				img.setAttribute('data-fitting-image', '')
+
+				div.appendChild(img)
+				container.appendChild(div)
+			})
+
+			window.VirtualFitting.init()
+		})
 </script>
 ```
 
@@ -848,17 +1024,17 @@ fetch('/api/products')
 
 ```tsx
 function useLooksyInitOnRouteChange() {
-  const location = useLocation();
+	const location = useLocation()
 
-  useEffect(() => {
-    const frame = requestAnimationFrame(() => {
-      if (window.VirtualFitting) {
-        window.VirtualFitting.init();
-      }
-    });
+	useEffect(() => {
+		const frame = requestAnimationFrame(() => {
+			if (window.VirtualFitting) {
+				window.VirtualFitting.init()
+			}
+		})
 
-    return () => cancelAnimationFrame(frame);
-  }, [location.pathname]);
+		return () => cancelAnimationFrame(frame)
+	}, [location.pathname])
 }
 ```
 
@@ -868,44 +1044,39 @@ function useLooksyInitOnRouteChange() {
 
 ```html
 <script
-  defer
-  src="https://looksy.tech/min-script.js"
-  data-shop-token="YOUR_SHOP_TOKEN"
-  data-lang="en">
-</script>
+	defer
+	src="https://looksy.tech/min-script.js"
+	data-shop-token="YOUR_SHOP_TOKEN"
+	data-lang="en"
+></script>
 ```
 
 Пример инициализации в `App.vue`:
 
 ```vue
 <script setup>
-import { nextTick, watch } from "vue";
-import { useRoute } from "vue-router";
+import { nextTick, watch } from 'vue'
+import { useRoute } from 'vue-router'
 
-const route = useRoute();
+const route = useRoute()
 
 watch(
-  () => route.path,
-  async () => {
-    await nextTick();
-    if (window.VirtualFitting) {
-      window.VirtualFitting.init();
-    }
-  },
-  { immediate: true }
-);
+	() => route.path,
+	async () => {
+		await nextTick()
+		if (window.VirtualFitting) {
+			window.VirtualFitting.init()
+		}
+	},
+	{ immediate: true },
+)
 </script>
 ```
 
 Карточка/страница товара должна содержать `data-fitting-*`, а кнопка должна якориться к блоку фото:
 
 ```vue
-<div
-  class="product-media"
-  data-fitting-product
-  :data-fitting-name="product.name"
-  :data-fitting-price="product.price"
->
+<div class="product-media" data-fitting-product :data-fitting-name="product.name" :data-fitting-price="product.price">
   <img
     :src="product.image"
     :alt="product.name"
@@ -918,11 +1089,11 @@ watch(
 
 ```vue
 <div
-  class="product-media"
-  data-fitting-product
-  :data-fitting-name="product.name"
-  :data-fitting-price="product.price"
-  :data-fitting-image="product.tryOnImage"
+	class="product-media"
+	data-fitting-product
+	:data-fitting-name="product.name"
+	:data-fitting-price="product.price"
+	:data-fitting-image="product.tryOnImage"
 >
   <img :src="product.image" :alt="product.name" data-fitting-image />
 </div>
