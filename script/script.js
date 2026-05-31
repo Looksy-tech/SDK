@@ -1111,6 +1111,7 @@
       const candidates = productElement.querySelectorAll(selector);
       for (let j = 0; j < candidates.length; j++) {
         const candidate = candidates[j];
+        if (candidate.closest && candidate.closest("." + WIDGET_CONFIG.buttonClass)) continue;
         if (resolveImageSourceFromElement(candidate) && isInKnownProductContainer(candidate)) {
           return candidate;
         }
