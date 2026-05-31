@@ -1677,6 +1677,8 @@
 
     for (var i = 0; i < candidates.length; i++) {
       var el = candidates[i];
+      if (el.closest && el.closest("." + WIDGET_CONFIG.buttonClass)) continue;
+
       var src = resolveImageSourceFromElement(el);
       if (!src) continue;
 
