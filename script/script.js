@@ -21,6 +21,20 @@
   const SHOP_TOKEN = currentScript?.getAttribute('data-shop-token') || '';
   const DEBUG_MODE = currentScript?.getAttribute("data-debug") === "true";
   const LANG = currentScript?.getAttribute('data-lang') || '';
+  const VISITOR_ID = (function() {
+    var fromAttr = (currentScript?.getAttribute('data-fitting-visitor-id') || '').trim().slice(0, 255);
+    if (fromAttr) return fromAttr;
+    try {
+      var stored = localStorage.getItem('looksy_vid');
+      if (stored) return stored;
+      var newId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID()
+        : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            var r = Math.random() * 16 | 0; return (c === 'x' ? r : r & 0x3 | 0x8).toString(16);
+          });
+      localStorage.setItem('looksy_vid', newId);
+      return newId;
+    } catch(e) { return ''; }
+  })();
   /** Внешняя кнопка на витрине: отдельный UI и иконка без S3 (как на site/Looksy.html). */
   const IS_EN_WIDGET = LANG === "en";
   const EN_LAUNCHER_MODIFIER = "virtual-fitting-button--en";
@@ -1495,6 +1509,7 @@
         }),
       ),
     });
+    if (VISITOR_ID) params.set("visitorId", VISITOR_ID);
     const baseUrl = WIDGET_CONFIG.widgetUrl.replace(/\/$/, "");
     widgetIframe.src = `${baseUrl}/?${params.toString()}`;
 
@@ -2000,6 +2015,131 @@
     }, true);
   }
 
+  // ─── CROSS-ANALYTICS ─────────────────────────────────────────────────────────
+  var _sdkSessionId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID()
+    : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0; return (c === 'x' ? r : r & 0x3 | 0x8).toString(16);
+      });
+
+  function _sendEvent(eventName, payload) {
+    if (!SHOP_TOKEN) return;
+    var url = RESOLVED_WIDGET_URL.replace(/\/$/, '') + '/api/analytics/events';
+    var ev = {
+      event_name: eventName,
+      timestamp: new Date().toISOString(),
+      session_id: _sdkSessionId,
+      device_type: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent || '') ? 'mobile' : 'desktop',
+    };
+    if (VISITOR_ID) ev.visitor_id = VISITOR_ID;
+    if (payload) {
+      if (payload.product_id) ev.product_id = payload.product_id;
+      var rest = {};
+      for (var k in payload) {
+        if (k !== 'product_id' && Object.prototype.hasOwnProperty.call(payload, k)) rest[k] = payload[k];
+      }
+      if (Object.keys(rest).length) ev.payload = rest;
+    }
+    fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ shop_token: SHOP_TOKEN, events: [ev] }),
+      keepalive: true,
+    }).catch(function() {});
+  }
+
+  var _purchaseTracked = false;
+
+  function _trackPageView() {
+    _sendEvent('looksy_page_view', { url: window.location.href });
+  }
+
+  function _trackAddToCart(data) {
+    _sendEvent('looksy_add_to_cart', data || {});
+  }
+
+  function _trackPurchase(data) {
+    if (_purchaseTracked) return;
+    _purchaseTracked = true;
+    _sendEvent('looksy_purchase', data || {});
+  }
+
+  var _PURCHASE_PATTERNS = [
+    /\/thank[-_]?you/i, /\/order[-_]?success/i, /\/checkout\/thank[-_]?you/i,
+    /\/спасибо/i, /\/order\/complete/i, /\/order\/received/i,
+    /\/success\/?(\?|$)/i, /\/checkout\/order-received/i,
+  ];
+
+  function _isPurchasePage() {
+    var path = window.location.pathname + window.location.search;
+    for (var i = 0; i < _PURCHASE_PATTERNS.length; i++) {
+      if (_PURCHASE_PATTERNS[i].test(path)) return true;
+    }
+    return false;
+  }
+
+  function _setupDataLayerListener() {
+    window.dataLayer = window.dataLayer || [];
+    var _orig = Array.prototype.push;
+    window.dataLayer.push = function() {
+      var result = _orig.apply(this, arguments);
+      try {
+        var item = arguments[0];
+        if (!item || typeof item !== 'object') return result;
+        var evt = item.event;
+        if (evt === 'add_to_cart' || evt === 'addToCart') {
+          var ec = item.ecommerce || {};
+          var prod = (ec.items && ec.items[0]) || (ec.add && ec.add.products && ec.add.products[0]) || {};
+          _trackAddToCart({ product_id: String(prod.id || prod.item_id || '') });
+        }
+        if (evt === 'purchase' || evt === 'transaction') {
+          var ec2 = item.ecommerce || {};
+          var orderId = ec2.transaction_id
+            || (ec2.purchase && ec2.purchase.actionField && ec2.purchase.actionField.id)
+            || item.transaction_id || '';
+          _trackPurchase({ order_id: String(orderId) });
+        }
+      } catch(e) {}
+      return result;
+    };
+  }
+
+  function _setupBitrixListener() {
+    function _bindBx() {
+      try {
+        BX.addCustomEvent('OnBasketChange', function(ev) {
+          if (ev && ev.action === 'ADD') _trackAddToCart({ product_id: String(ev.productId || '') });
+        });
+        BX.addCustomEvent('SaleOrderPlaced', function() { _trackPurchase({}); });
+      } catch(e) {}
+    }
+    if (typeof BX !== 'undefined') { _bindBx(); return; }
+    window.addEventListener('load', function() { if (typeof BX !== 'undefined') _bindBx(); });
+  }
+
+  function _setupSpaListener() {
+    var _lastPath = window.location.pathname;
+    function _onNav() {
+      if (window.location.pathname === _lastPath) return;
+      _lastPath = window.location.pathname;
+      _purchaseTracked = false;
+      _trackPageView();
+      if (_isPurchasePage()) _trackPurchase({});
+    }
+    var _origPush = history.pushState;
+    history.pushState = function() { _origPush.apply(history, arguments); _onNav(); };
+    window.addEventListener('popstate', _onNav);
+  }
+
+  function initCrossAnalytics() {
+    if (!SHOP_TOKEN) return;
+    _trackPageView();
+    if (_isPurchasePage()) _trackPurchase({});
+    _setupDataLayerListener();
+    _setupSpaListener();
+    _setupBitrixListener();
+  }
+  // ─────────────────────────────────────────────────────────────────────────────
+
   function initWidget() {
     createStyles();
     initButtons();
@@ -2009,6 +2149,7 @@
 
   function init() {
     createMinimizerButton();
+    initCrossAnalytics();
     if (document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", function () {
         loadShopConfig().then(initWidget);
@@ -2023,7 +2164,11 @@
     open: openWidget,
     close: closeWidget,
     init: initButtons,
+    track: function(eventName, data) { _sendEvent(eventName, data || {}); },
   };
+
+  window.Looksy = window.Looksy || {};
+  window.Looksy.track = function(eventName, data) { _sendEvent(eventName, data || {}); };
 
   init();
 })();
