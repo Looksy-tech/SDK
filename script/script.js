@@ -1733,6 +1733,7 @@
       price: price,
       description: description || undefined,
       external_id: externalId,
+      extendedProductData: extractExtendedProductData(),
     };
   }
 
@@ -2015,6 +2016,111 @@
     }
   }
   
+  // ============================================================================
+  // EXTENDED PRODUCT DATA ADAPTERS
+  // ============================================================================
+  //
+  // Optional extra product data extraction.
+  //
+  // Main code only calls:
+  //
+  // extendedProductData: extractExtendedProductData()
+  //
+  // The function reads data-adapter from the current script tag.
+  // If data-adapter="bitrix_v1", it reads Bitrix/Intec product data from DOM.
+  // If adapter is missing or extraction fails, it returns null.
+  //
+  // This block must stay isolated at the bottom of the file.
+  // ============================================================================
+
+  function getLooksyAdapterName() {
+    const script =
+      document.currentScript ||
+      document.querySelector("script[data-shop-token]");
+
+    return script?.getAttribute("data-adapter") || "";
+  }
+
+  function extractExtendedProductData() {
+    try {
+      const adapter = getLooksyAdapterName();
+
+      if (adapter === "bitrix_v1") {
+        return extractBitrixV1ExtendedProductData();
+      }
+
+      return null;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function extractBitrixV1ExtendedProductData() {
+    const root = document.querySelector(
+      ".c-catalog-element[data-data][data-properties]"
+    );
+
+    if (!root) return null;
+
+    let productData = null;
+    let properties = null;
+
+    try {
+      productData = JSON.parse(root.getAttribute("data-data"));
+      properties = JSON.parse(root.getAttribute("data-properties"));
+    } catch (error) {
+      return null;
+    }
+
+    if (!productData || !Array.isArray(properties)) return null;
+
+    const offers = productData.offers || {};
+    const offerFromUrl = new URLSearchParams(window.location.search).get("offer");
+
+    const selectedOffer =
+      (offerFromUrl && offers[offerFromUrl]) ||
+      Object.values(offers).find((offer) => offer?.available) ||
+      Object.values(offers)[0] ||
+      null;
+
+    if (!selectedOffer) return null;
+
+    const variants = properties
+      .map((property) => ({
+        code: property.code,
+        name: property.name,
+        type: property.type || null,
+        values: Object.entries(property.values || {})
+          .filter(([id, value]) => (
+            id !== "0" &&
+            value &&
+            value.id !== 0 &&
+            value.name !== "-" &&
+            value.stub !== true
+          ))
+          .map(([id, value]) => ({
+            id: String(id),
+            name: value.name,
+            picture: value.picture || null,
+          })),
+      }))
+      .filter((property) => property.values.length > 0);
+
+    const result = {
+      product_id: String(productData.id),
+      offer_id: String(selectedOffer.id),
+      variants,
+      selected: selectedOffer.values || {},
+    };
+
+    console.log("[Looksy] extendedProductData", result);
+
+    return result;
+  }
+
+  // ============================================================================
+  // END EXTENDED PRODUCT DATA ADAPTERS
+  // ============================================================================
 
   window.VirtualFitting = {
     open: openWidget,
