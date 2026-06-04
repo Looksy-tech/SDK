@@ -53,14 +53,33 @@ type TExtendedProductVariantProperty = {
 	values: TExtendedProductVariantValue[]
 }
 
+type TExtendedProductOfferPrice = {
+	value: number
+	display?: string | null
+}
+
+// One concrete SKU (offer) and the exact variant combination it represents.
+// `values` maps each property code to the selected value id, e.g.
+// { P_SIZE: "47", P_collor: "430" }. The widget matches the user's chosen
+// combination against these to compute which offer_id to add.
+type TExtendedProductOffer = {
+	id: string
+	values: Record<string, string>
+	available: boolean
+	price?: TExtendedProductOfferPrice | null
+}
+
 type TExtendedProductData = {
 	product_id?: string
-	offer_id?: string
 
 	variants?: TExtendedProductVariantProperty[]
+	// Variant values of the initially selected offer, e.g.
+	// { P_SIZE: "46", P_collor: "430" } — used to pre-select the UI.
 	selected?: Record<string, string>
 
-	raw?: unknown
+	// Full list of every offer with its variant combination, so the widget can
+	// resolve the target offer_id itself and send it back in offer_id.
+	offers?: TExtendedProductOffer[]
 }
 
 type TWidgetProductData = {
@@ -80,11 +99,11 @@ type TWidgetProductDataMessage = {
 
 // ---------------------------
 
+// The widget resolves the chosen variant combination to a concrete offer
+// (using extendedProductData.offers) and sends only that offer_id here.
+// Quantity is always treated as 1 on the SDK side.
 type TPressAddToCartPayload = {
-	product_id?: string
-	offer_id?: string
-	quantity?: number
-	selected?: Record<string, string>
+	offer_id: string
 }
 
 type TWidgetPressAddToCartMessage = {

@@ -2131,11 +2131,30 @@
       }))
       .filter((property) => property.values.length > 0);
 
+    // Full map of every offer (SKU) and the exact variant combination it
+    // represents, so the widget can resolve the target offer_id itself when
+    // the user switches a variant — then send that offer_id back to us to add.
+    const extractOfferPrice = (offer) => {
+      const price = (offer.prices && offer.prices[0]) || null;
+      if (!price) return null;
+      const source =
+        price.discount && price.discount.use ? price.discount : price.base;
+      if (!source) return null;
+      return { value: source.value, display: source.display || null };
+    };
+
+    const offerList = Object.values(offers).map((offer) => ({
+      id: String(offer.id),
+      values: offer.values || {},
+      available: !!offer.available,
+      price: extractOfferPrice(offer),
+    }));
+
     const result = {
       product_id: String(productData.id),
-      offer_id: String(selectedOffer.id),
       variants,
       selected: selectedOffer.values || {},
+      offers: offerList,
     };
 
     console.log("[Looksy] extendedProductData", result);
@@ -2191,25 +2210,8 @@
       );
     };
 
-    try {
-      window.dispatchEvent(
-        new CustomEvent("looksy:add-to-cart", {
-          detail: {
-            request_id: requestId,
-            payload,
-            reply,
-          },
-        }),
-      );
-    } catch (error) {
-      debugLog("add-to-cart event dispatch failed", error);
-      reply({
-        success: false,
-        message: "Failed to dispatch add-to-cart event",
-      });
-      return;
-    }
-
+    // Global safety net: if the handler never settles, fail closed so the
+    // iframe is not left waiting forever.
     window.setTimeout(function () {
       if (responded) return;
       reply({
@@ -2217,6 +2219,113 @@
         message: "Add-to-cart handler did not respond",
       });
     }, ADD_TO_CART_RESPONSE_TIMEOUT_MS);
+
+    try {
+      performBitrixV1AddToCart(payload || {}, reply);
+    } catch (error) {
+      debugLog("add-to-cart handler failed", error);
+      reply({
+        success: false,
+        message: "Add-to-cart handler threw an error",
+      });
+    }
+  }
+
+  // Performs add-to-cart on Bitrix/Intec storefronts (e.g. popnshop.ru).
+  //
+  // Intec renders a basket control for every offer:
+  //   <div class="intec-ui intec-ui-control-basket-button"
+  //        data-basket-id="<offerId>" data-basket-action="add"
+  //        data-basket-state="none"> ... </div>
+  //
+  // Intec binds its own click handler to that element and runs the real
+  // basket AJAX request (correct session, CSRF, stock checks, etc.). While
+  // the request is in flight it sets data-basket-state="processing"; on
+  // success the state becomes a terminal in-basket value ("basket"), on
+  // failure it reverts to "none".
+  //
+  // We don't reimplement their AJAX — we drive their own button with the
+  // offer_id coming from the iframe and watch data-basket-state to learn the
+  // outcome, then report it back through `reply`.
+  //
+  // The widget already knows the full offer map (sent in extendedProductData),
+  // so it resolves the variant combination to a concrete offer_id itself and
+  // sends just that offer_id here.
+  function performBitrixV1AddToCart(payload, reply) {
+    const offerId = String(payload.offer_id || "").trim();
+
+    if (!offerId) {
+      reply({
+        success: false,
+        message: "offer_id is missing in payload",
+      });
+      return;
+    }
+
+    const button = document.querySelector(
+      '.intec-ui-control-basket-button[data-basket-id="' +
+        offerId +
+        '"][data-basket-action="add"]',
+    );
+
+    if (!button) {
+      reply({
+        success: false,
+        message: "Add-to-cart button not found for offer " + offerId,
+      });
+      return;
+    }
+
+    const currentState = function () {
+      return button.getAttribute("data-basket-state") || "none";
+    };
+    // Intec uses "none" (not in basket) and "processing" (request in flight);
+    // any other terminal value means the offer is in the basket.
+    const isInBasket = function (state) {
+      return state !== "none" && state !== "processing";
+    };
+
+    // Already in the basket — treat as success without re-adding.
+    if (isInBasket(currentState())) {
+      reply({ success: true, message: "Already in basket" });
+      return;
+    }
+
+    let settled = false;
+    let timer = null;
+    const observer = new MutationObserver(function () {
+      const state = currentState();
+      if (state === "processing") return; // still in flight, keep waiting
+
+      if (isInBasket(state)) {
+        settle(true, "");
+      } else {
+        // Reverted to "none" => Intec rejected it (out of stock, error, ...).
+        settle(false, "Item was not added to basket");
+      }
+    });
+
+    function settle(success, message) {
+      if (settled) return;
+      settled = true;
+      observer.disconnect();
+      if (timer) window.clearTimeout(timer);
+      reply({ success: success, message: message });
+    }
+
+    observer.observe(button, {
+      attributes: true,
+      attributeFilter: ["data-basket-state"],
+    });
+
+    // If Intec never settles the state, fall back to whatever it ended on.
+    timer = window.setTimeout(function () {
+      const inBasket = isInBasket(currentState());
+      settle(inBasket, inBasket ? "" : "Add-to-cart timed out");
+    }, ADD_TO_CART_RESPONSE_TIMEOUT_MS - 1000);
+
+    // Trigger Intec's own add-to-cart flow.
+    button.click();
   }
 
   // ============================================================================
