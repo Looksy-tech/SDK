@@ -41,54 +41,66 @@
  */
 
 type TExtendedProductVariantValue = {
-  id: string;
-  name: string;
-  picture?: string | null;
-};
+	id: string
+	name: string
+	picture?: string | null
+}
 
 type TExtendedProductVariantProperty = {
-  code: string;
-  name: string;
-  type?: string | null;
-  values: TExtendedProductVariantValue[];
-};
+	code: string
+	name: string
+	type?: string | null
+	values: TExtendedProductVariantValue[]
+}
 
 type TExtendedProductData = {
-  product_id?: string;
-  offer_id?: string;
+	product_id?: string
+	offer_id?: string
 
-  variants?: TExtendedProductVariantProperty[];
-  selected?: Record<string, string>;
+	variants?: TExtendedProductVariantProperty[]
+	selected?: Record<string, string>
 
-  raw?: unknown;
-};
+	raw?: unknown
+}
 
 type TWidgetProductData = {
-  image: string;
-  name: string;
-  price?: string;
-  description?: string;
-  external_id?: string;
+	image: string
+	name: string
+	price?: string
+	description?: string
+	external_id?: string
 
-  extendedProductData?: TExtendedProductData | null;
-};
+	extendedProductData?: TExtendedProductData | null
+}
 
 type TWidgetProductDataMessage = {
-  type: "PRODUCT_DATA";
-  product: TWidgetProductData;
-};
+	type: 'PRODUCT_DATA'
+	product: TWidgetProductData
+}
+
+// ---------------------------
 
 type TPressAddToCartPayload = {
-  product_id?: string;
-  offer_id?: string;
-  quantity?: number;
-  selected?: Record<string, string>;
-};
+	product_id?: string
+	offer_id?: string
+	quantity?: number
+	selected?: Record<string, string>
+}
 
 type TWidgetPressAddToCartMessage = {
-  type: "PRESS_ADD_TO_CART_BTN";
-  payload: TPressAddToCartPayload;
-};
+	source?: 'looksy-widget'
+	type: 'PRESS_ADD_TO_CART_BTN'
+	request_id: string
+	payload: TPressAddToCartPayload
+}
+
+type TWidgetPressAddToCartResultMessage = {
+	source?: 'looksy-sdk'
+	type: 'PRESS_ADD_TO_CART_BTN_RESULT'
+	request_id: string
+	success: boolean
+	message?: string
+}
 
 /**
  * Example future PRESS_ADD_TO_CART_BTN message:

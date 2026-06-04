@@ -1863,7 +1863,8 @@
       // Проверяем что сообщение пришло от нашего виджета
       if (event.origin !== widgetOrigin) return;
 
-      const { type, data } = event.data;
+      const message = event.data || {};
+      const { type, source, request_id, payload } = message;
 
       switch (type) {
         case "CLOSE_WIDGET":
@@ -1890,6 +1891,15 @@
               product: currentProduct,
             });
           }
+          break;
+
+        case "PRESS_ADD_TO_CART_BTN":
+          if (source && source !== "looksy-widget") return;
+          if (!request_id) {
+            debugLog("PRESS_ADD_TO_CART_BTN: missing request_id");
+            break;
+          }
+          dispatchAddToCartRequest(payload || {}, request_id);
           break;
 
         case "PROCESSING":
@@ -2033,6 +2043,8 @@
   // This block must stay isolated at the bottom of the file.
   // ============================================================================
 
+  // Reads the data-adapter attribute from the Looksy script tag,
+  // which tells us which shop platform's DOM structure to parse.
   function getLooksyAdapterName() {
     const script =
       document.currentScript ||
@@ -2041,11 +2053,21 @@
     return script?.getAttribute("data-adapter") || "";
   }
 
+  // Entry point for extended product data extraction.
+  // Picks the right extractor based on the configured adapter,
+  // or falls back to the Bitrix extractor when debug mode is enabled
+  // via the ?popnshop_debug=true URL parameter.
+  // Returns null if no adapter matches or extraction throws.
   function extractExtendedProductData() {
     try {
       const adapter = getLooksyAdapterName();
 
       if (adapter === "bitrix_v1") {
+        return extractBitrixV1ExtendedProductData();
+      }
+
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get("popnshop_debug") === "true") {
         return extractBitrixV1ExtendedProductData();
       }
 
@@ -2120,6 +2142,82 @@
 
   // ============================================================================
   // END EXTENDED PRODUCT DATA ADAPTERS
+  // ============================================================================
+
+  // ============================================================================
+  // ADD TO CART BRIDGE
+  // ============================================================================
+
+  const ADD_TO_CART_RESPONSE_TIMEOUT_MS = 15000;
+
+  function sendAddToCartResult(requestId, success, message) {
+    console.log("[Looksy] add-to-cart result -> iframe", {
+      request_id: requestId,
+      success: !!success,
+      message: message || undefined,
+    });
+    postMessageToIframe({
+      source: "looksy-sdk",
+      type: "PRESS_ADD_TO_CART_BTN_RESULT",
+      request_id: requestId,
+      success: !!success,
+      message: message || undefined,
+    });
+  }
+
+  function dispatchAddToCartRequest(payload, requestId) {
+    let responded = false;
+
+    console.log("[Looksy] add-to-cart request <- iframe", {
+      request_id: requestId,
+      payload,
+    });
+
+    const reply = function (result) {
+      if (responded) return;
+      responded = true;
+      console.log("[Looksy] add-to-cart reply <- parent", {
+        request_id: requestId,
+        success: !!(result && result.success),
+        message: result && result.message ? String(result.message) : undefined,
+      });
+      sendAddToCartResult(
+        requestId,
+        !!(result && result.success),
+        result && result.message ? String(result.message) : "",
+      );
+    };
+
+    try {
+      window.dispatchEvent(
+        new CustomEvent("looksy:add-to-cart", {
+          detail: {
+            request_id: requestId,
+            payload,
+            reply,
+          },
+        }),
+      );
+    } catch (error) {
+      debugLog("add-to-cart event dispatch failed", error);
+      reply({
+        success: false,
+        message: "Failed to dispatch add-to-cart event",
+      });
+      return;
+    }
+
+    window.setTimeout(function () {
+      if (responded) return;
+      reply({
+        success: false,
+        message: "Add-to-cart handler did not respond",
+      });
+    }, ADD_TO_CART_RESPONSE_TIMEOUT_MS);
+  }
+
+  // ============================================================================
+  // END ADD TO CART BRIDGE
   // ============================================================================
 
   window.VirtualFitting = {
