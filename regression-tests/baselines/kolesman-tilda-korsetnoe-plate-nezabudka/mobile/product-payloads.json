@@ -1,0 +1,19 @@
+[
+  {
+    "buttonIndex": 0,
+    "product": {
+      "image": "https://static.tildacdn.com/stor3862-3965-4365-b436-333566366431/2cfe79f12f8bb1afde0191fbcf6af69a.png",
+      "name": "Корсетное платье Незабудка",
+      "price": "21 000",
+      "description": "Платье из хлопковой саржи с авторским принтом нашего бренда.Корсет на молнии.В наличии только 44 размер. Вы можете уточнить у ассистента в мессенджерах по кнопке в нижнем правом углу о том, когда поступят в продажу остальные размеры, и записаться в лист ожидания.",
+      "extendedProductData": null
+    },
+    "shopConfig": {
+      "primary_button_color": "#0a0a0b",
+      "accent_color": "#7886ff",
+      "widget_bg_color": "#ffffff",
+      "example_good_photo_url": null,
+      "example_bad_photo_url": null
+    }
+  }
+]

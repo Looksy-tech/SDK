@@ -1,0 +1,13 @@
+[
+  {
+    "buttonIndex": 0,
+    "src": "http://looksy-regression.local/mock-widget.html/?embedded=true&shopToken=9e1347bf-ce0d-4f27-87e8-32b2e69b38be&product=%257B%2522image%2522%253A%2522https%253A%252F%252Fstatic.tildacdn.com%252Fstor3830-3734-4263-b366-656263383462%252F6cf8ca818f6f973c6f9b05bb05ece322.jpg%2522%252C%2522name%2522%253A%2522%25D0%2591%25D1%2580%25D1%258E%25D0%25BA%25D0%25B8%2520%25D0%25B2%2520%25D0%25BF%25D0%25BE%25D0%25BB%25D0%25BE%25D1%2581%25D0%25BA%25D1%2583%2522%252C%2522price%2522%253A%25223%2520990%2522%257D",
+    "visible": true,
+    "box": {
+      "x": 0,
+      "y": 499,
+      "width": 390,
+      "height": 844
+    }
+  }
+]

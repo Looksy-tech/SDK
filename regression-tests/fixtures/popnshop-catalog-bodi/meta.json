@@ -1,0 +1,17 @@
+{
+  "name": "popnshop-catalog-bodi",
+  "sourceUrl": "https://popnshop.ru/catalog/bodi/",
+  "capturedAt": "2026-06-06T23:36:03.362Z",
+  "script": {
+    "src": "https://looksy.tech/min-script.js",
+    "attrs": {
+      "data-shop-token": "ru_b4e5ccfe-cff3-40fc-b323-c18b58faa50f",
+      "data-widget-url": "https://ru.widget.looksy.tech"
+    }
+  },
+  "viewports": [
+    "desktop"
+  ],
+  "clickButtons": [],
+  "notes": "Real Popnshop / Bitrix catalog page. Static fixture checks button placement; widget click is skipped because isolated replay does not preserve Bitrix runtime state."
+}

@@ -1,0 +1,35 @@
+[
+  {
+    "index": 0,
+    "text": "Примерить на себе",
+    "visible": true,
+    "box": {
+      "x": 261,
+      "y": 4810,
+      "width": 162,
+      "height": 34
+    }
+  },
+  {
+    "index": 1,
+    "text": "Примерить на себе",
+    "visible": true,
+    "box": {
+      "x": 261,
+      "y": 4832,
+      "width": 162,
+      "height": 34
+    }
+  },
+  {
+    "index": 2,
+    "text": "Примерить на себе",
+    "visible": true,
+    "box": {
+      "x": 261,
+      "y": 4854,
+      "width": 162,
+      "height": 34
+    }
+  }
+]

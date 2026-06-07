@@ -1,0 +1,77 @@
+{
+  "pages": [
+    {
+      "name": "local-example-placeholder",
+      "url": "http://localhost:3000/examples/ex.html",
+      "enabled": false,
+      "viewports": ["desktop", "mobile"],
+      "clickButtons": [0],
+      "notes": "Placeholder for a local SDK example page. Replace the URL or enable only when this page is served locally."
+    },
+    {
+      "name": "popnshop-placeholder",
+      "url": "https://popnshop.ru/catalog/example-product/?offer=123",
+      "enabled": false,
+      "viewports": ["desktop"],
+      "scriptAttrs": {
+        "data-adapter": "bitrix_v1"
+      },
+      "clickButtons": [0],
+      "notes": "Popnshop / Bitrix placeholder. Replace with a real product URL and enable when needed."
+    },
+    {
+      "name": "tilda-placeholder",
+      "url": "https://example.tilda.ws/tproduct/123456789-test-product",
+      "enabled": false,
+      "viewports": ["desktop", "mobile"],
+      "clickButtons": [0],
+      "notes": "Tilda placeholder. Replace with a real Tilda product URL and enable when needed."
+    },
+    {
+      "name": "ettoplus-product-futbolka-777",
+      "url": "https://ettoplus.ru/product/futbolka-ettoplyus-razmer-52-60-art-777/",
+      "enabled": true,
+      "viewports": ["desktop", "mobile"],
+      "clickButtons": [],
+      "notes": "Real ETTOPLUS product page. Static fixture checks button placement; widget click is skipped because isolated replay cannot collect stable product data on this page yet."
+    },
+    {
+      "name": "popnshop-catalog-bodi",
+      "url": "https://popnshop.ru/catalog/bodi/",
+      "enabled": true,
+      "viewports": ["desktop"],
+      "scriptAttrs": {
+        "data-adapter": "bitrix_v1"
+      },
+      "clickButtons": [],
+      "notes": "Real Popnshop / Bitrix catalog page. Static fixture checks button placement; widget click is skipped because isolated replay does not preserve Bitrix runtime state."
+    },
+    {
+      "name": "popnshop-product-bodi-modeliruyushchee",
+      "url": "https://popnshop.ru/catalog/bodi/bodi-modeliruyushcheetxs/?offer=86408",
+      "enabled": true,
+      "viewports": ["desktop", "mobile"],
+      "scriptAttrs": {
+        "data-adapter": "bitrix_v1"
+      },
+      "clickButtons": [],
+      "notes": "Real Popnshop / Bitrix product page with offer query parameter. Static fixture checks button placement; widget click is skipped because isolated replay does not preserve Bitrix runtime state."
+    },
+    {
+      "name": "meandme-tilda-bryuki-v-polosku",
+      "url": "https://meandme.online/tproduct/356762155352-bryuki-v-polosku",
+      "enabled": true,
+      "viewports": ["desktop", "mobile"],
+      "clickButtons": [0],
+      "notes": "Real Tilda product page."
+    },
+    {
+      "name": "kolesman-tilda-korsetnoe-plate-nezabudka",
+      "url": "https://kolesman.ru/tproduct/160942049062-korsetnoe-plate-nezabudka",
+      "enabled": true,
+      "viewports": ["desktop", "mobile"],
+      "clickButtons": [0],
+      "notes": "Real Tilda product page."
+    }
+  ]
+}

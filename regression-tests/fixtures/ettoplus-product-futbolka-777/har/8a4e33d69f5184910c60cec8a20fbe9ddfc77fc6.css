@@ -1,0 +1,523 @@
+.allBonusesWrapper{
+    border: 1px solid silver;
+    padding: 7px;
+    margin: 10px 0px;
+}
+
+.allBonusesWrapper .bonuses{
+    color: green;
+}
+
+.allBonusesWrapper.amazing .bonuses{
+    color: black;
+    font-weight: bold;
+}
+
+.bonusesProductAmount{
+    padding-top: 10px;
+    padding-bottom: 10px;
+    font-size: 14px;
+}
+
+.bonusesProductAmount.amazing{
+    font-size: inherit;
+}
+
+.cartBonusesWarning{
+    font-size: 12px;
+    text-align: right;
+    color: gray;
+    padding: 7px 0 0;
+    margin-bottom: 0;
+}
+
+.cartBonusesWarning:last-child{
+    margin-bottom: 1rem;
+}
+
+.cartBonusesWarning.perfume{
+    text-align: left;
+}
+
+.cartBonusesWrapper{
+    font-size: 13px;
+    padding: 7px 0;
+    text-align: right;
+}
+
+.cartBonusesWrapper.amazing{
+    font-size: inherit;
+}
+
+.cartBonusesWrapper.perfume{
+    text-align: left;
+    color: white;
+}
+
+.cartBonusesWrapper.perfume a{
+    color: white;
+}
+
+
+.cartBonusesWrapper .success{
+    color: green;
+    margin-bottom: 10px;
+}
+
+.cartBonusesWrapper .errors{
+    color: red;
+}
+
+.cartBonusesWrapper .errors li{
+    margin-bottom: 10px;
+}
+
+.cartBonusesWrapper a{
+    text-decoration: underline;
+    margin-left: 10px;
+}
+
+.cartBonusesWrapper a:hover{
+    text-decoration: none;
+}
+
+.bonusHistoryWrapper .bonusHistoryAmount{
+    font-size: 18px;
+}
+
+.bonusHistoryWrapper.flatlines .bonusHistoryAmount{
+    padding-bottom: 20px;
+}
+
+
+.bonusHistoryWrapper .tocenter{
+    text-align: center;
+}
+
+.bonusHistoryWrapper .bonusHistoryAmount .tocenter{
+    text-align: center;
+    
+}
+
+.bonusHistoryWrapper .bonusHistoryAmount .addFunds{
+    margin-top: 10px;
+    margin-left: 0px;
+    float: none;
+}
+
+.bonusHistoryWrapper .formSave{
+    margin-left: 0px;
+}
+
+
+.bonusHistoryWrapper .scost{
+    color: green;
+}
+
+.bonusHistoryWrapper .tcost{
+    color: red;
+}
+
+.bonusCardWrapper{
+    min-height: 300px;
+}
+
+.bonusCardWrapper .bonusCard{
+    display: inline-block;
+    background-color: #F29B30;
+    -webkit-border-radius: 6px;
+    border-radius: 6px;
+    text-align: center;
+    margin-bottom: 20px;
+    padding-top: 20px;
+    padding-bottom: 30px;
+    width:300px;
+}
+
+
+.bonusCardWrapper .amount{
+    padding-bottom: 10px;
+}
+
+.bonusCardWrapper .bonusCard .title{
+    color: black;
+    font-weight: bold;
+    font-size: 16px;
+    padding-bottom: 30px;
+}
+
+.bonusCardWrapper .bonusCard .bonusCardTitle{
+    display: inline-block;
+    font-size: 18px;
+    background-color: white;
+    border:1px solid silver;
+    text-align: center;
+    width: 90%;
+}
+
+.bonusCardWrapper .tocenter{
+    text-align: center;
+}
+
+.bonusCardWrapper .noActive{
+    color: #FF2F2F; 
+}
+
+.bonusCardWrapper .formSave{
+    margin-left: 0px;
+}
+
+.bonusCardWrapper .empty {
+    text-align: center;
+    line-height: 300px;
+}
+
+.bonusPartnerCardsWrapper .cardActive{
+    color: green;
+    font-size: 12px;
+}
+
+.bonusPartnerCardsWrapper .cardDeactive{
+    color: red;
+    font-size: 12px;
+}
+
+.bonusPartnerCardsWrapper .bonusPartnerCardsTable{
+    width: 100%;
+}
+
+.bonusPartnerCardsWrapper .bonusPartnerCardsTable th{
+    font-weight: bold;
+}
+
+.bonusPartnerCardsWrapper .bonusPartnerCardsTable th,
+.bonusPartnerCardsWrapper .bonusPartnerCardsTable td{
+    font-size: 14px;
+    padding: 4px 10px 4px 3px;
+    border-bottom: 1px solid silver;
+}
+
+.bonusPartnerCardsWrapper .bonusPartnerCardsTable{
+    margin-top: 40px;
+    margin-bottom: 20px;
+}
+
+.bonusPartnerCardsWrapper .bonusPartnerCardsTable .bonuses{
+    text-align: center;
+}
+
+.bonusPartnerCardsWrapper .cardAddedSuccess{
+    color: green;
+    font-size: 16px;
+    margin-top: 10px;
+    margin-bottom: 40px;
+}
+
+.bonusPartnerCardsWrapper .bonusPartnerCardsTable .hide-desktop{
+    display: none;
+}
+
+.clearBoth{
+    clear: both;
+}
+
+@media (max-width: 720px){
+    .bonusPartnerCardsWrapper .bonusPartnerCardsTable th,
+    .bonusPartnerCardsWrapper .bonusPartnerCardsTable td{
+        display: block;
+        border-bottom: none;
+    }
+
+    .bonusPartnerCardsWrapper .bonusPartnerCardsTable td:nth-child(2){
+        border-bottom: 1px solid silver;
+        padding-top: 20px;
+    }
+
+    .bonusPartnerCardsWrapper .bonusPartnerCardsTable td:last-child{
+
+        padding-bottom: 20px;
+    }
+
+    .bonusPartnerCardsWrapper .bonusPartnerCardsTable .bonuses{
+        text-align: left;
+    }
+
+    .bonusPartnerCardsWrapper .bonusPartnerCardsTable .hide-mobile{
+        display: none;
+    }
+
+    .bonusPartnerCardsWrapper .bonusPartnerCardsTable .hide-desktop{
+        display: inline-block;
+    }
+}
+
+.delivery-cost {
+    margin-top:32px;
+    font-size:14px;
+}
+
+.delivery-cost.rs-in-loading {
+    opacity:0.5;
+    position:relative;
+}
+
+.delivery-cost.rs-in-loading:after {
+    content:'';
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+}
+
+.delivery-cost__price {
+    font-weight:bold;
+}
+
+.delivery-cost__lines {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: 14px;
+}
+
+.delivery-cost__lines li {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.delivery-cost__lines li::before {
+     content: '';
+     position: absolute;
+     z-index: -1;
+     height: 3px;
+     left: 0;
+     top: 50%;
+     width: 100%;
+     background: url(/modules/deliverycost/view/img/leader.svg) repeat-x 0% 0%;
+}
+
+.delivery-cost__lines li:not(:last-child) {
+     margin-bottom: 8px;
+}
+
+@media screen and (max-width: 767.98px) {
+    .delivery-cost__lines li:not(:last-child) {
+        margin-bottom: 4px;
+    }
+}
+
+.city-confirm {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 138px;
+    z-index: 8;
+}
+
+.rs-admin-top-panel .city-confirm {
+    margin-top:62px;
+}
+
+.city-confirm__inner {
+    padding: 16px 50px 16px 24px;
+    border-radius: 8px;
+    background: white;
+    border: 1px solid var(--theme-primary);
+    box-shadow:0 0 15px #999;
+    display:inline-flex;
+    position:relative;
+}
+
+.city-confirm__inner .btn {
+    padding: 7px 16px;
+}
+
+@media screen and (max-width: 991.98px) {
+    .city-confirm__inner {
+        padding: 16px;
+        padding-right:50px;
+    }
+
+    .city-confirm {
+        top: 64px;
+    }
+}
+
+@media screen and (max-width: 575.98px) {
+    .city-confirm {
+        top: 114px;
+    }
+
+    .city-confirm__inner {
+        padding-right:16px;
+    }
+}
+
+.city-confirm__inner .btn-close {
+    position:absolute;
+    right:10px;
+    top:16px;
+}
+
+.city-confirm__quest {
+    padding-right:25px;
+}
+.rs-comment-list .photo-container {
+    margin-top: 20px;
+    display: flex;
+}
+.rs-comment-list .photo-list {
+    margin-bottom: 0;
+    padding-left: 0;
+}
+.rs-comment-list .one-photo-container {
+    width: 150px;
+    margin-right: 10px;
+}
+.rs-comment-list .one-photo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 120px;
+    height: 130px;
+}
+.rs-comment-list .one-photo img {
+    height: 100%;
+    object-fit: cover;
+    border-radius: 5px;
+}
+.dropzone.rs-dropzone {
+    min-height: 100px;
+}
+.photo-container .swiper-button-next {
+    right: 1px;
+}
+.photo-container .swiper-button-prev {
+    left: 1px;
+}
+
+.dz-preview:before,
+.dz-upload {
+    width: 24px;
+    height: 24px;
+    margin-right: 6px;
+}
+.dz-filename,
+.dz-size,
+.dz-upload {
+    margin-right: 6px;
+}
+.dz-filename a {
+    text-decoration: none;
+    color:inherit;
+}
+.dz-error-message,
+.dz-preview:before {
+    content: "";
+}
+.dropzone,
+.dropzone * {
+    box-sizing: border-box;
+}
+.dropzone {
+    min-height: 120px;
+    border: 2px dashed #ced4da;
+    border-radius: 5px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.dropzone.dz-clickable {
+    cursor: pointer;
+}
+.dropzone.dz-clickable * {
+    cursor: default;
+}
+.dropzone.dz-clickable .dz-message,
+.dropzone.dz-clickable .dz-message * {
+    cursor: pointer;
+}
+.dropzone.dz-started .dz-message {
+    display: none;
+}
+.dropzone.dz-drag-hover {
+    border-style: solid;
+}
+.dropzone.dz-drag-hover .dz-message {
+    opacity: 0.5;
+}
+.dropzone .dz-message {
+    text-align: center;
+}
+.dropzone .dz-message .dz-button {
+    background: none;
+    color: inherit;
+    border: none;
+    padding: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+}
+.dropzone-preview {
+    margin-top: 16px;
+}
+.dz-preview {
+    display: flex;
+    margin-top: 6px;
+    align-items: center;
+    padding: 2px 0;
+}
+.dz-preview:hover {
+    background: #f5f5f5;
+}
+.dz-preview:before {
+    background: url(/modules/files/view/img/icons/download.svg) no-repeat;
+    background-size: 24px 24px;
+}
+.dz-progress {
+    display: none;
+}
+.dz-processing:not(.dz-complete) .dz-progress {
+    display: block;
+}
+.dz-upload {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, #fff 70%, transparent 80% 100%), conic-gradient(gray var(--progress, 0), #d3d3d3 0);
+    font-size: 8px;
+}
+.dz-error-message {
+    display: none;
+    background: url(/modules/files/view/img/icons/invalid.svg) no-repeat;
+    background-size: 32px 32px;
+    min-width: 32px;
+    height: 32px;
+    cursor: pointer;
+}
+.dz-remove,
+.dz-remove:hover {
+    width: 24px;
+    height: 24px;
+    margin-left: 16px;
+}
+.dz-error .dz-error-message {
+    display: block;
+}
+.dz-remove {
+    background: url(/modules/files/view/img/icons/close.svg) no-repeat;
+}
+.dz-remove:hover {
+    background: url(/modules/files/view/img/icons/close-red.svg) no-repeat;
+    opacity: 0.7;
+}
+.dz-left-part {
+    flex: 1;
+    display: flex;
+    align-items: center;
+}

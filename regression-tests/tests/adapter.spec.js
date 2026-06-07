@@ -1,0 +1,328 @@
+"use strict";
+
+const fs = require("fs");
+const { test, expect } = require("@playwright/test");
+const {
+  LOCAL_ORIGIN,
+  MOCK_WIDGET_PATH,
+  SDK_SCRIPT_PATH,
+} = require("../config");
+
+const PRODUCT_IMAGE =
+  "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
+
+const MULTI_PRODUCTS = [
+  {
+    id: "looksy-multi-hoodie",
+    name: "Centralized Hoodie",
+    price: "4 990 ₽",
+    image: `${LOCAL_ORIGIN}/assets/hoodie.png`,
+  },
+  {
+    id: "looksy-multi-dress",
+    name: "Centralized Dress",
+    price: "8 500 ₽",
+    image: `${LOCAL_ORIGIN}/assets/dress.png`,
+  },
+  {
+    id: "looksy-multi-shirt",
+    name: "Centralized Shirt",
+    price: "2 100 ₽",
+    image: `${LOCAL_ORIGIN}/assets/shirt.png`,
+  },
+];
+
+const PNG_1X1 =
+  Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=", "base64");
+
+function createBitrixFixtureHtml({ adapterName = "" } = {}) {
+  const productData = {
+    id: 501,
+    offers: {
+      101: {
+        id: 101,
+        available: true,
+        values: { SIZE: "s", COLOR: "black" },
+        prices: [{ base: { value: 1200, display: "1 200 ₽" } }],
+      },
+      102: {
+        id: 102,
+        available: true,
+        values: { SIZE: "m", COLOR: "black" },
+        prices: [{ discount: { use: true, value: 990, display: "990 ₽" } }],
+      },
+    },
+  };
+
+  const properties = [
+    {
+      code: "SIZE",
+      name: "Размер",
+      type: "list",
+      values: {
+        s: { id: "s", name: "S" },
+        m: { id: "m", name: "M" },
+      },
+    },
+    {
+      code: "COLOR",
+      name: "Цвет",
+      type: "list",
+      values: {
+        black: { id: "black", name: "Чёрный" },
+      },
+    },
+  ];
+
+  return `<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Bitrix adapter regression</title>
+</head>
+<body>
+  <main>
+    <div
+      class="c-catalog-element"
+      data-data='${JSON.stringify(productData)}'
+      data-properties='${JSON.stringify(properties)}'
+    >
+      <article data-fitting-product data-fitting-name="Bitrix adapter dress" data-fitting-price="990 ₽">
+        <img src="${PRODUCT_IMAGE}" alt="Bitrix adapter dress" data-fitting-image>
+      </article>
+    </div>
+  </main>
+  <script
+    src="${LOCAL_ORIGIN}/script/script.js"
+    data-shop-token="adapter-test-token"
+    data-widget-url="${LOCAL_ORIGIN}/mock-widget.html"
+    ${adapterName ? `data-adapter="${adapterName}"` : ""}
+  ></script>
+</body>
+</html>`;
+}
+
+function createMultiProductFixtureHtml() {
+  const cards = MULTI_PRODUCTS.map((product) => `
+      <article
+        class="product-card"
+        data-fitting-product
+        data-fitting-id="${product.id}"
+        data-fitting-name="${product.name}"
+        data-fitting-price="${product.price}"
+      >
+        <img src="${product.image}" alt="${product.name}" data-fitting-image>
+        <h2>${product.name}</h2>
+        <p>${product.price}</p>
+      </article>`).join("\n");
+
+  return `<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Centralized multi-product regression</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 24px; }
+    main { display: grid; grid-template-columns: repeat(3, 220px); gap: 24px; align-items: start; }
+    .product-card { position: relative; border: 1px solid #d7dce2; padding: 12px; min-height: 260px; }
+    .product-card img { width: 180px; height: 180px; display: block; object-fit: cover; background: #f5f5f5; }
+  </style>
+</head>
+<body>
+  <main>${cards}</main>
+  <script
+    src="${LOCAL_ORIGIN}/script/script.js"
+    data-shop-token="multi-product-test-token"
+    data-widget-url="${LOCAL_ORIGIN}/mock-widget.html"
+  ></script>
+</body>
+</html>`;
+}
+
+async function installAdapterRoutes(page) {
+  const sdkScript = fs.readFileSync(SDK_SCRIPT_PATH, "utf8");
+  const mockWidget = fs.readFileSync(MOCK_WIDGET_PATH, "utf8");
+
+  await page.route("**/*", async (route) => {
+    const requestUrl = new URL(route.request().url());
+
+    if (requestUrl.origin === LOCAL_ORIGIN && requestUrl.pathname === "/script/script.js") {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/javascript; charset=utf-8",
+        body: sdkScript,
+      });
+      return;
+    }
+
+    if (requestUrl.origin === LOCAL_ORIGIN && requestUrl.pathname.startsWith("/mock-widget.html")) {
+      await route.fulfill({
+        status: 200,
+        contentType: "text/html; charset=utf-8",
+        body: mockWidget,
+      });
+      return;
+    }
+
+    if (requestUrl.origin === LOCAL_ORIGIN && requestUrl.pathname === "/api/widget/config") {
+      await route.fulfill({
+        status: 404,
+        contentType: "application/json; charset=utf-8",
+        body: "{}",
+      });
+      return;
+    }
+
+    if (requestUrl.origin === LOCAL_ORIGIN && requestUrl.pathname.startsWith("/assets/")) {
+      await route.fulfill({
+        status: 200,
+        contentType: "image/png",
+        body: PNG_1X1,
+      });
+      return;
+    }
+
+    if (requestUrl.origin === LOCAL_ORIGIN && requestUrl.pathname === "/adapter/bitrix-v1.html") {
+      await route.fulfill({
+        status: 200,
+        contentType: "text/html; charset=utf-8",
+        body: createBitrixFixtureHtml({ adapterName: "bitrix_v1" }),
+      });
+      return;
+    }
+
+    if (requestUrl.origin === LOCAL_ORIGIN && requestUrl.pathname === "/adapter/popnshop-debug.html") {
+      await route.fulfill({
+        status: 200,
+        contentType: "text/html; charset=utf-8",
+        body: createBitrixFixtureHtml(),
+      });
+      return;
+    }
+
+    if (requestUrl.origin === LOCAL_ORIGIN && requestUrl.pathname === "/adapter/no-adapter.html") {
+      await route.fulfill({
+        status: 200,
+        contentType: "text/html; charset=utf-8",
+        body: createBitrixFixtureHtml(),
+      });
+      return;
+    }
+
+    if (requestUrl.origin === LOCAL_ORIGIN && requestUrl.pathname === "/adapter/multi-product.html") {
+      await route.fulfill({
+        status: 200,
+        contentType: "text/html; charset=utf-8",
+        body: createMultiProductFixtureHtml(),
+      });
+      return;
+    }
+
+    await route.continue();
+  });
+}
+
+async function openFixtureAndReadProduct(page, pathAndSearch) {
+  await page.goto(`${LOCAL_ORIGIN}${pathAndSearch}`, {
+    waitUntil: "domcontentloaded",
+  });
+
+  await page.waitForFunction(() => window.VirtualFitting && typeof window.VirtualFitting.init === "function");
+  await expect(page.locator(".virtual-fitting-button")).toHaveCount(1);
+  await page.locator(".virtual-fitting-button").click();
+
+  const iframeElement = await page.locator("#virtual-fitting-iframe").elementHandle();
+  const frame = await iframeElement.contentFrame();
+  await frame.waitForFunction(() => document.body.dataset.product && document.body.dataset.product !== "null");
+
+  const product = await frame.evaluate(() => JSON.parse(document.body.dataset.product));
+
+  return product;
+}
+
+function expectBitrixExtendedProductData(product) {
+  expect(product.extendedProductData).toMatchObject({
+    product_id: "501",
+    selected: { SIZE: "m", COLOR: "black" },
+  });
+  expect(product.extendedProductData.variants).toHaveLength(2);
+  expect(product.extendedProductData.offers).toEqual([
+    {
+      id: "101",
+      values: { SIZE: "s", COLOR: "black" },
+      available: true,
+      price: { value: 1200, display: "1 200 ₽" },
+    },
+    {
+      id: "102",
+      values: { SIZE: "m", COLOR: "black" },
+      available: true,
+      price: { value: 990, display: "990 ₽" },
+    },
+  ]);
+}
+
+test("@regression bitrix_v1 adapter sends extendedProductData", async ({ page }) => {
+  await installAdapterRoutes(page);
+  const product = await openFixtureAndReadProduct(page, "/adapter/bitrix-v1.html?offer=102");
+
+  expectBitrixExtendedProductData(product);
+});
+
+test("@regression popnshop_debug=true sends extendedProductData without adapter", async ({ page }) => {
+  await installAdapterRoutes(page);
+  const product = await openFixtureAndReadProduct(
+    page,
+    "/adapter/popnshop-debug.html?offer=102&popnshop_debug=true",
+  );
+
+  expectBitrixExtendedProductData(product);
+});
+
+test("@regression Bitrix fixture without adapter or debug sends null extendedProductData", async ({ page }) => {
+  await installAdapterRoutes(page);
+  const product = await openFixtureAndReadProduct(page, "/adapter/no-adapter.html?offer=102");
+
+  expect(product.extendedProductData).toBeNull();
+});
+
+test("@regression one SDK instance handles multiple product buttons", async ({ page }) => {
+  await installAdapterRoutes(page);
+  await page.goto(`${LOCAL_ORIGIN}/adapter/multi-product.html`, {
+    waitUntil: "domcontentloaded",
+  });
+
+  await page.waitForFunction(() => window.VirtualFitting && typeof window.VirtualFitting.init === "function");
+  await expect(page.locator("script[data-shop-token]")).toHaveCount(1);
+  await expect(page.locator(".virtual-fitting-button")).toHaveCount(MULTI_PRODUCTS.length);
+  await expect(page.locator(".virtual-fitting-overlay")).toHaveCount(0);
+  await expect(page.locator("#virtual-fitting-iframe")).toHaveCount(0);
+
+  for (const [index, expectedProduct] of MULTI_PRODUCTS.entries()) {
+    await page.locator(".virtual-fitting-button").nth(index).click();
+
+    await expect(page.locator(".virtual-fitting-overlay")).toBeVisible();
+    await expect(page.locator("#virtual-fitting-iframe")).toBeVisible();
+    await expect(page.locator(".virtual-fitting-overlay")).toHaveCount(1);
+    await expect(page.locator("#virtual-fitting-iframe")).toHaveCount(1);
+
+    const iframeElement = await page.locator("#virtual-fitting-iframe").elementHandle();
+    const frame = await iframeElement.contentFrame();
+    await frame.waitForFunction(() => document.body.dataset.product && document.body.dataset.product !== "null");
+
+    const product = await frame.evaluate(() => JSON.parse(document.body.dataset.product));
+    expect(product).toMatchObject({
+      external_id: expectedProduct.id,
+      name: expectedProduct.name,
+      price: expectedProduct.price,
+      image: expectedProduct.image,
+    });
+
+    await page.evaluate(() => window.VirtualFitting.close());
+    await expect(page.locator(".virtual-fitting-overlay")).toBeHidden();
+  }
+
+  await expect(page.locator("script[data-shop-token]")).toHaveCount(1);
+  await expect(page.locator(".virtual-fitting-overlay")).toHaveCount(1);
+  await expect(page.locator("#virtual-fitting-iframe")).toHaveCount(1);
+});
