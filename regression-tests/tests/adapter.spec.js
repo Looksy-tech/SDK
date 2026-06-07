@@ -139,6 +139,42 @@ function createMultiProductFixtureHtml() {
 </html>`;
 }
 
+function createSlotPriorityFixtureHtml({ includeSlot = true } = {}) {
+  return `<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Slot priority regression</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 24px; }
+    .product-card { position: relative; width: 320px; border: 1px solid #d7dce2; padding: 12px; }
+    .product-card img { width: 180px; height: 180px; display: block; object-fit: cover; background: #f5f5f5; }
+    [data-fitting-button-slot] { margin-top: 12px; min-height: 48px; }
+  </style>
+</head>
+<body>
+  <main>
+    <article
+      class="product-card"
+      data-fitting-product
+      data-fitting-id="looksy-slot-hoodie"
+      data-fitting-name="Slot priority hoodie"
+      data-fitting-price="4 990 ₽"
+    >
+      <img src="${PRODUCT_IMAGE}" alt="Slot priority hoodie" data-fitting-image>
+      <button class="buy-button" type="button">Buy</button>
+      ${includeSlot ? '<div data-fitting-button-slot data-fitting-full-width="true"></div>' : ""}
+    </article>
+  </main>
+  <script
+    src="${LOCAL_ORIGIN}/script/script.js"
+    data-shop-token="slot-priority-test-token"
+    data-widget-url="${LOCAL_ORIGIN}/mock-widget.html"
+  ></script>
+</body>
+</html>`;
+}
+
 async function installAdapterRoutes(page) {
   const sdkScript = fs.readFileSync(SDK_SCRIPT_PATH, "utf8");
   const mockWidget = fs.readFileSync(MOCK_WIDGET_PATH, "utf8");
@@ -214,6 +250,24 @@ async function installAdapterRoutes(page) {
         status: 200,
         contentType: "text/html; charset=utf-8",
         body: createMultiProductFixtureHtml(),
+      });
+      return;
+    }
+
+    if (requestUrl.origin === LOCAL_ORIGIN && requestUrl.pathname === "/adapter/slot-priority.html") {
+      await route.fulfill({
+        status: 200,
+        contentType: "text/html; charset=utf-8",
+        body: createSlotPriorityFixtureHtml({ includeSlot: true }),
+      });
+      return;
+    }
+
+    if (requestUrl.origin === LOCAL_ORIGIN && requestUrl.pathname === "/adapter/slot-priority-no-slot.html") {
+      await route.fulfill({
+        status: 200,
+        contentType: "text/html; charset=utf-8",
+        body: createSlotPriorityFixtureHtml({ includeSlot: false }),
       });
       return;
     }
@@ -325,4 +379,68 @@ test("@regression one SDK instance handles multiple product buttons", async ({ p
   await expect(page.locator("script[data-shop-token]")).toHaveCount(1);
   await expect(page.locator(".virtual-fitting-overlay")).toHaveCount(1);
   await expect(page.locator("#virtual-fitting-iframe")).toHaveCount(1);
+});
+
+test("@regression custom button slot takes priority over image placement", async ({ page }) => {
+  await installAdapterRoutes(page);
+  await page.goto(`${LOCAL_ORIGIN}/adapter/slot-priority.html?slot_button_debug=true`, {
+    waitUntil: "domcontentloaded",
+  });
+
+  await page.waitForFunction(() => window.VirtualFitting && typeof window.VirtualFitting.init === "function");
+  const button = page.locator(".virtual-fitting-button");
+
+  await expect(button).toHaveCount(1);
+  await expect(page.locator("[data-fitting-button-slot] .virtual-fitting-button")).toHaveCount(1);
+  await expect(page.locator(".product-card > .virtual-fitting-button")).toHaveCount(0);
+  await expect(button).toHaveClass(/virtual-fitting-button-slot/);
+  await expect(button).toHaveClass(/virtual-fitting-button-full-width/);
+  await expect(button).toHaveCSS("position", "static");
+
+  await button.click();
+
+  const iframeElement = await page.locator("#virtual-fitting-iframe").elementHandle();
+  const frame = await iframeElement.contentFrame();
+  await frame.waitForFunction(() => document.body.dataset.product && document.body.dataset.product !== "null");
+
+  const product = await frame.evaluate(() => JSON.parse(document.body.dataset.product));
+  expect(product).toMatchObject({
+    external_id: "looksy-slot-hoodie",
+    name: "Slot priority hoodie",
+    price: "4 990 ₽",
+    image: PRODUCT_IMAGE,
+  });
+});
+
+test("@regression slot is ignored without slot_button_debug=true", async ({ page }) => {
+  await installAdapterRoutes(page);
+  await page.goto(`${LOCAL_ORIGIN}/adapter/slot-priority.html`, {
+    waitUntil: "domcontentloaded",
+  });
+
+  await page.waitForFunction(() => window.VirtualFitting && typeof window.VirtualFitting.init === "function");
+  const slot = page.locator("[data-fitting-button-slot]");
+  const imageWrap = page.locator(".product-card");
+  const button = page.locator(".virtual-fitting-button");
+
+  await expect(slot.locator(".virtual-fitting-button")).toHaveCount(0);
+  await expect(imageWrap.locator(".virtual-fitting-button")).toHaveCount(1);
+  await expect(button).not.toHaveClass(/virtual-fitting-button-slot/);
+  await expect(button).not.toHaveClass(/virtual-fitting-button-full-width/);
+});
+
+test("@regression debug flag does not break fallback without slot", async ({ page }) => {
+  await installAdapterRoutes(page);
+  await page.goto(`${LOCAL_ORIGIN}/adapter/slot-priority-no-slot.html?slot_button_debug=true`, {
+    waitUntil: "domcontentloaded",
+  });
+
+  await page.waitForFunction(() => window.VirtualFitting && typeof window.VirtualFitting.init === "function");
+  const product = page.locator(".product-card");
+  const button = page.locator(".virtual-fitting-button");
+
+  await expect(product.locator("[data-fitting-button-slot]")).toHaveCount(0);
+  await expect(product.locator(".virtual-fitting-button")).toHaveCount(1);
+  await expect(button).not.toHaveClass(/virtual-fitting-button-slot/);
+  await expect(button).not.toHaveClass(/virtual-fitting-button-full-width/);
 });

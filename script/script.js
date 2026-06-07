@@ -504,6 +504,15 @@
         margin-right: 4px;
         flex-shrink: 0;
       }
+      .${WIDGET_CONFIG.buttonClass}.${BUTTON_SLOT_CLASS} {
+        position: static !important;
+        right: auto !important;
+        bottom: auto !important;
+        transform: none;
+      }
+      .${WIDGET_CONFIG.buttonClass}.${BUTTON_FULL_WIDTH_CLASS} {
+        width: 100%;
+      }
       .t-slds__bgimg .${WIDGET_CONFIG.buttonClass},
       .js-product-img .${WIDGET_CONFIG.buttonClass} {
         right: 12px;
@@ -1822,6 +1831,16 @@
       }
     });
 
+    if (
+      tryRenderButtonInCustomSlot({
+        productElement: productElement,
+        button: button,
+        existingButton: existingButton,
+      })
+    ) {
+      return;
+    }
+
     const imageElement = productElement.querySelector(
       WIDGET_CONFIG.imageSelector,
     );
@@ -2164,6 +2183,132 @@
 
   // ============================================================================
   // END EXTENDED PRODUCT DATA ADAPTERS
+  // ============================================================================
+
+  // ============================================================================
+  // CUSTOM BUTTON SLOT PLACEMENT
+  // ============================================================================
+  //
+  // Optional manual placement for the Try On button.
+  //
+  // Public HTML API:
+  //
+  //   <div data-fitting-button-slot></div>
+  //   <div data-fitting-button-slot data-fitting-full-width="true"></div>
+  //
+  // If a slot exists inside the current product context, the SDK renders or
+  // moves the Try On button into that slot and skips the default absolute
+  // image placement.
+  // ============================================================================
+
+  const BUTTON_SLOT_SELECTOR = "[data-fitting-button-slot]";
+  const BUTTON_SLOT_CLASS = "virtual-fitting-button-slot";
+  const BUTTON_FULL_WIDTH_CLASS = "virtual-fitting-button-full-width";
+  const FULL_WIDTH_ATTR = "data-fitting-full-width";
+
+  function isCustomSlotButtonDebugEnabled() {
+    try {
+      return new URLSearchParams(window.location.search).get("slot_button_debug") === "true";
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function isTruthyFittingAttribute(value) {
+    if (value == null) return false;
+
+    var normalized = String(value).trim().toLowerCase();
+    return normalized === "" || normalized === "true" || normalized === "1" || normalized === "yes";
+  }
+
+  function getButtonSlotContexts(productElement) {
+    var contexts = [];
+    var seen = [];
+
+    function pushContext(ctx) {
+      if (!ctx || !ctx.nodeType) return;
+      if (ctx === document || ctx === document.body || ctx === document.documentElement) return;
+      if (seen.indexOf(ctx) !== -1) return;
+      seen.push(ctx);
+      contexts.push(ctx);
+    }
+
+    pushContext(productElement);
+    pushContext(resolveOpenProductElement(productElement));
+    pushContext(getOpenCardRoot(productElement));
+
+    if (productElement && productElement.closest) {
+      pushContext(
+        productElement.closest(
+          ".js-store-prod-all, .js-catalog-prod-all, .js-product-single-wrapper, .t-store__prod-popup, .t-catalog__prod-popup, .js-store-product, .js-catalog-product, .t-store__product-snippet, .t-catalog__product-snippet",
+        ),
+      );
+    }
+
+    return contexts;
+  }
+
+  function resolveButtonSlotElement(productElement) {
+    var contexts = getButtonSlotContexts(productElement);
+
+    for (var i = 0; i < contexts.length; i++) {
+      var ctx = contexts[i];
+      if (!ctx || !ctx.querySelector) continue;
+
+      var slot = ctx.querySelector(BUTTON_SLOT_SELECTOR);
+      if (slot) return slot;
+    }
+
+    return null;
+  }
+
+  function applyCustomSlotButtonClasses(button, slotElement) {
+    if (!button) return;
+
+    button.classList.add(BUTTON_SLOT_CLASS);
+    button.classList.toggle(BUTTON_FULL_WIDTH_CLASS, isTruthyFittingAttribute(slotElement && slotElement.getAttribute(FULL_WIDTH_ATTR)));
+  }
+
+  function removeCustomSlotButtonClasses(button) {
+    if (!button) return;
+
+    button.classList.remove(BUTTON_SLOT_CLASS);
+    button.classList.remove(BUTTON_FULL_WIDTH_CLASS);
+  }
+
+  function tryRenderButtonInCustomSlot(args) {
+    var productElement = args.productElement;
+    var button = args.button;
+    var existingButton = args.existingButton;
+
+    if (!isCustomSlotButtonDebugEnabled()) {
+      if (existingButton) {
+        removeCustomSlotButtonClasses(existingButton);
+      }
+      return false;
+    }
+
+    var slotElement = resolveButtonSlotElement(productElement);
+
+    if (!slotElement) {
+      if (existingButton) {
+        removeCustomSlotButtonClasses(existingButton);
+      }
+      return false;
+    }
+
+    var targetButton = existingButton || button;
+    applyCustomSlotButtonClasses(targetButton, slotElement);
+
+    if (targetButton.parentNode !== slotElement) {
+      slotElement.appendChild(targetButton);
+    }
+
+    return true;
+  }
+
+  // ============================================================================
+  // END CUSTOM BUTTON SLOT PLACEMENT
   // ============================================================================
 
   // ============================================================================
