@@ -42,20 +42,11 @@
   };
   const DATA_WIDGET_URL = (currentScript && currentScript.getAttribute("data-widget-url") || "").trim();
   const IS_RU_TOKEN = SHOP_TOKEN.startsWith('ru_');
-  const IS_GLENFIELD_DEBUG_WIDGET =
-    SHOP_TOKEN === GLENFIELD_RU_SHOP_TOKEN && hasQueryParamValue("widget_debug", "true");
+  const IS_GLENFIELD_DEBUG_WIDGET = SHOP_TOKEN === GLENFIELD_RU_SHOP_TOKEN;
   const RESOLVED_WIDGET_URL = DATA_WIDGET_URL || (LANG === 'en' ? EN_WIDGET_URL : IS_RU_TOKEN ? RU_WIDGET_URL : WIDGET_URL);
 
   if (!SHOP_TOKEN) {
     console.error('[Looksy] Missing data-shop-token attribute on script tag');
-  }
-
-  function hasQueryParamValue(name, expectedValue) {
-    try {
-      return new URLSearchParams(window.location.search).get(name) === expectedValue;
-    } catch (e) {
-      return false;
-    }
   }
 
   function debugLog() {

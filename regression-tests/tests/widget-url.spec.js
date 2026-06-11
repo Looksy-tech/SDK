@@ -49,7 +49,7 @@ function createProductFixtureHtml({ token, lang }) {
 
 // Renders the SDK with the given token/lang, opens the widget and returns the
 // iframe src + button text so each case can assert on them.
-async function openWidget(page, { token, lang, widgetDebug = false }) {
+async function openWidget(page, { token, lang }) {
   const sdkScript = fs.readFileSync(SDK_SCRIPT_PATH, "utf8");
   const mockWidget = fs.readFileSync(MOCK_WIDGET_PATH, "utf8");
   const fixtureHtml = createProductFixtureHtml({ token, lang });
@@ -100,8 +100,7 @@ async function openWidget(page, { token, lang, widgetDebug = false }) {
     await route.abort();
   });
 
-  const debugQuery = widgetDebug ? "?widget_debug=true" : "";
-  await page.goto(`${LOCAL_ORIGIN}${FIXTURE_PATH}${debugQuery}`, { waitUntil: "domcontentloaded" });
+  await page.goto(`${LOCAL_ORIGIN}${FIXTURE_PATH}`, { waitUntil: "domcontentloaded" });
   await page.waitForFunction(
     () => window.VirtualFitting && typeof window.VirtualFitting.init === "function",
   );
@@ -148,10 +147,9 @@ const CASES = [
     expectedText: EN_BUTTON_TEXT,
   },
   {
-    title: "Glenfield RU token + widget_debug=true -> Leadsalarm widget host",
+    title: "Glenfield RU token -> Leadsalarm widget host",
     token: "ru_a5428add-7a7c-41ef-b385-1018c5dd6939",
     lang: "",
-    widgetDebug: true,
     expectedOrigin: "https://leadsalarm.ru",
     expectedText: RU_BUTTON_TEXT,
     expectedConfigOrigin: "https://ru.widget.looksy.tech",
@@ -163,7 +161,6 @@ for (const testCase of CASES) {
     const { origin, buttonText, configRequests } = await openWidget(page, {
       token: testCase.token,
       lang: testCase.lang,
-      widgetDebug: testCase.widgetDebug,
     });
 
     expect(origin, "iframe widget host").toBe(testCase.expectedOrigin);
