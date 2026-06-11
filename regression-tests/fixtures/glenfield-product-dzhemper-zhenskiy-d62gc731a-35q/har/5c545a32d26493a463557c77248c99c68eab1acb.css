@@ -1,0 +1,99 @@
+
+.kd-ra_code-wrap{
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    z-index: 999;
+    left: 0;
+    transition: linear all 0.1s;
+    background: rgba(0, 0, 0, 0.7);
+    opacity: 0;
+    visibility: hidden;
+}
+
+.kd-ra_code-wrap-show{
+	opacity: 1;
+	visibility: visible;
+}
+
+
+.kd-ra_code-wrap .kd-ra_code-block{
+	width: 560px;
+	padding: 80px;
+	background: white;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform:translate(-50%,-50%);
+}
+
+.kd-ra_code-wrap .kd-ra_code-close{
+	width: 12px;
+	height: 12px;
+	background-image: url(../img/kd/close_mes.png);
+	background-repeat: no-repeat;
+	background-position: center;
+	cursor: pointer;
+	right: 30px;
+	top: 30px;
+	position: absolute;
+}
+
+.kd-ra_code-wrap .kd-rac-tex_main{
+	font-size: 24px;
+	text-align: center;
+	font-weight: bold;
+	margin-bottom: 60px;
+}
+
+.kd-ra_code-wrap .kd-rac-tex_descr{
+	font-size: 13px;
+	margin-bottom: 40px;
+}
+
+.kd-ra_code-wrap .btn_dark-wrap{
+	height: 50px;
+	width: 140px;
+}
+
+.kd-ra_code-wrap .btn_dark-wrap button{
+	height: 100%;
+	width: 100%;
+}
+
+@media screen and (max-width: 600px){
+	.kd-ra_code-wrap-show{
+		position: relative;
+	}
+
+	.kd-ra_code-wrap .kd-ra_code-block{
+		position: relative;
+		left: 0;
+		top: 0;
+		transform: none;
+		padding: 0 20px;
+		width: 100%;
+		padding-top: 40px;
+	}
+
+	.kd-ra_code-wrap .kd-ra_code-close{
+		right: 0;
+		top: 0;
+	}
+
+	.kd-ra_code-wrap .kd-rac-tex_main{
+		font-size: 18px;
+		text-align: left;
+		margin-bottom: 25px;
+	}
+	
+	.kd-ra_code-wrap .kd-rac-tex_descr{
+		margin-bottom: 25px;
+	}
+	
+	.kd-ra_code-wrap .btn_dark-wrap{
+		width: 100%;
+	}
+
+}

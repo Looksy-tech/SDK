@@ -1,0 +1,44 @@
+.limit-message {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 10px 0px 10px 35px;
+    font-size: 14px;
+    font-weight: 600;
+    color: rgb(255, 46, 33);
+    margin-bottom: 30px;
+}
+
+.message-container {
+    flex: 0 0 auto;
+    -ms-flex: 0 0 auto;
+    -webkit-box-flex: 0;
+    padding: 10px 0px 0px 0px;
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
+.basket-order-pay__btn.fake-button, .basket-bottom__btn-buy.fake-button {
+
+}
+
+.fake-button,
+.nonactive-confirm,
+.fake-button-line{
+    display: inline-block;
+    vertical-align: top;
+    position: relative;
+    color: #fff;
+    font: 600 12px/46px "Exo 2";
+    background-color: #cecece;
+    padding: 3px 29px 0;
+    margin-top: 61px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    -webkit-transition: .4s all;
+    transition: .4s all;
+    cursor: default;
+    border: 1px solid transparent;
+    pointer-events: none;
+}
+.fake-button-line {
+    margin-top: 0;
+}

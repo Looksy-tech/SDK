@@ -139,9 +139,9 @@ function createMultiProductFixtureHtml() {
 </html>`;
 }
 
-function createSlotPriorityFixtureHtml({ includeSlot = true } = {}) {
+function createSlotPriorityFixtureHtml({ includeSlot = true, lang = "" } = {}) {
   return `<!doctype html>
-<html lang="ru">
+<html lang="${lang || "ru"}">
 <head>
   <meta charset="utf-8">
   <title>Slot priority regression</title>
@@ -150,6 +150,7 @@ function createSlotPriorityFixtureHtml({ includeSlot = true } = {}) {
     .product-card { position: relative; width: 320px; border: 1px solid #d7dce2; padding: 12px; }
     .product-card img { width: 180px; height: 180px; display: block; object-fit: cover; background: #f5f5f5; }
     [data-fitting-button-slot] { margin-top: 12px; min-height: 48px; }
+    [data-testid="image-wrap"] { width: 180px; }
   </style>
 </head>
 <body>
@@ -161,14 +162,17 @@ function createSlotPriorityFixtureHtml({ includeSlot = true } = {}) {
       data-fitting-name="Slot priority hoodie"
       data-fitting-price="4 990 ₽"
     >
-      <img src="${PRODUCT_IMAGE}" alt="Slot priority hoodie" data-fitting-image>
+      <div class="image-wrap" data-testid="image-wrap">
+        <img src="${PRODUCT_IMAGE}" alt="Slot priority hoodie" data-fitting-image>
+      </div>
       <button class="buy-button" type="button">Buy</button>
-      ${includeSlot ? '<div data-fitting-button-slot data-fitting-full-width="true"></div>' : ""}
+      ${includeSlot ? '<div data-fitting-button-slot data-fitting-full-width="true" data-testid="slot"></div>' : ""}
     </article>
   </main>
   <script
     src="${LOCAL_ORIGIN}/script/script.js"
     data-shop-token="slot-priority-test-token"
+    ${lang ? `data-lang="${lang}"` : ""}
     data-widget-url="${LOCAL_ORIGIN}/mock-widget.html"
   ></script>
 </body>
@@ -222,7 +226,7 @@ async function installAdapterRoutes(page) {
       await route.fulfill({
         status: 200,
         contentType: "text/html; charset=utf-8",
-        body: createBitrixFixtureHtml({ adapterName: "bitrix_v1" }),
+        body: createBitrixFixtureHtml({ adapterName: "bitrix_popnshop_v1" }),
       });
       return;
     }
@@ -259,6 +263,15 @@ async function installAdapterRoutes(page) {
         status: 200,
         contentType: "text/html; charset=utf-8",
         body: createSlotPriorityFixtureHtml({ includeSlot: true }),
+      });
+      return;
+    }
+
+    if (requestUrl.origin === LOCAL_ORIGIN && requestUrl.pathname === "/adapter/slot-priority-en.html") {
+      await route.fulfill({
+        status: 200,
+        contentType: "text/html; charset=utf-8",
+        body: createSlotPriorityFixtureHtml({ includeSlot: true, lang: "en" }),
       });
       return;
     }
@@ -316,7 +329,7 @@ function expectBitrixExtendedProductData(product) {
   ]);
 }
 
-test("@regression bitrix_v1 adapter sends extendedProductData", async ({ page }) => {
+test("@regression bitrix_popnshop_v1 adapter sends extendedProductData", async ({ page }) => {
   await installAdapterRoutes(page);
   const product = await openFixtureAndReadProduct(page, "/adapter/bitrix-v1.html?offer=102");
 
@@ -410,6 +423,30 @@ test("@regression custom button slot takes priority over image placement", async
     price: "4 990 ₽",
     image: PRODUCT_IMAGE,
   });
+});
+
+test("@regression EN slot button is not absolute", async ({ page }) => {
+  await installAdapterRoutes(page);
+  await page.goto(`${LOCAL_ORIGIN}/adapter/slot-priority-en.html?slot_button_debug=true`, {
+    waitUntil: "domcontentloaded",
+  });
+
+  await page.waitForFunction(() => window.VirtualFitting && typeof window.VirtualFitting.init === "function");
+  const slotButton = page.locator('[data-testid="slot"] .virtual-fitting-button');
+  const imageButton = page.locator('[data-testid="image-wrap"] .virtual-fitting-button');
+
+  await expect(slotButton).toHaveCount(1);
+  await expect(slotButton).toHaveClass(/virtual-fitting-button--en/);
+  await expect(slotButton).toHaveClass(/virtual-fitting-button-slot/);
+  await expect(slotButton).toHaveClass(/virtual-fitting-button-full-width/);
+  await expect(imageButton).toHaveCount(0);
+
+  const position = await slotButton.evaluate((el) => getComputedStyle(el).position);
+  expect(position).toBe("static");
+
+  const slotBox = await page.locator('[data-testid="slot"]').boundingBox();
+  const buttonBox = await slotButton.boundingBox();
+  expect(buttonBox.width).toBeGreaterThan(slotBox.width - 4);
 });
 
 test("@regression slot is ignored without slot_button_debug=true", async ({ page }) => {

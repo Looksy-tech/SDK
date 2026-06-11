@@ -504,21 +504,56 @@
         margin-right: 4px;
         flex-shrink: 0;
       }
-      .${WIDGET_CONFIG.buttonClass}.${BUTTON_SLOT_CLASS} {
-        position: static !important;
-        right: auto !important;
-        bottom: auto !important;
-        transform: none;
-      }
-      .${WIDGET_CONFIG.buttonClass}.${BUTTON_FULL_WIDTH_CLASS} {
-        width: 100%;
-      }
       .t-slds__bgimg .${WIDGET_CONFIG.buttonClass},
       .js-product-img .${WIDGET_CONFIG.buttonClass} {
         right: 12px;
         bottom: 12px;
       }
+      .${WIDGET_CONFIG.buttonClass}.${BUTTON_SLOT_CLASS},
+      .${WIDGET_CONFIG.buttonClass}.${EN_LAUNCHER_MODIFIER}.${BUTTON_SLOT_CLASS} {
+        position: static !important;
+        right: auto !important;
+        bottom: auto !important;
+        left: auto !important;
+        top: auto !important;
+        transform: none !important;
+      }
+      .${WIDGET_CONFIG.buttonClass}.${BUTTON_FULL_WIDTH_CLASS},
+      .${WIDGET_CONFIG.buttonClass}.${EN_LAUNCHER_MODIFIER}.${BUTTON_FULL_WIDTH_CLASS} {
+        width: 100% !important;
+      }
+      .${WIDGET_CONFIG.buttonClass}.${EN_LAUNCHER_MODIFIER}.${BUTTON_SLOT_CLASS}:hover {
+        padding-right: 16px;
+      }
+      .${WIDGET_CONFIG.buttonClass}.${BUTTON_SLOT_CLASS}.${BUTTON_FULL_WIDTH_CLASS},
+      .${WIDGET_CONFIG.buttonClass}.${EN_LAUNCHER_MODIFIER}.${BUTTON_SLOT_CLASS}.${BUTTON_FULL_WIDTH_CLASS} {
+        display: flex;
+        justify-content: center;
+        min-height: var(--height-buy-buttons, 52px);
+      }
       `
+      }
+      .${WIDGET_CONFIG.buttonClass}.${BUTTON_SLOT_CLASS},
+      .${WIDGET_CONFIG.buttonClass}.${EN_LAUNCHER_MODIFIER}.${BUTTON_SLOT_CLASS} {
+        position: static !important;
+        right: auto !important;
+        bottom: auto !important;
+        left: auto !important;
+        top: auto !important;
+        transform: none !important;
+      }
+      .${WIDGET_CONFIG.buttonClass}.${BUTTON_FULL_WIDTH_CLASS},
+      .${WIDGET_CONFIG.buttonClass}.${EN_LAUNCHER_MODIFIER}.${BUTTON_FULL_WIDTH_CLASS} {
+        width: 100% !important;
+      }
+      .${WIDGET_CONFIG.buttonClass}.${EN_LAUNCHER_MODIFIER}.${BUTTON_SLOT_CLASS}:hover {
+        padding-right: 16px;
+      }
+      .${WIDGET_CONFIG.buttonClass}.${BUTTON_SLOT_CLASS}.${BUTTON_FULL_WIDTH_CLASS},
+      .${WIDGET_CONFIG.buttonClass}.${EN_LAUNCHER_MODIFIER}.${BUTTON_SLOT_CLASS}.${BUTTON_FULL_WIDTH_CLASS} {
+        display: flex;
+        justify-content: center;
+        min-height: var(--height-buy-buttons, 52px);
       }
       .t-store__prod-popup__slider,
       .t-catalog__prod-popup__slider,
@@ -2048,142 +2083,7 @@
     }
   }
   
-  // ============================================================================
-  // EXTENDED PRODUCT DATA ADAPTERS
-  // ============================================================================
-  //
-  // Optional extra product data extraction.
-  //
-  // Main code only calls:
-  //
-  // extendedProductData: extractExtendedProductData()
-  //
-  // The function reads data-adapter from the current script tag.
-  // If data-adapter="bitrix_v1", it reads Bitrix/Intec product data from DOM.
-  // If adapter is missing or extraction fails, it returns null.
-  //
-  // This block must stay isolated at the bottom of the file.
-  // ============================================================================
-
-  // Reads the data-adapter attribute from the Looksy script tag,
-  // which tells us which shop platform's DOM structure to parse.
-  function getLooksyAdapterName() {
-    const script =
-      document.currentScript ||
-      document.querySelector("script[data-shop-token]");
-
-    return script?.getAttribute("data-adapter") || "";
-  }
-
-  // Entry point for extended product data extraction.
-  // Picks the right extractor based on the configured adapter,
-  // or falls back to the Bitrix extractor when debug mode is enabled
-  // via the ?popnshop_debug=true URL parameter.
-  // Returns null if no adapter matches or extraction throws.
-  function extractExtendedProductData() {
-    try {
-      const adapter = getLooksyAdapterName();
-
-      if (adapter === "bitrix_v1") {
-        return extractBitrixV1ExtendedProductData();
-      }
-
-      const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get("popnshop_debug") === "true") {
-        return extractBitrixV1ExtendedProductData();
-      }
-
-      return null;
-    } catch (error) {
-      return null;
-    }
-  }
-
-  function extractBitrixV1ExtendedProductData() {
-    const root = document.querySelector(
-      ".c-catalog-element[data-data][data-properties]"
-    );
-
-    if (!root) return null;
-
-    let productData = null;
-    let properties = null;
-
-    try {
-      productData = JSON.parse(root.getAttribute("data-data"));
-      properties = JSON.parse(root.getAttribute("data-properties"));
-    } catch (error) {
-      return null;
-    }
-
-    if (!productData || !Array.isArray(properties)) return null;
-
-    const offers = productData.offers || {};
-    const offerFromUrl = new URLSearchParams(window.location.search).get("offer");
-
-    const selectedOffer =
-      (offerFromUrl && offers[offerFromUrl]) ||
-      Object.values(offers).find((offer) => offer?.available) ||
-      Object.values(offers)[0] ||
-      null;
-
-    if (!selectedOffer) return null;
-
-    const variants = properties
-      .map((property) => ({
-        code: property.code,
-        name: property.name,
-        type: property.type || null,
-        values: Object.entries(property.values || {})
-          .filter(([id, value]) => (
-            id !== "0" &&
-            value &&
-            value.id !== 0 &&
-            value.name !== "-" &&
-            value.stub !== true
-          ))
-          .map(([id, value]) => ({
-            id: String(id),
-            name: value.name,
-            picture: value.picture || null,
-          })),
-      }))
-      .filter((property) => property.values.length > 0);
-
-    // Full map of every offer (SKU) and the exact variant combination it
-    // represents, so the widget can resolve the target offer_id itself when
-    // the user switches a variant — then send that offer_id back to us to add.
-    const extractOfferPrice = (offer) => {
-      const price = (offer.prices && offer.prices[0]) || null;
-      if (!price) return null;
-      const source =
-        price.discount && price.discount.use ? price.discount : price.base;
-      if (!source) return null;
-      return { value: source.value, display: source.display || null };
-    };
-
-    const offerList = Object.values(offers).map((offer) => ({
-      id: String(offer.id),
-      values: offer.values || {},
-      available: !!offer.available,
-      price: extractOfferPrice(offer),
-    }));
-
-    const result = {
-      product_id: String(productData.id),
-      variants,
-      selected: selectedOffer.values || {},
-      offers: offerList,
-    };
-
-    console.log("[Looksy] extendedProductData", result);
-
-    return result;
-  }
-
-  // ============================================================================
-  // END EXTENDED PRODUCT DATA ADAPTERS
-  // ============================================================================
+ 
 
   // ============================================================================
   // CUSTOM BUTTON SLOT PLACEMENT
@@ -2311,6 +2211,153 @@
   // END CUSTOM BUTTON SLOT PLACEMENT
   // ============================================================================
 
+
+
+
+  // ============================================================================
+  // EXTENDED PRODUCT DATA ADAPTERS
+  // ============================================================================
+  //
+  // Optional extra product data extraction.
+  //
+  // Main code only calls:
+  //
+  // extendedProductData: extractExtendedProductData()
+  //
+  // The function reads data-adapter from the current script tag.
+  // If data-adapter="bitrix_popnshop_v1", it reads Bitrix/Intec product data from DOM.
+  // If adapter is missing or extraction fails, it returns null.
+  //
+  // This block must stay isolated at the bottom of the file.
+  // ============================================================================
+
+  // Reads the data-adapter attribute from the Looksy script tag,
+  // which tells us which shop platform's DOM structure to parse.
+  function getLooksyAdapterName() {
+    const script =
+      document.currentScript ||
+      document.querySelector("script[data-shop-token]");
+
+    return script?.getAttribute("data-adapter") || "";
+  }
+
+  // Entry point for extended product data extraction.
+  // Picks the right extractor based on the configured adapter,
+  // or falls back to the Bitrix extractor when debug mode is enabled
+  // via the ?popnshop_debug=true URL parameter.
+  // Returns null if no adapter matches or extraction throws.
+  function extractExtendedProductData() {
+    try {
+      const adapter = getLooksyAdapterName();
+      const urlParams = new URLSearchParams(window.location.search);
+
+      // popnshop case
+      if (adapter === "bitrix_popnshop_v1" || urlParams.get("popnshop_debug") === "true") {
+        return extract_Popnshop_ExtendedProductData();
+      }
+
+      // glenfield case
+      if (adapter === "bitrix_glenfield_v1" || urlParams.get("glenfield_debug") === "true") {
+        return extract_Glenfield_ExtendedProductData();
+      }
+
+
+      return null;
+    } catch (error) {
+      return null;
+    }
+  }
+
+
+  // ============================================================================
+  // POPNSHOP FOR BITRIX ADAPTER
+
+  function extract_Popnshop_ExtendedProductData() {
+    const root = document.querySelector(
+      ".c-catalog-element[data-data][data-properties]"
+    );
+
+    if (!root) return null;
+
+    let productData = null;
+    let properties = null;
+
+    try {
+      productData = JSON.parse(root.getAttribute("data-data"));
+      properties = JSON.parse(root.getAttribute("data-properties"));
+    } catch (error) {
+      return null;
+    }
+
+    if (!productData || !Array.isArray(properties)) return null;
+
+    const offers = productData.offers || {};
+    const offerFromUrl = new URLSearchParams(window.location.search).get("offer");
+
+    const selectedOffer =
+      (offerFromUrl && offers[offerFromUrl]) ||
+      Object.values(offers).find((offer) => offer?.available) ||
+      Object.values(offers)[0] ||
+      null;
+
+    if (!selectedOffer) return null;
+
+    const variants = properties
+      .map((property) => ({
+        code: property.code,
+        name: property.name,
+        type: property.type || null,
+        values: Object.entries(property.values || {})
+          .filter(([id, value]) => (
+            id !== "0" &&
+            value &&
+            value.id !== 0 &&
+            value.name !== "-" &&
+            value.stub !== true
+          ))
+          .map(([id, value]) => ({
+            id: String(id),
+            name: value.name,
+            picture: value.picture || null,
+          })),
+      }))
+      .filter((property) => property.values.length > 0);
+
+    // Full map of every offer (SKU) and the exact variant combination it
+    // represents, so the widget can resolve the target offer_id itself when
+    // the user switches a variant — then send that offer_id back to us to add.
+    const extractOfferPrice = (offer) => {
+      const price = (offer.prices && offer.prices[0]) || null;
+      if (!price) return null;
+      const source =
+        price.discount && price.discount.use ? price.discount : price.base;
+      if (!source) return null;
+      return { value: source.value, display: source.display || null };
+    };
+
+    const offerList = Object.values(offers).map((offer) => ({
+      id: String(offer.id),
+      values: offer.values || {},
+      available: !!offer.available,
+      price: extractOfferPrice(offer),
+    }));
+
+    const result = {
+      product_id: String(productData.id),
+      variants,
+      selected: selectedOffer.values || {},
+      offers: offerList,
+    };
+
+    console.log("[Looksy] extendedProductData", result);
+
+    return result;
+  }
+
+    // ============================================================================
+  // GLENFIELD FOR BITRIX ADAPTER
+
+
   // ============================================================================
   // ADD TO CART BRIDGE
   // ============================================================================
@@ -2366,7 +2413,7 @@
     }, ADD_TO_CART_RESPONSE_TIMEOUT_MS);
 
     try {
-      performBitrixV1AddToCart(payload || {}, reply);
+      perform_Popnshop_AddToCart(payload || {}, reply);
     } catch (error) {
       debugLog("add-to-cart handler failed", error);
       reply({
@@ -2376,6 +2423,9 @@
     }
   }
 
+  // ====================================================================
+  // POPNSHOP ADD TO CART BTN
+  // 
   // Performs add-to-cart on Bitrix/Intec storefronts (e.g. popnshop.ru).
   //
   // Intec renders a basket control for every offer:
@@ -2396,7 +2446,7 @@
   // The widget already knows the full offer map (sent in extendedProductData),
   // so it resolves the variant combination to a concrete offer_id itself and
   // sends just that offer_id here.
-  function performBitrixV1AddToCart(payload, reply) {
+  function perform_Popnshop_AddToCart(payload, reply) {
     const offerId = String(payload.offer_id || "").trim();
 
     if (!offerId) {
@@ -2472,6 +2522,12 @@
     // Trigger Intec's own add-to-cart flow.
     button.click();
   }
+
+
+  // ====================================================================
+  // GLENFIELD ADD TO CART BTN
+
+  function perform_Glenfield_AddToCart(payload, reply) {}
 
   // ============================================================================
   // END ADD TO CART BRIDGE

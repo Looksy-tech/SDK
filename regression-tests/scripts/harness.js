@@ -259,6 +259,7 @@ async function waitForPageStable(page) {
 async function captureSourcePage(browser, pageConfig) {
   const firstViewport = getViewports(pageConfig)[0];
   const harPath = fixtureHarPath(pageConfig.name);
+  const captureBlockResourceTypes = new Set(pageConfig.captureBlockResourceTypes || []);
 
   // Re-record the HAR from scratch so stale assets from a previous capture do
   // not linger next to the new fixture.
@@ -283,7 +284,7 @@ async function captureSourcePage(browser, pageConfig) {
     // sockets, so drop them instead of freezing megabytes into the fixture.
     await page.route("**/*", (route) => {
       const type = route.request().resourceType();
-      if (type === "media" || type === "websocket" || type === "eventsource") {
+      if (type === "media" || type === "websocket" || type === "eventsource" || captureBlockResourceTypes.has(type)) {
         return route.abort();
       }
       return route.continue();

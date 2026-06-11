@@ -52,6 +52,7 @@ npm run regression:update
 - `buttonBoxTolerancePx`: необязательный допуск координат кнопок в пикселях. Дефолт — 8 px. Так как replay теперь офлайн и детерминированный, координаты обычно совпадают точь-в-точь, и этот допуск почти никогда не нужен.
 - `checkButtonPosition`: если `false`, проверяются количество/текст кнопок, но не их координаты. После перехода на HAR layout стабилен, поэтому это нужно только в редких случаях, когда сам клиентский скрипт рисует кнопку в нестабильном месте.
 - `preservePageScripts`: если `true`, при replay сохраняются сторонние `<script>` страницы (и в HAR остаётся записанный JS). По умолчанию `false`: все скрипты страницы вырезаются, в HAR хранятся только ассеты верстки.
+- `captureBlockResourceTypes`: необязательный список Playwright resource types, которые нужно abort во время capture для конкретной тяжёлой страницы. Полезно, когда replay всё равно вырезает скрипты страницы, а запись JS/XHR в HAR делает capture нестабильным.
 - `notes`: комментарий для человека.
 
 Если статичная фикстура страницы стабильно проверяет появление кнопок, но не может открыть iframe без runtime-состояния CMS, можно поставить `"clickButtons": []`. Тогда replay сохранит `buttons.json` и скриншоты страницы/кнопок, но пропустит widget-open и product payload проверки для этой страницы.
@@ -62,7 +63,7 @@ npm run regression:update
 
 ```json
 "scriptAttrs": {
-  "data-adapter": "bitrix_v1"
+  "data-adapter": "bitrix_popnshop_v1"
 }
 ```
 
@@ -168,7 +169,7 @@ Replay берёт сохранённый `page.html`, удаляет из нег
 
 Для Bitrix/Popnshop `extendedProductData` есть отдельные стабильные тесты в `regression-tests/tests/adapter.spec.js`. Они не зависят от реального сайта: поднимают минимальную Bitrix DOM-фикстуру, подключают локальный `script/script.js`, кликают кнопку и проверяют три режима:
 
-- `data-adapter="bitrix_v1"` отправляет `extendedProductData`;
+- `data-adapter="bitrix_popnshop_v1"` отправляет `extendedProductData`;
 - `?popnshop_debug=true` без adapter тоже отправляет `extendedProductData`;
 - без adapter и без `popnshop_debug=true` отправляется `extendedProductData: null`.
 
