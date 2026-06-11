@@ -1774,14 +1774,26 @@
     const description = resolveProductDescription(productElement);
     const externalId = productElement.getAttribute("data-fitting-id") || undefined;
 
-    return {
-      image: imageSrc,
-      name: name,
-      price: price,
-      description: description || undefined,
-      external_id: externalId,
-      extendedProductData: extractExtendedProductData(),
+    const buildProductData = function (extendedProductData) {
+      return {
+        image: imageSrc,
+        name: name,
+        price: price,
+        description: description || undefined,
+        external_id: externalId,
+        extendedProductData: extendedProductData,
+      };
     };
+
+    const extendedProductData = extractExtendedProductData();
+
+    if (extendedProductData && typeof extendedProductData.then === "function") {
+      return extendedProductData.then((resolvedExtendedProductData) => {
+        return buildProductData(resolvedExtendedProductData);
+      });
+    }
+
+    return buildProductData(extendedProductData);
   }
 
   function createButton(productElement) {
@@ -1861,6 +1873,19 @@
         ? (resolveOpenProductElement(document) || productElement)
         : productElement;
       const productData = extractProductData(effectiveProduct);
+      if (productData && typeof productData.then === "function") {
+        productData
+          .then((resolvedProductData) => {
+            if (resolvedProductData) {
+              openWidget(resolvedProductData);
+            }
+          })
+          .catch((error) => {
+            debugLog("product data extraction failed", error);
+          });
+        return;
+      }
+
       if (productData) {
         openWidget(productData);
       }
@@ -2225,14 +2250,15 @@
   // extendedProductData: extractExtendedProductData()
   //
   // The function reads data-adapter from the current script tag.
-  // If data-adapter="bitrix_popnshop_v1", it reads Bitrix/Intec product data from DOM.
+  // If data-adapter="popnshop" it reads Bitrix/Intec product data.
+  // If data-adapter="glenfield" or ?glenfield_debug=true it reads the Glenfield product page.
   // If adapter is missing or extraction fails, it returns null.
   //
   // This block must stay isolated at the bottom of the file.
   // ============================================================================
 
-  // Reads the data-adapter attribute from the Looksy script tag,
-  // which tells us which shop platform's DOM structure to parse.
+  // Reads the adapter name from the Looksy script tag so the SDK can pick the
+  // matching product-data parser and add-to-cart handler.
   function getLooksyAdapterName() {
     const script =
       document.currentScript ||
@@ -2241,26 +2267,42 @@
     return script?.getAttribute("data-adapter") || "";
   }
 
+
+
+  // Returns true when Popnshop should own the Bitrix adapter flow.
+  function isPopnshopAdapterEnabled() {
+    try {
+      return (
+        getLooksyAdapterName() === "popnshop" ||
+        new URLSearchParams(window.location.search).get("popnshop_debug") === "true"
+      );
+    } catch (error) {
+      return false;
+    }
+  }
+  // Checks whether Glenfield mode is enabled through the script tag or URL.
+  function isGlenfieldAdapterEnabled() {
+    try {
+      return getLooksyAdapterName() === "glenfield" || new URLSearchParams(window.location.search).get("glenfield_debug") === "true";
+    } catch (error) {
+      return false;
+    }
+  }
+
+
   // Entry point for extended product data extraction.
-  // Picks the right extractor based on the configured adapter,
-  // or falls back to the Bitrix extractor when debug mode is enabled
-  // via the ?popnshop_debug=true URL parameter.
-  // Returns null if no adapter matches or extraction throws.
+  // Popnshop stays synchronous; Glenfield returns a Promise with fetched offers.
   function extractExtendedProductData() {
     try {
-      const adapter = getLooksyAdapterName();
-      const urlParams = new URLSearchParams(window.location.search);
+      if (isGlenfieldAdapterEnabled()) {
+        console.log("[Looksy][Glenfield] adapter enabled");
+        return extract_Glenfield_ExtendedProductData().catch(() => null);
+      }
 
-      // popnshop case
-      if (adapter === "bitrix_popnshop_v1" || urlParams.get("popnshop_debug") === "true") {
+      if (isPopnshopAdapterEnabled()) {
+        console.log("[Looksy][Popnshop] adapter enabled");
         return extract_Popnshop_ExtendedProductData();
       }
-
-      // glenfield case
-      if (adapter === "bitrix_glenfield_v1" || urlParams.get("glenfield_debug") === "true") {
-        return extract_Glenfield_ExtendedProductData();
-      }
-
 
       return null;
     } catch (error) {
@@ -2354,9 +2396,224 @@
     return result;
   }
 
-    // ============================================================================
+  // ============================================================================
   // GLENFIELD FOR BITRIX ADAPTER
+  // ============================================================================
 
+  // Collects Glenfield product data in one step and returns the final DTO.
+  async function extract_Glenfield_ExtendedProductData() {
+    // GLENFIELD DATA COLLECTION FLOW:
+    //
+    // 1. Find product root.
+    // 2. Read product id.
+    // 3. Read active color xml id.
+    // 4. Read DOM sizes only as source data.
+    // 5. Fetch offer data for every size.
+    // 6. Read fields.id as offer_id.
+    // 7. Build offers from successful responses.
+    // 8. Build variants from offers.
+    // 9. Build final DTO.
+    // 10. Return DTO.
+
+    console.log("[Looksy][Glenfield] STEP 1: start extracting data");
+
+    // STEP 1: Find product root
+    const root = document.querySelector(".card-product.card-product_page[data-id]");
+
+    if (!root) {
+      console.log("[Looksy][Glenfield] product root not found");
+      return null;
+    }
+
+    console.log("[Looksy][Glenfield] product root", root);
+
+    // STEP 2: Read product id
+    const productId = String(root.getAttribute("data-id") || "").trim();
+
+    if (!productId) {
+      console.log("[Looksy][Glenfield] productId not found");
+      return null;
+    }
+
+    console.log("[Looksy][Glenfield] productId", productId);
+
+    // STEP 3: Read active color xml id
+    const activeColorEl =
+      root.querySelector(".goods-var_colors .goods-var-item_active") ||
+      root.querySelector(".goods-var_colors .goods-var-item[data-color]") ||
+      root.querySelector(".goods-var_colors .goods-var-item");
+
+    const colorXmlId = String(
+      activeColorEl?.getAttribute("data-color") ||
+        activeColorEl?.getAttribute("data-color-xml-id") ||
+        activeColorEl?.getAttribute("data-xml-id") ||
+        activeColorEl?.getAttribute("data-id") ||
+        "",
+    ).trim();
+
+    if (!colorXmlId) {
+      console.log("[Looksy][Glenfield] colorXmlId not found", activeColorEl);
+      return null;
+    }
+
+    console.log("[Looksy][Glenfield] colorXmlId", colorXmlId);
+
+    // STEP 4: Read DOM sizes only as source data
+    const sizeSourceList = Array.from(
+      root.querySelectorAll(".goods-var_size .goods-var-item[data-size]"),
+    )
+      .map((el) => {
+        const className = el.className || "";
+
+        return {
+          sizeXmlId: String(el.getAttribute("data-size") || "").trim(),
+          label: String(el.textContent || "").replace(/\s+/g, " ").trim(),
+          selected: el.classList.contains("goods-var-item_active"),
+          disabled:
+            className.includes("disabled") ||
+            className.includes("goods-var-item_disabled") ||
+            el.getAttribute("aria-disabled") === "true",
+        };
+      })
+      .filter((item) => {
+        return item.sizeXmlId && item.label && !item.disabled;
+      });
+
+    console.log("[Looksy][Glenfield] size source list", sizeSourceList);
+
+    if (!sizeSourceList.length) {
+      console.log("[Looksy][Glenfield] sizes not found");
+      return null;
+    }
+
+    // STEP 5: Fetch offer data for every size
+    console.log("[Looksy][Glenfield] STEP 5: fetch offers");
+
+    const offerResults = await Promise.all(
+      sizeSourceList.map(async (size) => {
+        try {
+          const requestBody = new URLSearchParams({
+            el_id: productId,
+            color_xml_id: colorXmlId,
+            size_xml_id: size.sizeXmlId,
+            getPictures: "false",
+          });
+
+          console.log("[Looksy][Glenfield] fetch request", {
+            size: size,
+            body: requestBody.toString(),
+          });
+
+          const response = await fetch("/local/ajax/getCartData.php", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+              "X-Requested-With": "XMLHttpRequest",
+            },
+            credentials: "same-origin",
+            body: requestBody,
+          });
+
+          const data = await response.json();
+
+          console.log("[Looksy][Glenfield] fetch response", {
+            size: size,
+            data: data,
+          });
+
+          if (!data || data.res !== true || !data.fields || !data.fields.id) {
+            console.log("[Looksy][Glenfield] invalid offer response", {
+              size: size,
+              data: data,
+            });
+
+            return null;
+          }
+
+          const quantity = Number(data.fields.quantity || 0);
+
+          // STEP 6: Read fields.id as offer_id
+          return {
+            sizeXmlId: size.sizeXmlId,
+            label: size.label,
+            selected: size.selected,
+            offer: {
+              id: String(data.fields.id),
+              available:
+                data.fields.active === "Y" &&
+                data.fields.in_online_store === true &&
+                quantity > 0,
+              quantity: quantity,
+              price: data.fields.price || null,
+              price_raw: data.fields.price_raw ?? null,
+              old_price: data.fields.old_price ?? null,
+              values: {
+                SIZE: String(size.sizeXmlId),
+                COLOR: String(colorXmlId),
+              },
+            },
+          };
+        } catch (error) {
+          console.log("[Looksy][Glenfield] fetch failed", {
+            size: size,
+            error: error,
+          });
+
+          return null;
+        }
+      }),
+    );
+
+    // STEP 7: Build offers from successful responses
+    const successfulResults = offerResults.filter(Boolean);
+    const offers = successfulResults.map((item) => item.offer);
+
+    console.log("[Looksy][Glenfield] successful offer results", successfulResults);
+    console.log("[Looksy][Glenfield] offers", offers);
+
+    if (!offers.length) {
+      console.log("[Looksy][Glenfield] no offers collected");
+      return null;
+    }
+
+    // STEP 8: Build variants from offers
+    const sizeVariantValues = successfulResults.map((item) => {
+      return {
+        id: String(item.sizeXmlId),
+        name: item.label,
+      };
+    });
+
+    const selectedSource =
+      successfulResults.find((item) => item.selected) ||
+      successfulResults[0];
+
+    const variants = [
+      {
+        code: "SIZE",
+        name: "Размер",
+        values: sizeVariantValues,
+      },
+    ];
+
+    // STEP 9: Build final DTO
+    const result = {
+      adapter: "glenfield",
+      product_id: String(productId),
+      color_xml_id: String(colorXmlId),
+      variants: variants,
+      selected: {
+        SIZE: selectedSource ? String(selectedSource.sizeXmlId) : "",
+        COLOR: String(colorXmlId),
+      },
+      offers: offers,
+    };
+
+    // STEP 10: Return DTO
+    console.log("[Looksy][Glenfield] final DTO", result);
+
+    return result;
+  }
 
   // ============================================================================
   // ADD TO CART BRIDGE
@@ -2413,6 +2670,11 @@
     }, ADD_TO_CART_RESPONSE_TIMEOUT_MS);
 
     try {
+      if (isGlenfieldAdapterEnabled()) {
+        perform_Glenfield_AddToCart(payload || {}, reply);
+        return;
+      }
+
       perform_Popnshop_AddToCart(payload || {}, reply);
     } catch (error) {
       debugLog("add-to-cart handler failed", error);
@@ -2526,8 +2788,155 @@
 
   // ====================================================================
   // GLENFIELD ADD TO CART BTN
+  //
+  // Glenfield uses native size swatches and its own basket button, so the SDK
+  // clicks the size first, waits for the offer id to settle, then triggers the
+  // page's own add-to-cart flow.
+  function perform_Glenfield_AddToCart(payload, reply) {
+    const root = document.querySelector(".card-product.card-product_page[data-id]");
 
-  function perform_Glenfield_AddToCart(payload, reply) {}
+    if (!root) {
+      reply({
+        success: false,
+        message: "Glenfield product root not found",
+      });
+      return;
+    }
+
+    const offerId = textOrEmpty(payload && payload.offer_id);
+    const sizeXmlId = textOrEmpty(
+      (payload && payload.values && payload.values.SIZE) ||
+        (payload && payload.size_xml_id) ||
+        (payload && payload.size_id),
+    );
+
+    console.log("[Looksy][Glenfield] add-to-cart request", {
+      offerId: offerId,
+      sizeXmlId: sizeXmlId,
+      payload: payload,
+    });
+
+    if (!sizeXmlId && !offerId) {
+      reply({
+        success: false,
+        message: "Glenfield size or offer_id is missing",
+      });
+      return;
+    }
+
+    const sizeButton = sizeXmlId
+      ? root.querySelector(
+          '.goods-var_size .goods-var-item[data-size="' +
+            String(sizeXmlId).replace(/"/g, '\\"') +
+            '"]',
+        )
+      : null;
+
+    if (sizeXmlId && !sizeButton) {
+      reply({
+        success: false,
+        message: "Glenfield size button not found",
+      });
+      return;
+    }
+
+    const addButtonSelector = ".js-add-basket[data-id]";
+    const getAddButton = function () {
+      return root.querySelector(addButtonSelector);
+    };
+    const getCurrentOfferId = function () {
+      const addButton = getAddButton();
+      return addButton ? textOrEmpty(addButton.getAttribute("data-id")) : "";
+    };
+    const isSizeActive = function () {
+      return !sizeButton || sizeButton.classList.contains("goods-var-item_active");
+    };
+    const triggerClick = function (el) {
+      if (!el) return;
+      if (typeof el.click === "function") {
+        el.click();
+        return;
+      }
+      el.dispatchEvent(
+        new MouseEvent("click", {
+          bubbles: true,
+          cancelable: true,
+          view: window,
+        }),
+      );
+    };
+
+    if (sizeButton && !sizeButton.classList.contains("goods-var-item_active")) {
+      triggerClick(sizeButton);
+    }
+
+    let settled = false;
+    let timer = null;
+    const startedAt = Date.now();
+    const timeoutMs = 3000;
+
+    const settle = function (success, message) {
+      if (settled) return;
+      settled = true;
+      if (timer) window.clearInterval(timer);
+      reply({
+        success: success,
+        message: message,
+      });
+    };
+
+    timer = window.setInterval(function () {
+      const addButton = getAddButton();
+      const currentOfferId = getCurrentOfferId();
+      const ready =
+        !!addButton &&
+        isSizeActive() &&
+        (!offerId || currentOfferId === offerId || currentOfferId);
+
+      if (!ready) {
+        if (Date.now() - startedAt > timeoutMs) {
+          settle(false, "Glenfield add-to-cart button did not become ready");
+        }
+        return;
+      }
+
+      if (timer) window.clearInterval(timer);
+
+      const beforeCartCount = textOrEmpty(
+        document.querySelector("#cart_quality_top")?.textContent,
+      );
+
+      console.log("[Looksy][Glenfield] clicking native add button", {
+        currentOfferId: currentOfferId,
+        expectedOfferId: offerId,
+        beforeCartCount: beforeCartCount,
+      });
+
+      triggerClick(addButton);
+
+      window.setTimeout(function () {
+        const afterCartCount = textOrEmpty(
+          document.querySelector("#cart_quality_top")?.textContent,
+        );
+        const result = {
+          success: true,
+          message:
+            afterCartCount && afterCartCount !== beforeCartCount
+              ? "Added to cart"
+              : "Native add-to-cart clicked",
+        };
+
+        console.log("[Looksy][Glenfield] add-to-cart result", {
+          currentOfferId: currentOfferId,
+          beforeCartCount: beforeCartCount,
+          afterCartCount: afterCartCount,
+          result: result,
+        });
+
+        settle(result.success, result.message);
+      }, 800);
+    }, 80);
+  }
 
   // ============================================================================
   // END ADD TO CART BRIDGE

@@ -14,7 +14,7 @@
       "enabled": false,
       "viewports": ["desktop"],
       "scriptAttrs": {
-        "data-adapter": "bitrix_popnshop_v1"
+        "data-adapter": "popnshop"
       },
       "clickButtons": [0],
       "notes": "Popnshop / Bitrix placeholder. Replace with a real product URL and enable when needed."
@@ -41,7 +41,7 @@
       "enabled": true,
       "viewports": ["desktop"],
       "scriptAttrs": {
-        "data-adapter": "bitrix_popnshop_v1"
+        "data-adapter": "popnshop"
       },
       "clickButtons": [],
       "notes": "Real Popnshop / Bitrix catalog page. Static fixture checks button placement; widget click is skipped because isolated replay does not preserve Bitrix runtime state."
@@ -52,7 +52,7 @@
       "enabled": true,
       "viewports": ["desktop", "mobile"],
       "scriptAttrs": {
-        "data-adapter": "bitrix_popnshop_v1"
+        "data-adapter": "popnshop"
       },
       "clickButtons": [],
       "notes": "Real Popnshop / Bitrix product page with offer query parameter. Static fixture checks button placement; widget click is skipped because isolated replay does not preserve Bitrix runtime state."
@@ -63,7 +63,7 @@
       "enabled": true,
       "viewports": ["desktop", "mobile"],
       "scriptAttrs": {
-        "data-adapter": "bitrix_popnshop_v1"
+        "data-adapter": "glenfield"
       },
       "clickButtons": [],
       "captureBlockResourceTypes": ["script", "xhr", "fetch"],

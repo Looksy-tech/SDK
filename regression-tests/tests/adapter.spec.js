@@ -35,6 +35,15 @@ const MULTI_PRODUCTS = [
 const PNG_1X1 =
   Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=", "base64");
 
+const GLENFIELD_SIZE_TO_OFFER_ID = {
+  "75": "496082",
+  "71": "496083",
+  "70": "496084",
+  "68": "496085",
+  "74": "496086",
+  "76": "496087",
+};
+
 function createBitrixFixtureHtml({ adapterName = "" } = {}) {
   const productData = {
     id: 501,
@@ -97,6 +106,103 @@ function createBitrixFixtureHtml({ adapterName = "" } = {}) {
     data-shop-token="adapter-test-token"
     data-widget-url="${LOCAL_ORIGIN}/mock-widget.html"
     ${adapterName ? `data-adapter="${adapterName}"` : ""}
+  ></script>
+</body>
+</html>`;
+}
+
+function createGlenfieldFixtureHtml({ adapterName = "" } = {}) {
+  const scriptAttrs = adapterName ? `data-adapter="${adapterName}"` : "";
+
+  return `<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Glenfield adapter regression</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 24px; }
+    main { max-width: 640px; }
+    .card-product { border: 1px solid #d7dce2; padding: 16px; }
+    .goods-var { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+    .goods-var-item { border: 1px solid #9aa5b1; padding: 6px 10px; cursor: pointer; user-select: none; }
+    .goods-var-item_active { border-color: #1f2933; background: #1f2933; color: #fff; }
+    .goods-var-item.disabled,
+    .goods-var-item.goods-var-item_disabled { opacity: 0.45; cursor: not-allowed; }
+    .card-product-action__add-to-card { display: inline-block; margin-top: 8px; padding: 8px 12px; border: 1px solid #1f2933; text-decoration: none; color: #1f2933; }
+  </style>
+</head>
+<body>
+  <span id="cart_quality_top"></span>
+  <main>
+    <div
+      class="card-product card-product_page"
+      data-id="496081"
+      data-iblock="1"
+      data-section_id="163"
+      data-exchange_id="753677"
+      data-fitting-product=""
+      data-fitting-name="джемпер женский в розово - сиреневом цвете с перфорированным узором"
+      data-fitting-price="4690 руб."
+    >
+      <div class="goods-var goods-var_colors">
+        <div class="goods-var-item goods-var-item_active" data-color="2022" data-sizes="68;70;71;74;75;76">
+          <img class="goods-var-item__img" src="${LOCAL_ORIGIN}/assets/hoodie.png" alt="">
+        </div>
+      </div>
+
+      <div class="goods-var-wrap goods-var-wrap-product_size">
+        <div class="goods-var goods-var_size js-goods-var-car owl-theme owl-carousel">
+          <div class="js-size-card-hover goods-var-item goods-var-item_active" data-size="75" data-size-desc="S">S</div>
+          <div class="js-size-card-hover goods-var-item" data-size="71" data-size-desc="M">M</div>
+          <div class="js-size-card-hover goods-var-item" data-size="70" data-size-desc="L">L</div>
+          <div class="js-size-card-hover goods-var-item" data-size="68" data-size-desc="XL">XL</div>
+          <div class="js-size-card-hover goods-var-item" data-size="74" data-size-desc="2XL">2XL</div>
+          <div class="js-size-card-hover goods-var-item" data-size="76" data-size-desc="3XL">3XL</div>
+        </div>
+      </div>
+
+      <a class="card-product-action__add-to-card js-add-basket" data-id="496082" data-fbq-price="4690" href="">В корзину</a>
+    </div>
+  </main>
+  <script>
+    (function () {
+      var sizeToOffer = ${JSON.stringify(GLENFIELD_SIZE_TO_OFFER_ID)};
+
+      function syncSizeState(sizeId) {
+        var sizeItems = document.querySelectorAll(".goods-var_size .goods-var-item[data-size]");
+        for (var i = 0; i < sizeItems.length; i++) {
+          var item = sizeItems[i];
+          item.classList.toggle("goods-var-item_active", item.getAttribute("data-size") === sizeId);
+        }
+
+        var addButton = document.querySelector(".js-add-basket");
+        if (addButton) {
+          addButton.setAttribute("data-id", sizeToOffer[sizeId] || "");
+        }
+      }
+
+      document.addEventListener("click", function (event) {
+        var sizeButton = event.target.closest(".goods-var_size .goods-var-item[data-size]");
+        if (sizeButton) {
+          syncSizeState(sizeButton.getAttribute("data-size"));
+        }
+
+        var addButton = event.target.closest(".js-add-basket");
+        if (addButton) {
+          event.preventDefault();
+          var cart = document.getElementById("cart_quality_top");
+          cart.textContent = String((Number(cart.textContent || "0") || 0) + 1);
+        }
+      });
+
+      syncSizeState("75");
+    })();
+  </script>
+  <script
+    src="${LOCAL_ORIGIN}/script/script.js"
+    data-shop-token="adapter-test-token"
+    data-widget-url="${LOCAL_ORIGIN}/mock-widget.html"
+    ${scriptAttrs}
   ></script>
 </body>
 </html>`;
@@ -226,7 +332,7 @@ async function installAdapterRoutes(page) {
       await route.fulfill({
         status: 200,
         contentType: "text/html; charset=utf-8",
-        body: createBitrixFixtureHtml({ adapterName: "bitrix_popnshop_v1" }),
+        body: createBitrixFixtureHtml({ adapterName: "popnshop" }),
       });
       return;
     }
@@ -245,6 +351,43 @@ async function installAdapterRoutes(page) {
         status: 200,
         contentType: "text/html; charset=utf-8",
         body: createBitrixFixtureHtml(),
+      });
+      return;
+    }
+
+    if (requestUrl.origin === LOCAL_ORIGIN && requestUrl.pathname === "/adapter/glenfield-debug.html") {
+      await route.fulfill({
+        status: 200,
+        contentType: "text/html; charset=utf-8",
+        body: createGlenfieldFixtureHtml(),
+      });
+      return;
+    }
+
+    if (requestUrl.origin === LOCAL_ORIGIN && requestUrl.pathname === "/local/ajax/getCartData.php") {
+      const postData = new URLSearchParams(route.request().postData() || "");
+      const sizeXmlId = postData.get("size_xml_id") || "";
+      const offerId = GLENFIELD_SIZE_TO_OFFER_ID[sizeXmlId];
+
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json; charset=utf-8",
+        body: JSON.stringify({
+          res: true,
+          fields: {
+            id: offerId,
+            price_raw: sizeXmlId === "68" ? 4690 : 4490,
+            price: sizeXmlId === "68" ? "4 690 руб." : "4 490 руб.",
+            old_price: sizeXmlId === "68" ? 6690 : 0,
+            quantity: "5",
+            active: "Y",
+            in_online_store: true,
+            EXCHANGE_ID: "753680",
+            SECTION_ID: "163",
+            seo_el_id: "496082",
+            url: "/catalog/women/dzhempery/dzhemper-zhenskiy_D62GC731A-35Q_main_496082/",
+          },
+        }),
       });
       return;
     }
@@ -329,7 +472,55 @@ function expectBitrixExtendedProductData(product) {
   ]);
 }
 
-test("@regression bitrix_popnshop_v1 adapter sends extendedProductData", async ({ page }) => {
+function expectGlenfieldExtendedProductData(product) {
+  expect(product.extendedProductData).toMatchObject({
+    adapter: "glenfield",
+    product_id: "496081",
+    color_xml_id: "2022",
+    selected: { SIZE: "75", COLOR: "2022" },
+  });
+
+  expect(product.extendedProductData.variants).toEqual([
+    {
+      code: "SIZE",
+      name: "Размер",
+      values: [
+        { id: "75", name: "S" },
+        { id: "71", name: "M" },
+        { id: "70", name: "L" },
+        { id: "68", name: "XL" },
+        { id: "74", name: "2XL" },
+        { id: "76", name: "3XL" },
+      ],
+    },
+  ]);
+
+  expect(product.extendedProductData.offers).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({
+        id: "496082",
+        available: true,
+        quantity: 5,
+        price: "4 490 руб.",
+        price_raw: 4490,
+        old_price: 0,
+        values: { SIZE: "75", COLOR: "2022" },
+      }),
+      expect.objectContaining({
+        id: "496085",
+        available: true,
+        quantity: 5,
+        price: "4 690 руб.",
+        price_raw: 4690,
+        old_price: 6690,
+        values: { SIZE: "68", COLOR: "2022" },
+      }),
+    ]),
+  );
+  expect(product.extendedProductData.offers).toHaveLength(6);
+}
+
+test("@regression popnshop adapter sends extendedProductData", async ({ page }) => {
   await installAdapterRoutes(page);
   const product = await openFixtureAndReadProduct(page, "/adapter/bitrix-v1.html?offer=102");
 
@@ -351,6 +542,55 @@ test("@regression Bitrix fixture without adapter or debug sends null extendedPro
   const product = await openFixtureAndReadProduct(page, "/adapter/no-adapter.html?offer=102");
 
   expect(product.extendedProductData).toBeNull();
+});
+
+test("@regression Glenfield debug adapter collects offers and routes add-to-cart", async ({ page }) => {
+  await installAdapterRoutes(page);
+  await page.goto(`${LOCAL_ORIGIN}/adapter/glenfield-debug.html?glenfield_debug=true`, {
+    waitUntil: "domcontentloaded",
+  });
+
+  await page.waitForFunction(() => window.VirtualFitting && typeof window.VirtualFitting.init === "function");
+  await expect(page.locator(".virtual-fitting-button")).toHaveCount(1);
+  await page.locator(".virtual-fitting-button").click();
+
+  const iframeElement = await page.locator("#virtual-fitting-iframe").elementHandle();
+  const frame = await iframeElement.contentFrame();
+  await frame.waitForFunction(() => {
+    try {
+      const product = JSON.parse(document.body.dataset.product || "null");
+      return !!(
+        product &&
+        product.extendedProductData &&
+        Array.isArray(product.extendedProductData.offers) &&
+        product.extendedProductData.offers.length === 6
+      );
+    } catch (error) {
+      return false;
+    }
+  });
+
+  const product = await frame.evaluate(() => JSON.parse(document.body.dataset.product));
+  expectGlenfieldExtendedProductData(product);
+
+  await frame.evaluate((payload) => {
+    window.parent.postMessage(
+      {
+        source: "looksy-widget",
+        type: "PRESS_ADD_TO_CART_BTN",
+        request_id: "glenfield-add-to-cart",
+        payload,
+      },
+      "*",
+    );
+  }, { offer_id: "496085", values: { SIZE: "68", COLOR: "2022" } });
+
+  await frame.waitForFunction(() => Boolean(document.body.dataset.addToCartResult));
+  const addToCartResult = await frame.evaluate(() => JSON.parse(document.body.dataset.addToCartResult));
+
+  expect(addToCartResult.success).toBe(true);
+  expect(addToCartResult.message).toMatch(/Added to cart|Native add-to-cart clicked/);
+  await expect(page.locator("#cart_quality_top")).toHaveText("1");
 });
 
 test("@regression one SDK instance handles multiple product buttons", async ({ page }) => {

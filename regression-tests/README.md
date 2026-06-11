@@ -63,7 +63,7 @@ npm run regression:update
 
 ```json
 "scriptAttrs": {
-  "data-adapter": "bitrix_popnshop_v1"
+  "data-adapter": "popnshop"
 }
 ```
 
@@ -169,7 +169,7 @@ Replay берёт сохранённый `page.html`, удаляет из нег
 
 Для Bitrix/Popnshop `extendedProductData` есть отдельные стабильные тесты в `regression-tests/tests/adapter.spec.js`. Они не зависят от реального сайта: поднимают минимальную Bitrix DOM-фикстуру, подключают локальный `script/script.js`, кликают кнопку и проверяют три режима:
 
-- `data-adapter="bitrix_popnshop_v1"` отправляет `extendedProductData`;
+- `data-adapter="popnshop"` отправляет `extendedProductData`;
 - `?popnshop_debug=true` без adapter тоже отправляет `extendedProductData`;
 - без adapter и без `popnshop_debug=true` отправляется `extendedProductData: null`.
 
