@@ -44,9 +44,7 @@
   const IS_RU_TOKEN = SHOP_TOKEN.startsWith('ru_');
   const IS_GLENFIELD_DEBUG_WIDGET =
     SHOP_TOKEN === GLENFIELD_RU_SHOP_TOKEN && hasQueryParamValue("widget_debug", "true");
-  const RESOLVED_WIDGET_URL = IS_GLENFIELD_DEBUG_WIDGET
-    ? GLENFIELD_DEBUG_WIDGET_URL
-    : DATA_WIDGET_URL || (LANG === 'en' ? EN_WIDGET_URL : IS_RU_TOKEN ? RU_WIDGET_URL : WIDGET_URL);
+  const RESOLVED_WIDGET_URL = DATA_WIDGET_URL || (LANG === 'en' ? EN_WIDGET_URL : IS_RU_TOKEN ? RU_WIDGET_URL : WIDGET_URL);
 
   if (!SHOP_TOKEN) {
     console.error('[Looksy] Missing data-shop-token attribute on script tag');
@@ -65,6 +63,10 @@
     const args = Array.prototype.slice.call(arguments);
     args.unshift("[Looksy]");
     console.log.apply(console, args);
+  }
+
+  function getIframeWidgetUrl() {
+    return IS_GLENFIELD_DEBUG_WIDGET ? GLENFIELD_DEBUG_WIDGET_URL : WIDGET_CONFIG.widgetUrl;
   }
 
   const WIDGET_CONFIG = {
@@ -274,9 +276,9 @@
   // Helper: получить origin из URL (нормализованный, без trailing slash)
   function getWidgetOrigin() {
     try {
-      return new URL(WIDGET_CONFIG.widgetUrl).origin;
+      return new URL(getIframeWidgetUrl()).origin;
     } catch (e) {
-      return WIDGET_CONFIG.widgetUrl.replace(/\/$/, "");
+      return getIframeWidgetUrl().replace(/\/$/, "");
     }
   }
 
@@ -1553,7 +1555,7 @@
         }),
       ),
     });
-    const baseUrl = WIDGET_CONFIG.widgetUrl.replace(/\/$/, "");
+    const baseUrl = getIframeWidgetUrl().replace(/\/$/, "");
     widgetIframe.src = `${baseUrl}/?${params.toString()}`;
 
     // Даём браузеру время отрендерить элементы перед анимацией

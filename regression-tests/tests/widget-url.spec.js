@@ -53,6 +53,7 @@ async function openWidget(page, { token, lang, widgetDebug = false }) {
   const sdkScript = fs.readFileSync(SDK_SCRIPT_PATH, "utf8");
   const mockWidget = fs.readFileSync(MOCK_WIDGET_PATH, "utf8");
   const fixtureHtml = createProductFixtureHtml({ token, lang });
+  const configRequests = [];
 
   await page.route("**/*", async (route) => {
     const url = new URL(route.request().url());
@@ -80,6 +81,7 @@ async function openWidget(page, { token, lang, widgetDebug = false }) {
     // the iframe loads offline.
     if (WIDGET_HOSTS.includes(url.hostname)) {
       if (url.pathname.startsWith("/api/widget/config")) {
+        configRequests.push(url.href);
         await route.fulfill({
           status: 404,
           contentType: "application/json; charset=utf-8",
@@ -113,7 +115,7 @@ async function openWidget(page, { token, lang, widgetDebug = false }) {
   await expect(iframe).toBeVisible({ timeout: 10000 });
   const src = await iframe.getAttribute("src");
 
-  return { src, buttonText, origin: new URL(src).origin };
+  return { src, buttonText, origin: new URL(src).origin, configRequests };
 }
 
 const CASES = [
@@ -152,12 +154,13 @@ const CASES = [
     widgetDebug: true,
     expectedOrigin: "https://leadsalarm.ru",
     expectedText: RU_BUTTON_TEXT,
+    expectedConfigOrigin: "https://ru.widget.looksy.tech",
   },
 ];
 
 for (const testCase of CASES) {
   test(`@regression widget URL resolution: ${testCase.title}`, async ({ page }) => {
-    const { origin, buttonText } = await openWidget(page, {
+    const { origin, buttonText, configRequests } = await openWidget(page, {
       token: testCase.token,
       lang: testCase.lang,
       widgetDebug: testCase.widgetDebug,
@@ -165,5 +168,10 @@ for (const testCase of CASES) {
 
     expect(origin, "iframe widget host").toBe(testCase.expectedOrigin);
     expect(buttonText, "button text").toContain(testCase.expectedText);
+    if (testCase.expectedConfigOrigin) {
+      expect(new URL(configRequests[0]).origin, "shop config API host").toBe(
+        testCase.expectedConfigOrigin,
+      );
+    }
   });
 }
