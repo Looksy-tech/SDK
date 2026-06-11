@@ -2610,7 +2610,7 @@
     };
 
     // STEP 10: Return DTO
-    console.log("[Looksy][Glenfield] final DTO", result);
+    console.log("[Looksy][Glenfield] received result", result);
 
     return result;
   }
