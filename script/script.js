@@ -13,6 +13,8 @@
   const BUTTON_RENDER_DELAY_MS = 140;
   const ST305N_RELOAD_STEPS_MS = [120, 450, 900, 1600, 2600, 3800];
   const ICON_URL = "https://s3.regru.cloud/looksy-widget/try_on.svg";
+  const GLENFIELD_RU_SHOP_TOKEN = "ru_a5428add-7a7c-41ef-b385-1018c5dd6939";
+  const GLENFIELD_DEBUG_WIDGET_URL = "https://leadsalarm.ru/looksy/widget";
   // =====================================================
 
   // Получаем shopToken из data-атрибута текущего скрипта
@@ -40,10 +42,22 @@
   };
   const DATA_WIDGET_URL = (currentScript && currentScript.getAttribute("data-widget-url") || "").trim();
   const IS_RU_TOKEN = SHOP_TOKEN.startsWith('ru_');
-  const RESOLVED_WIDGET_URL = DATA_WIDGET_URL || (LANG === 'en' ? EN_WIDGET_URL : IS_RU_TOKEN ? RU_WIDGET_URL : WIDGET_URL);
+  const IS_GLENFIELD_DEBUG_WIDGET =
+    SHOP_TOKEN === GLENFIELD_RU_SHOP_TOKEN && hasQueryParamValue("widget_debug", "true");
+  const RESOLVED_WIDGET_URL = IS_GLENFIELD_DEBUG_WIDGET
+    ? GLENFIELD_DEBUG_WIDGET_URL
+    : DATA_WIDGET_URL || (LANG === 'en' ? EN_WIDGET_URL : IS_RU_TOKEN ? RU_WIDGET_URL : WIDGET_URL);
 
   if (!SHOP_TOKEN) {
     console.error('[Looksy] Missing data-shop-token attribute on script tag');
+  }
+
+  function hasQueryParamValue(name, expectedValue) {
+    try {
+      return new URLSearchParams(window.location.search).get(name) === expectedValue;
+    } catch (e) {
+      return false;
+    }
   }
 
   function debugLog() {

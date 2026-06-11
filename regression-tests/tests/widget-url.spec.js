@@ -22,6 +22,7 @@ const WIDGET_HOSTS = [
   "widget.looksy.tech",
   "en.widget.looksy.tech",
   "ru.widget.looksy.tech",
+  "leadsalarm.ru",
 ];
 
 const RU_BUTTON_TEXT = "Примерить на себе";
@@ -48,7 +49,7 @@ function createProductFixtureHtml({ token, lang }) {
 
 // Renders the SDK with the given token/lang, opens the widget and returns the
 // iframe src + button text so each case can assert on them.
-async function openWidget(page, { token, lang }) {
+async function openWidget(page, { token, lang, widgetDebug = false }) {
   const sdkScript = fs.readFileSync(SDK_SCRIPT_PATH, "utf8");
   const mockWidget = fs.readFileSync(MOCK_WIDGET_PATH, "utf8");
   const fixtureHtml = createProductFixtureHtml({ token, lang });
@@ -97,7 +98,8 @@ async function openWidget(page, { token, lang }) {
     await route.abort();
   });
 
-  await page.goto(`${LOCAL_ORIGIN}${FIXTURE_PATH}`, { waitUntil: "domcontentloaded" });
+  const debugQuery = widgetDebug ? "?widget_debug=true" : "";
+  await page.goto(`${LOCAL_ORIGIN}${FIXTURE_PATH}${debugQuery}`, { waitUntil: "domcontentloaded" });
   await page.waitForFunction(
     () => window.VirtualFitting && typeof window.VirtualFitting.init === "function",
   );
@@ -143,6 +145,14 @@ const CASES = [
     expectedOrigin: "https://en.widget.looksy.tech",
     expectedText: EN_BUTTON_TEXT,
   },
+  {
+    title: "Glenfield RU token + widget_debug=true -> Leadsalarm widget host",
+    token: "ru_a5428add-7a7c-41ef-b385-1018c5dd6939",
+    lang: "",
+    widgetDebug: true,
+    expectedOrigin: "https://leadsalarm.ru",
+    expectedText: RU_BUTTON_TEXT,
+  },
 ];
 
 for (const testCase of CASES) {
@@ -150,6 +160,7 @@ for (const testCase of CASES) {
     const { origin, buttonText } = await openWidget(page, {
       token: testCase.token,
       lang: testCase.lang,
+      widgetDebug: testCase.widgetDebug,
     });
 
     expect(origin, "iframe widget host").toBe(testCase.expectedOrigin);
