@@ -1858,6 +1858,36 @@
     console.log(`Virtual Fitting: Initialized ${count} buttons`);
   }
 
+  function tryClickAddToCartButton(offerId) {
+    if (!offerId) return false;
+    var selectors = [
+      '[data-offer-id="' + offerId + '"]',
+      '[data-fitting-offer-id="' + offerId + '"]',
+      '[data-product-id="' + offerId + '"]',
+      'button[data-id="' + offerId + '"]',
+      'a[data-id="' + offerId + '"]',
+      '[data-sku="' + offerId + '"]',
+    ];
+    for (var i = 0; i < selectors.length; i++) {
+      var el = document.querySelector(selectors[i]);
+      if (el) {
+        el.click();
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function handleAddToCart(offerId, additionalItems) {
+    if (window.VirtualFitting && typeof window.VirtualFitting.onAddToCart === "function") {
+      return window.VirtualFitting.onAddToCart(offerId, additionalItems);
+    }
+    var success = tryClickAddToCartButton(offerId);
+    window.dispatchEvent(new CustomEvent("looksy:additional-items", { detail: { items: additionalItems } }));
+    window.dispatchEvent(new CustomEvent("looksy:add-to-cart", { detail: { offer_id: offerId, additional_items: additionalItems, success: success } }));
+    return success;
+  }
+
   function setupMessageListener() {
     const widgetOrigin = getWidgetOrigin();
 
@@ -1929,7 +1959,18 @@
           }
           break;
 
-          
+        case "PRESS_ADD_TO_CART_BTN": {
+          var atcPayload = event.data.payload || {};
+          var atcOfferId = atcPayload.offer_id;
+          var atcAdditional = atcPayload.additional_items || [];
+          var atcSuccess = handleAddToCart(atcOfferId, atcAdditional);
+          postMessageToIframe({
+            type: "PRESS_ADD_TO_CART_BTN_RESULT",
+            payload: { success: atcSuccess, offer_id: atcOfferId },
+          });
+          break;
+        }
+
         default:
           break;
       }
@@ -2023,6 +2064,7 @@
     open: openWidget,
     close: closeWidget,
     init: initButtons,
+    onAddToCart: null,
   };
 
   init();
