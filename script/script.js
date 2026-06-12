@@ -1966,12 +1966,21 @@
   }
 
   function detectBitrixCartConfig() {
-    // Ищем request.php в performance entries — он вызывается при загрузке корзины на странице
     try {
       var entries = window.performance && window.performance.getEntriesByType("resource");
-      if (entries) {
-        for (var i = 0; i < entries.length; i++) {
-          var u = entries[i].name || "";
+      if (!entries) return null;
+      var fallback = null;
+      for (var i = 0; i < entries.length; i++) {
+        var u = entries[i].name || "";
+        // Primary: Intec basket component URL with parameters[ID] — this is the real add-to-cart endpoint
+        if (u.indexOf("component=intec.universe") !== -1 &&
+            u.indexOf("sale.basket") !== -1 &&
+            u.indexOf("page=components.get") !== -1 &&
+            u.indexOf("parameters%5BID%5D=") !== -1) {
+          return { intecBasketTemplate: u };
+        }
+        // Fallback: classic request.php with siteId+templateId
+        if (!fallback) {
           var idx = u.indexOf("/request.php");
           if (idx === -1) continue;
           var base = u.substring(0, idx + "/request.php".length);
@@ -1984,23 +1993,35 @@
             if (kv[0] === "templateId") templateId = decodeURIComponent(kv[1] || "");
           });
           if (siteId && templateId) {
-            return { url: base, siteId: siteId, templateId: templateId };
+            fallback = { url: base, siteId: siteId, templateId: templateId };
           }
         }
       }
+      return fallback;
     } catch (e) {}
     return null;
   }
 
   function addToCartBitrix(productId, config) {
+    if (config.intecBasketTemplate) {
+      // Replace parameters[ID] in the Intec basket component URL
+      var url = config.intecBasketTemplate.replace(
+        /(parameters%5BID%5D=)[^&]*/i,
+        "$1" + encodeURIComponent(String(productId))
+      );
+      return fetch(url, { method: "GET", credentials: "same-origin" })
+        .then(function(r) { return r.ok; })
+        .catch(function() { return false; });
+    }
+    // Fallback: basket.add POST
     var formData = new FormData();
     formData.append("actions[0][name]", "basket.add");
     formData.append("actions[0][data][quantity]", "0");
     formData.append("actions[0][data][price]", "1");
     formData.append("actions[0][data][additional]", "true");
     formData.append("actions[0][data][id]", String(productId));
-    var url = config.url + "?siteId=" + encodeURIComponent(config.siteId) + "&templateId=" + encodeURIComponent(config.templateId);
-    return fetch(url, { method: "POST", credentials: "same-origin", body: formData })
+    var postUrl = config.url + "?siteId=" + encodeURIComponent(config.siteId) + "&templateId=" + encodeURIComponent(config.templateId);
+    return fetch(postUrl, { method: "POST", credentials: "same-origin", body: formData })
       .then(function(r) { return r.ok; })
       .catch(function() { return false; });
   }
