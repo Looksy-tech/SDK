@@ -2110,18 +2110,6 @@
           }
           break;
 
-        case "PRESS_ADD_TO_CART_BTN": {
-          var atcPayload = event.data.payload || {};
-          var atcOfferId = atcPayload.offer_id;
-          var atcAdditional = atcPayload.additional_items || [];
-          var atcSuccess = handleAddToCart(atcOfferId, atcAdditional);
-          postMessageToIframe({
-            type: "PRESS_ADD_TO_CART_BTN_RESULT",
-            payload: { success: atcSuccess, offer_id: atcOfferId },
-          });
-          break;
-        }
-
         default:
           break;
       }
@@ -2890,6 +2878,18 @@
 
     // Trigger Intec's own add-to-cart flow.
     button.click();
+
+    // Additional items from recommendations — added via Bitrix API in parallel.
+    var additionalItems = payload.additional_items || [];
+    if (additionalItems.length) {
+      var bitrixConfig = detectBitrixCartConfig();
+      if (bitrixConfig) {
+        for (var ai = 0; ai < additionalItems.length; ai++) {
+          var extId = additionalItems[ai].external_id;
+          if (extId) addToCartBitrix(extId, bitrixConfig);
+        }
+      }
+    }
   }
 
 
