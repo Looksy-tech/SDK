@@ -1988,6 +1988,10 @@
             debugLog("PRESS_ADD_TO_CART_BTN: missing request_id");
             break;
           }
+          if (isGlenfieldAdapterRequested()) {
+            sendAddToCartResult(request_id, false, "buybtn_debug is disabled");
+            break;
+          }
           dispatchAddToCartRequest(payload || {}, request_id);
           break;
 
@@ -2257,8 +2261,8 @@
   // extendedProductData: extractExtendedProductData()
   //
   // The function reads data-adapter from the current script tag.
-  // If data-adapter="popnshop" it reads Bitrix/Intec product data.
-  // If data-adapter="glenfield" or ?glenfield_debug=true it reads the Glenfield product page.
+  // Popnshop keeps its existing adapter/debug behavior.
+  // Glenfield requires ?buybtn_debug=true before it starts collecting buy-button data.
   // If adapter is missing or extraction fails, it returns null.
   //
   // This block must stay isolated at the bottom of the file.
@@ -2276,6 +2280,18 @@
 
 
 
+  function isGlenfieldAdapterRequested() {
+    try {
+      return (
+        getLooksyAdapterName() === "glenfield" ||
+        new URLSearchParams(window.location.search).get("glenfield_debug") === "true"
+      );
+    } catch (error) {
+      return false;
+    }
+  }
+
+
   // Returns true when Popnshop should own the Bitrix adapter flow.
   function isPopnshopAdapterEnabled() {
     try {
@@ -2287,21 +2303,14 @@
       return false;
     }
   }
-  // Checks whether Glenfield mode is enabled through the script tag or URL.
-  function isGlenfieldAdapterEnabled() {
-    try {
-      return getLooksyAdapterName() === "glenfield" || new URLSearchParams(window.location.search).get("glenfield_debug") === "true";
-    } catch (error) {
-      return false;
-    }
-  }
+
 
 
   // Entry point for extended product data extraction.
   // Popnshop stays synchronous; Glenfield returns a Promise with fetched offers.
   function extractExtendedProductData() {
     try {
-      if (isGlenfieldAdapterEnabled()) {
+      if (isGlenfieldAdapterRequested()) {
         console.log("[Looksy][Glenfield] adapter enabled");
         return extract_Glenfield_ExtendedProductData().catch(() => null);
       }
@@ -2677,7 +2686,7 @@
     }, ADD_TO_CART_RESPONSE_TIMEOUT_MS);
 
     try {
-      if (isGlenfieldAdapterEnabled()) {
+      if (isGlenfieldAdapterRequested()) {
         perform_Glenfield_AddToCart(payload || {}, reply);
         return;
       }

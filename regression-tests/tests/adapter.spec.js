@@ -520,14 +520,14 @@ function expectGlenfieldExtendedProductData(product) {
   expect(product.extendedProductData.offers).toHaveLength(6);
 }
 
-test("@regression popnshop adapter sends extendedProductData", async ({ page }) => {
+test("@regression popnshop adapter sends extendedProductData without buybtn_debug", async ({ page }) => {
   await installAdapterRoutes(page);
   const product = await openFixtureAndReadProduct(page, "/adapter/bitrix-v1.html?offer=102");
 
   expectBitrixExtendedProductData(product);
 });
 
-test("@regression popnshop_debug=true sends extendedProductData without adapter", async ({ page }) => {
+test("@regression popnshop_debug=true sends extendedProductData without adapter or buybtn_debug", async ({ page }) => {
   await installAdapterRoutes(page);
   const product = await openFixtureAndReadProduct(
     page,
@@ -537,16 +537,23 @@ test("@regression popnshop_debug=true sends extendedProductData without adapter"
   expectBitrixExtendedProductData(product);
 });
 
-test("@regression Bitrix fixture without adapter or debug sends null extendedProductData", async ({ page }) => {
+test("@regression popnshop adapter still sends extendedProductData with buybtn_debug", async ({ page }) => {
+  await installAdapterRoutes(page);
+  const product = await openFixtureAndReadProduct(page, "/adapter/bitrix-v1.html?offer=102&buybtn_debug=true");
+
+  expectBitrixExtendedProductData(product);
+});
+
+test("@regression Bitrix fixture without adapter or buybtn_debug sends null extendedProductData", async ({ page }) => {
   await installAdapterRoutes(page);
   const product = await openFixtureAndReadProduct(page, "/adapter/no-adapter.html?offer=102");
 
   expect(product.extendedProductData).toBeNull();
 });
 
-test("@regression Glenfield debug adapter collects offers and routes add-to-cart", async ({ page }) => {
+test("@regression Glenfield debug adapter collects offers and blocks SDK add-to-cart with buybtn_debug", async ({ page }) => {
   await installAdapterRoutes(page);
-  await page.goto(`${LOCAL_ORIGIN}/adapter/glenfield-debug.html?glenfield_debug=true`, {
+  await page.goto(`${LOCAL_ORIGIN}/adapter/glenfield-debug.html?glenfield_debug=true&buybtn_debug=true`, {
     waitUntil: "domcontentloaded",
   });
 
@@ -588,9 +595,55 @@ test("@regression Glenfield debug adapter collects offers and routes add-to-cart
   await frame.waitForFunction(() => Boolean(document.body.dataset.addToCartResult));
   const addToCartResult = await frame.evaluate(() => JSON.parse(document.body.dataset.addToCartResult));
 
-  expect(addToCartResult.success).toBe(true);
-  expect(addToCartResult.message).toMatch(/Added to cart|Native add-to-cart clicked/);
-  await expect(page.locator("#cart_quality_top")).toHaveText("1");
+  expect(addToCartResult.success).toBe(false);
+  expect(addToCartResult.message).toBe("buybtn_debug is disabled");
+  await expect(page.locator("#cart_quality_top")).toHaveText("");
+});
+
+test("@regression Glenfield debug adapter collects offers and blocks SDK add-to-cart without buybtn_debug", async ({ page }) => {
+  await installAdapterRoutes(page);
+  let cartDataRequests = 0;
+
+  page.on("request", (request) => {
+    const requestUrl = new URL(request.url());
+    if (requestUrl.origin === LOCAL_ORIGIN && requestUrl.pathname === "/local/ajax/getCartData.php") {
+      cartDataRequests += 1;
+    }
+  });
+
+  await page.goto(`${LOCAL_ORIGIN}/adapter/glenfield-debug.html?glenfield_debug=true`, {
+    waitUntil: "domcontentloaded",
+  });
+
+  await page.waitForFunction(() => window.VirtualFitting && typeof window.VirtualFitting.init === "function");
+  await expect(page.locator(".virtual-fitting-button")).toHaveCount(1);
+  await page.locator(".virtual-fitting-button").click();
+
+  const iframeElement = await page.locator("#virtual-fitting-iframe").elementHandle();
+  const frame = await iframeElement.contentFrame();
+  await frame.waitForFunction(() => document.body.dataset.product && document.body.dataset.product !== "null");
+
+  const product = await frame.evaluate(() => JSON.parse(document.body.dataset.product));
+  expectGlenfieldExtendedProductData(product);
+  expect(cartDataRequests).toBe(6);
+
+  await frame.evaluate(() => {
+    window.parent.postMessage(
+      {
+        source: "looksy-widget",
+        type: "PRESS_ADD_TO_CART_BTN",
+        request_id: "glenfield-add-to-cart-disabled",
+        payload: { offer_id: "496085", values: { SIZE: "68", COLOR: "2022" } },
+      },
+      "*",
+    );
+  });
+
+  await frame.waitForFunction(() => Boolean(document.body.dataset.addToCartResult));
+  const addToCartResult = await frame.evaluate(() => JSON.parse(document.body.dataset.addToCartResult));
+  expect(addToCartResult.success).toBe(false);
+  expect(addToCartResult.message).toBe("buybtn_debug is disabled");
+  await expect(page.locator("#cart_quality_top")).toHaveText("");
 });
 
 test("@regression one SDK instance handles multiple product buttons", async ({ page }) => {
