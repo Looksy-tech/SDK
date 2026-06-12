@@ -1965,11 +1965,65 @@
     return false;
   }
 
+  function detectBitrixCartConfig() {
+    // Ищем request.php в performance entries — он вызывается при загрузке корзины на странице
+    try {
+      var entries = window.performance && window.performance.getEntriesByType("resource");
+      if (entries) {
+        for (var i = 0; i < entries.length; i++) {
+          var u = entries[i].name || "";
+          var idx = u.indexOf("/request.php");
+          if (idx === -1) continue;
+          var base = u.substring(0, idx + "/request.php".length);
+          var qs = u.indexOf("?") !== -1 ? u.substring(u.indexOf("?") + 1) : "";
+          var siteId = "";
+          var templateId = "";
+          qs.split("&").forEach(function(p) {
+            var kv = p.split("=");
+            if (kv[0] === "siteId") siteId = decodeURIComponent(kv[1] || "");
+            if (kv[0] === "templateId") templateId = decodeURIComponent(kv[1] || "");
+          });
+          if (siteId && templateId) {
+            return { url: base, siteId: siteId, templateId: templateId };
+          }
+        }
+      }
+    } catch (e) {}
+    return null;
+  }
+
+  function addToCartBitrix(productId, config) {
+    var formData = new FormData();
+    formData.append("actions[0][name]", "basket.add");
+    formData.append("actions[0][data][quantity]", "0");
+    formData.append("actions[0][data][price]", "1");
+    formData.append("actions[0][data][additional]", "true");
+    formData.append("actions[0][data][id]", String(productId));
+    var url = config.url + "?siteId=" + encodeURIComponent(config.siteId) + "&templateId=" + encodeURIComponent(config.templateId);
+    return fetch(url, { method: "POST", credentials: "same-origin", body: formData })
+      .then(function(r) { return r.ok; })
+      .catch(function() { return false; });
+  }
+
   function handleAddToCart(offerId, additionalItems) {
     if (window.VirtualFitting && typeof window.VirtualFitting.onAddToCart === "function") {
       return window.VirtualFitting.onAddToCart(offerId, additionalItems);
     }
     var success = tryClickAddToCartButton(offerId);
+
+    if (additionalItems && additionalItems.length) {
+      var bitrixConfig = detectBitrixCartConfig();
+      for (var i = 0; i < additionalItems.length; i++) {
+        var extId = additionalItems[i].external_id;
+        if (!extId) continue;
+        if (bitrixConfig) {
+          addToCartBitrix(extId, bitrixConfig);
+        } else {
+          tryClickAddToCartButton(extId);
+        }
+      }
+    }
+
     window.dispatchEvent(new CustomEvent("looksy:additional-items", { detail: { items: additionalItems } }));
     window.dispatchEvent(new CustomEvent("looksy:add-to-cart", { detail: { offer_id: offerId, additional_items: additionalItems, success: success } }));
     return success;
