@@ -1,0 +1,30 @@
+.modal{
+    background-color: #FFFFFF;
+    max-width: 100%;
+}
+.modal__head{
+    margin-bottom: 45px;
+}
+.modal__title{
+    font-size: 24px;
+    line-hight: 26px;
+    font-weight: bold;
+    text-align: center;
+}
+.modal__actions{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.modal__action + .modal__action {
+    margin-left: 40px;
+}
+.modal_basket-remove{
+    width: 550px;
+    padding: 85px 70px;
+}
+@media only screen and (max-width: 480px){
+    .modal_basket-remove{
+        padding: 50px 20px 30px 20px;
+    }
+}

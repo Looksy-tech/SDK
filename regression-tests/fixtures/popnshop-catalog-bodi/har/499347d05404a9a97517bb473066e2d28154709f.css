@@ -1,0 +1,118 @@
+.bxmaker-authid-yandexbutton {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  position: relative;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+.bxmaker-authid-yandexbutton svg {
+  display: -webkit-inline-box;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  -ms-flex-negative: 0;
+      flex-shrink: 0;
+}
+.bxmaker-authid-yandexbutton__text {
+  font-weight: 500;
+  -webkit-box-flex: 1;
+      -ms-flex-positive: 1;
+          flex-grow: 1;
+  display: -webkit-inline-box;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+}
+.bxmaker-authid-yandexbutton--light.bxmaker-authid-yandexbutton--main {
+  background: #000;
+  color: #fff;
+}
+.bxmaker-authid-yandexbutton--light.bxmaker-authid-yandexbutton--additional {
+  background: #fff;
+  color: #000;
+  border: 1px solid #000;
+}
+.bxmaker-authid-yandexbutton--dark.bxmaker-authid-yandexbutton--main {
+  background: #fff;
+  color: #000;
+}
+.bxmaker-authid-yandexbutton--dark.bxmaker-authid-yandexbutton--additional {
+  background: #000;
+  color: #fff;
+}
+.bxmaker-authid-yandexbutton--xs {
+  height: 36px;
+  min-width: 170px;
+  padding: 8px 10px;
+  font-size: 14px;
+  line-height: 18px;
+}
+.bxmaker-authid-yandexbutton--xs svg {
+  width: 18px;
+  height: 18px;
+}
+.bxmaker-authid-yandexbutton--s {
+  height: 40px;
+  min-width: 172px;
+  padding: 9px 11px;
+  font-size: 14px;
+  line-height: 18px;
+}
+.bxmaker-authid-yandexbutton--s svg {
+  width: 20px;
+  height: 20px;
+}
+.bxmaker-authid-yandexbutton--m {
+  height: 44px;
+  min-width: 196px;
+  padding: 10px 12px;
+  font-size: 16px;
+  line-height: 20px;
+}
+.bxmaker-authid-yandexbutton--m svg {
+  width: 22px;
+  height: 22px;
+}
+.bxmaker-authid-yandexbutton--l {
+  height: 48px;
+  min-width: 200px;
+  padding: 11px 13px;
+  font-size: 16px;
+  line-height: 20px;
+}
+.bxmaker-authid-yandexbutton--l svg {
+  width: 24px;
+  height: 24px;
+}
+.bxmaker-authid-yandexbutton--xl {
+  height: 52px;
+  min-width: 210px;
+  padding: 14px;
+  font-size: 16px;
+  line-height: 20px;
+}
+.bxmaker-authid-yandexbutton--xl svg {
+  width: 24px;
+  height: 24px;
+}
+.bxmaker-authid-yandexbutton--xxl {
+  height: 56px;
+  min-width: 220px;
+  padding: 14px 16px;
+  font-size: 16px;
+  line-height: 20px;
+}
+.bxmaker-authid-yandexbutton--xxl svg {
+  width: 26px;
+  height: 26px;
+}

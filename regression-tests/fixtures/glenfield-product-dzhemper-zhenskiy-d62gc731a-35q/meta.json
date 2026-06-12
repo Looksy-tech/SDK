@@ -1,0 +1,15 @@
+{
+  "name": "glenfield-product-dzhemper-zhenskiy-d62gc731a-35q",
+  "sourceUrl": "https://glenfield.ru/catalog/women/dzhempery/dzhemper-zhenskiy_D62GC731A-35Q_main_496082/",
+  "capturedAt": "2026-06-11T12:45:27.258Z",
+  "script": {
+    "src": "/bitrix/js/yandex.metrika/script.js?17346084426603",
+    "attrs": {}
+  },
+  "viewports": [
+    "desktop",
+    "mobile"
+  ],
+  "clickButtons": [],
+  "notes": "Real Glenfield / Bitrix product page. Static fixture checks button placement; widget click is skipped because isolated replay does not preserve Bitrix runtime state."
+}

@@ -1,0 +1,18 @@
+{
+  "name": "ettoplus-product-futbolka-777",
+  "sourceUrl": "https://ettoplus.ru/product/futbolka-ettoplyus-razmer-52-60-art-777/",
+  "capturedAt": "2026-06-06T23:36:07.229Z",
+  "script": {
+    "src": "https://looksy.tech/min-script.js",
+    "attrs": {
+      "data-shop-token": "50c40d51-309c-447a-bad3-197ca06d63ba",
+      "data-debug": "true"
+    }
+  },
+  "viewports": [
+    "desktop",
+    "mobile"
+  ],
+  "clickButtons": [],
+  "notes": "Real ETTOPLUS product page. Static fixture checks button placement; widget click is skipped because isolated replay cannot collect stable product data on this page yet."
+}

@@ -1,0 +1,224 @@
+html,body {
+	font-size: 16px;
+}
+h1,h2,h3,h4,h5 {
+	font-weight: bold;
+}
+h1,h2 {
+	font-family: "Exo 2";
+}
+
+h3,h4,h5 {
+	font-family: "Exo 2";
+
+}
+
+h1 {font-size:2rem;}
+h2 {font-size:1.625rem;}
+h3 {font-size:1.5rem;}
+h4 {font-size:1.125rem;}
+h5 {font-size:1rem;}
+	
+p {
+	font-size: 0.875rem;
+}
+
+a {
+	font-size: 0.8125rem;
+	/*text-decoration: underline;*/
+}
+
+dl {
+	padding-left: 70px;
+	counter-reset: dl_list;
+	margin-bottom: 40px;
+}
+dt,dd {
+	font-size: 0.875rem;
+	line-height: 1.57;
+}
+dt {
+	margin-bottom: 5px;
+	position: relative;
+}
+dt:before {
+	counter-increment: dl_list; /* Увеличиваем значение счетчика */
+    content: counter(dl_list) "."; /* Выводим число */
+    position: absolute;
+    left: -75px;
+    text-align: right;
+    width: 70px;
+}
+dd {
+	margin-bottom: 20px;
+}
+
+ul.list {
+	list-style-type: none;
+	padding-left: 20px;
+	font-size: 0.875rem;
+}
+ul.list>li {
+	position: relative;
+}
+ul.list>li:before {
+	content: '\2014';
+	position: absolute;
+	left: -25px;
+    text-align: right;
+    width: 20px;
+}
+ol>li {
+	font-size: 0.875rem;
+}
+img {
+	max-width: 100%;
+}
+.content-page img,
+.content-page p + h1,
+.content-page p + h2,
+.content-page p + h3 {
+	margin-top: 60px;
+	margin-bottom: 50px;
+}
+.content-page p + h4,
+.content-page p + h5 {
+	margin-top: 40px;
+	margin-bottom: 30px;
+}
+.content-page p + dl {
+	margin-top: 40px;
+}
+.content-page p + ul.list {
+	margin-top: 30px;
+}
+.img_full {
+	width: 100%;
+}
+
+.img_half {
+	float: left;
+	width: 48.33%;
+	margin-left: 0.835%;
+	margin-right: 0.835%;
+}
+
+.img_half,
+.img_half + .p_half {
+	margin-top: 60px;
+}
+
+.p_half {
+	width: 43%;
+	float: left;
+	margin-left: 7%;
+}
+.p_half + *:before {
+	display: table;
+	content: '';
+	clear: both;
+}
+
+table {
+	margin-bottom: 55px;
+	margin-top: 60px;
+	width: 100%;
+	text-align: center;
+}
+thead {
+	background-color: #202427;
+	color: #fff;
+	font-weight: bold;
+	font-size: 0.875rem;
+}
+thead tr {
+	height: 70px;
+}
+tbody {
+	font-size: 0.875rem;	
+	color: #202427;
+}
+tbody tr {
+	border-bottom: 1px solid #e7e6e6;
+	height: 85px;
+}
+td {
+	padding: 0 5px;
+	line-height: 1.5;
+}
+
+@media screen and (max-width: 767px) {
+	h1 {font-size: 1.5rem;}
+	h2 {font-size: 1.125rem;}
+	h3 {font-size: 1rem;}
+	p {font-size: 0.8125rem;}
+	a {font-size: 0.6875rem;}
+	.content-page p + h1,
+	.content-page p + h2,
+	.content-page p + h3 {
+		margin-bottom: 25px;
+	}
+	.content-page p + h1 {
+		margin-top: 50px;
+	}
+	.content-page p + h2,
+	.content-page p + h3 {
+		margin-top: 45px;
+	}
+	ul.list.list>li,dt,dd {
+		font-size: 0.8125rem;
+	}
+	p + ul.list {
+		margin-top: 25px;
+	}
+	.content-page img,
+	.img_half,
+	.img_half + .p_half {
+		margin-top: 40px;
+	}
+	table {
+		margin-top: 40px;
+		margin-bottom: 35px;
+	}
+
+}
+@media screen and (max-width: 570px) {
+	.img_half {
+		width: 100%;
+		margin-left: 0;
+		margin-right: 0;
+	}
+	.p_half {
+		width: 100%;
+		margin-left: 0;
+	}
+	dl,ul.list {
+		padding-left: 30px;
+	}
+	.content-page img,
+	.img_half,
+	.img_half + .p_half {
+		margin-top: 20px;
+	}
+	.content-page img {
+		margin-bottom: 15px;
+	}
+	thead {
+		font-size: 0.6875rem;
+	}
+	tbody {
+		font-size: 0.8125rem;
+	}
+}
+@media screen and (max-width: 480px) {
+	ol {
+		padding-left: 15px;
+	}
+}
+@media screen and (max-width: 340px) {
+	h1 {font-size: 1.125rem;}
+	h2 {font-size: 1rem;}
+	h3 {font-size: 0.875rem;}
+	p {font-size: 0.8125rem;}
+	a {font-size: 0.6875rem;}
+}

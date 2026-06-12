@@ -1,0 +1,150 @@
+.ns-bitrix.c-form-result-new.c-form-result-new-template-1 {
+  display: block;
+  overflow: hidden;
+}
+.ns-bitrix.c-form-result-new.c-form-result-new-template-1 .form-result-new-message,
+.ns-bitrix.c-form-result-new.c-form-result-new-template-1 .form-result-new-description {
+  display: block;
+  font-size: 12px;
+  line-height: 1.5;
+  margin-bottom: 25px;
+}
+.ns-bitrix.c-form-result-new.c-form-result-new-template-1 .form-result-new-message p,
+.ns-bitrix.c-form-result-new.c-form-result-new-template-1 .form-result-new-description p {
+  margin: 0;
+}
+.ns-bitrix.c-form-result-new.c-form-result-new-template-1 .form-result-new-message font,
+.ns-bitrix.c-form-result-new.c-form-result-new-template-1 .form-result-new-description font {
+  color: inherit !important;
+}
+.ns-bitrix.c-form-result-new.c-form-result-new-template-1 .form-result-new-message.form-result-new-message-note {
+  font-size: 14px;
+  margin-top: 20px;
+  margin-bottom: 0;
+}
+.ns-bitrix.c-form-result-new.c-form-result-new-template-1 .form-result-new-message-note-icon {
+  line-height: 0;
+}
+.ns-bitrix.c-form-result-new.c-form-result-new-template-1 .form-result-new-message-note-text {
+  font-weight: normal;
+  font-size: 15px;
+  line-height: 18px;
+  color: #404040;
+}
+.ns-bitrix.c-form-result-new.c-form-result-new-template-1 .form-result-new-message-note-buttons {
+  display: none;
+  margin-top: 38px;
+}
+.ns-bitrix.c-form-result-new.c-form-result-new-template-1 .form-result-new-message-note-button {
+  padding: 15px 24px;
+  border-radius: 2px;
+  font-weight: 600;
+  font-size: 10px;
+  line-height: 10px;
+  text-align: center;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #fff;
+}
+.ns-bitrix.c-form-result-new.c-form-result-new-template-1 .form-result-new-fields {
+  display: block;
+  margin-top: 8px;
+}
+.ns-bitrix.c-form-result-new.c-form-result-new-template-1 .form-result-new-fields + .form-result-new-buttons {
+  margin-top: 37px;
+}
+.ns-bitrix.c-form-result-new.c-form-result-new-template-1 .form-result-new-field {
+  display: block;
+  margin-top: 24px;
+  padding: 0;
+}
+.ns-bitrix.c-form-result-new.c-form-result-new-template-1 .form-result-new-field-content > input.intec-ui-control-input {
+  min-height: 48px;
+  padding: 17px 0 17px 16px;
+  font-weight: normal;
+  font-size: 14px;
+  line-height: 14px;
+  color: #404040;
+  background: #FBFCFD;
+  border: 1px solid #F2F2F2;
+}
+.ns-bitrix.c-form-result-new.c-form-result-new-template-1 .form-result-new-field-content > textarea.intec-ui-control-input {
+  min-height: 144px;
+  resize: none;
+  background: #FBFCFD;
+  border: 1px solid #F2F2F2;
+  font-size: 14px;
+  line-height: 14px;
+  color: #404040;
+  padding: 17px 16px;
+}
+.ns-bitrix.c-form-result-new.c-form-result-new-template-1 .form-result-new-captcha-image img {
+  width: 180px;
+  height: 40px;
+}
+.ns-bitrix.c-form-result-new.c-form-result-new-template-1 .form-result-new-consent {
+  margin: 37px 0;
+}
+.ns-bitrix.c-form-result-new.c-form-result-new-template-1 .form-result-new-consent .intec-ui-part-selector {
+  width: 50px;
+  height: 28px;
+  border-radius: 16px;
+  background: #E8E8E8;
+  border-color: #E8E8E8;
+}
+.ns-bitrix.c-form-result-new.c-form-result-new-template-1 .form-result-new-consent .intec-ui.intec-ui-control-switch input:checked + .intec-ui-part-selector:before {
+  left: 28px;
+}
+.ns-bitrix.c-form-result-new.c-form-result-new-template-1 .form-result-new-consent .intec-ui-part-selector:before {
+  width: 16px;
+  height: 16px;
+  top: 50%;
+  left: 6px;
+  transform: translateY(-50%);
+  box-shadow: 0 6px 4px rgba(27, 30, 37, 0.12);
+}
+.ns-bitrix.c-form-result-new.c-form-result-new-template-1 .form-result-new-consent .intec-ui-part-content {
+  font-weight: normal;
+  font-size: 13px;
+  line-height: 18px;
+  color: #808080;
+  padding-left: 16px;
+}
+.ns-bitrix.c-form-result-new.c-form-result-new-template-1 .form-result-new-buttons .intec-ui-control-button {
+  padding: 23px 56px;
+  font-weight: 600;
+  font-size: 10px;
+  line-height: 10px;
+  text-align: center;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #FFFFFF;
+  border-radius: 2px;
+}
+.ns-bitrix.c-form-result-new.c-form-result-new-template-1 .form-result-new-buttons .intec-ui-control-button[disabled] {
+  background-color: #CCCCCC;
+  border-color: #CCCCCC;
+  cursor: not-allowed;
+}
+@media all and (max-width: 600px) {
+  .ns-bitrix.c-form-result-new.c-form-result-new-template-1 .form-result-new-field {
+    padding: 0;
+    padding-bottom: 16px;
+    margin: 0;
+  }
+  .ns-bitrix.c-form-result-new.c-form-result-new-template-1 .form-result-new-fields {
+    margin-top: 0;
+  }
+  .ns-bitrix.c-form-result-new.c-form-result-new-template-1 .form-result-new-field-content > input.intec-ui-control-input {
+    padding: 9px 18px;
+    font-weight: normal;
+    font-size: 13px;
+    line-height: 28px;
+    letter-spacing: 0.75px;
+    color: #404040;
+    border: 1px solid #F2F2F2;
+    border-radius: 2px;
+  }
+}
+
+/*# sourceMappingURL=style.css.map */

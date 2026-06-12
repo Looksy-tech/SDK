@@ -1,0 +1,134 @@
+:root {
+  --bxmaker-authud-sberid-bg-color: #21a038;
+  --bxmaker-authud-sberid-bg-color-hover: #1e9032;
+  --bxmaker-authud-sberid-bg-color-active: #1e9032;
+  --bxmaker-authud-sberid-bg-color-disabled: #1e9032;
+  --bxmaker-authud-sberid-brd-color: #21a038;
+  --bxmaker-authud-sberid-brd-color-loading: #21a038;
+  --bxmaker-authud-sberid-brd-color-hover: #1e9032;
+  --bxmaker-authud-sberid-brd-color-active: #1e9032;
+  --bxmaker-authud-sberid-fill-color: #fff;
+  --bxmaker-authud-sberid-text-color: #fff;
+  --bxmaker-authud-sberid-brd-width: 1px;
+  --bxmaker-authud-sberid-brd-radius: 12px;
+}
+.bxmaker-authid-sberidbutton[data-theme=light] {
+  --bxmaker-authud-sberid-bg-color: #fff;
+  --bxmaker-authud-sberid-bg-color-hover: rgba(33,160,56,0.05);
+  --bxmaker-authud-sberid-bg-color-active: rgba(33,160,56,0.05);
+  --bxmaker-authud-sberid-bg-color-disabled: #fff;
+  --bxmaker-authud-sberid-brd-color: #767676;
+  --bxmaker-authud-sberid-brd-color-loading: #bababa;
+  --bxmaker-authud-sberid-brd-color-hover: #21a038;
+  --bxmaker-authud-sberid-brd-color-active: #21a038;
+  --bxmaker-authud-sberid-fill-color: #21a038;
+  --bxmaker-authud-sberid-text-color: #000;
+}
+.bxmaker-authid-sberidbutton[data-size=lg] {
+  --bxmaker-authud-sberid-padding: 14px 39px;
+  --bxmaker-authud-sberid-font-size: 14px;
+  --bxmaker-authud-sberid-line-height: 18px;
+  --bxmaker-authud-sberid-height: 48px;
+  --bxmaker-authud-sberid-logo-size: 22px;
+}
+.bxmaker-authid-sberidbutton[data-size=md] {
+  --bxmaker-authud-sberid-padding: 10px 39px;
+  --bxmaker-authud-sberid-font-size: 14px;
+  --bxmaker-authud-sberid-line-height: 18px;
+  --bxmaker-authud-sberid-height: 40px;
+  --bxmaker-authud-sberid-logo-size: 22px;
+}
+.bxmaker-authid-sberidbutton[data-size=sm] {
+  --bxmaker-authud-sberid-padding: 6px 39px;
+  --bxmaker-authud-sberid-font-size: 14px;
+  --bxmaker-authud-sberid-line-height: 18px;
+  --bxmaker-authud-sberid-height: 32px;
+  --bxmaker-authud-sberid-logo-size: 16px;
+}
+.bxmaker-authid-sberidbutton[data-size=xl] {
+  --bxmaker-authud-sberid-padding: 17px 39px;
+  --bxmaker-authud-sberid-font-size: 16px;
+  --bxmaker-authud-sberid-line-height: 20px;
+  --bxmaker-authud-sberid-height: 56px;
+  --bxmaker-authud-sberid-logo-size: 26px;
+}
+.bxmaker-authid-sberidbutton[data-size=xs] {
+  --bxmaker-authud-sberid-padding: 5px 39px;
+  --bxmaker-authud-sberid-font-size: 14px;
+  --bxmaker-authud-sberid-line-height: 16px;
+  --bxmaker-authud-sberid-height: 28px;
+  --bxmaker-authud-sberid-logo-size: 16px;
+}
+.bxmaker-authid-sberidbutton[data-size=xxl] {
+  --bxmaker-authud-sberid-padding: 21px 39px;
+  --bxmaker-authud-sberid-font-size: 16px;
+  --bxmaker-authud-sberid-line-height: 20px;
+  --bxmaker-authud-sberid-height: 64px;
+  --bxmaker-authud-sberid-logo-size: 26px;
+}
+.bxmaker-authid-sberidbutton {
+  fill: var(--bxmaker-authud-sberid-fill-color);
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  background-color: var(--bxmaker-authud-sberid-bg-color);
+  border-color: var(--bxmaker-authud-sberid-brd-color);
+  border-radius: 12px;
+  border-style: solid;
+  border-width: 1px;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  color: var(--bxmaker-authud-sberid-text-color);
+  cursor: pointer;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  font-size: var(--bxmaker-authud-sberid-font-size);
+  height: var(--bxmaker-authud-sberid-height);
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  line-height: var(--bxmaker-authud-sberid-line-height);
+  max-height: 64px;
+  min-height: 28px;
+  min-width: 256px;
+  padding: var(--bxmaker-authud-sberid-padding);
+  position: relative;
+  -webkit-text-decoration: none;
+  text-decoration: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+   -ms-user-select: none;
+       user-select: none;
+}
+.bxmaker-authid-sberidbutton:hover,
+.bxmaker-authid-sberidbutton:focus {
+  background-color: var(--bxmaker-authud-sberid-bg-color-hover);
+  border-color: var(--bxmaker-authud-sberid-brd-color-hover);
+}
+.bxmaker-authid-sberidbutton:active {
+  background-color: var(--bxmaker-authud-sberid-bg-color-active);
+  border-color: var(--bxmaker-authud-sberid-brd-color-active);
+}
+.bxmaker-authid-sberidbutton[data-loading=true] {
+  opacity: 100%;
+  border-color: var(--bxmaker-authud-sberid-brd-color-loading);
+}
+.bxmaker-authid-sberidbutton__text {
+  font-family: SB Sans, Roboto, San Francisco, sans-serif;
+  font-size: var(--bxmaker-authud-sberid-font-size);
+  font-weight: 400;
+  -webkit-text-decoration: none;
+  text-decoration: none;
+}
+.bxmaker-authid-sberidbutton__logo {
+  width: var(--bxmaker-authud-sberid-logo-size);
+  height: var(--bxmaker-authud-sberid-logo-size);
+}
+.bxmaker-authid-sberidbutton__logo svg,
+.bxmaker-authid-sberidbutton__logo svg path {
+  fill: var(--bxmaker-authud-sberid-fill-color);
+}
+.bxmaker-authid-sberidbutton__logo+.bxmaker-authid-sberidbutton__text {
+  margin-left: 8px;
+}

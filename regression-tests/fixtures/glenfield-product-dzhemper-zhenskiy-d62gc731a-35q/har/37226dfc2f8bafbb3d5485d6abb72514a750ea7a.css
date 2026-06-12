@@ -1,0 +1,184 @@
+.collection-wrap {
+  margin-top: 83px; }
+
+.collection-wrap img {
+  width: 100%; }
+
+.collection-wrap .container {
+  padding: 0; }
+
+.clct-img-wrap:nth-of-type(2) {
+  top: 94px;
+  padding: 0 15px 0 15px;
+  position: relative; }
+
+.clct-img-wrap:nth-of-type(2):before {
+  content: '';
+  display: block;
+  position: absolute;
+  left: -29%;
+  top: 221px;
+  width: 100%;
+  height: 400px;
+  z-index: -1;
+  background: #F2F2F2; }
+
+.top_clct-desc {
+  color: #0E8845;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.135em; }
+
+.clct-img-wrap h3 {
+  font-family: 'Gotham Pro';
+  font-weight: 700;
+  font-size: 34px;
+  line-height: 1.235;
+  height: 31px;
+  margin-right: 0;
+  word-spacing: 4px;
+  letter-spacing: 0.01em;
+  position: relative;
+  left: -1px;
+  top: -1px; }
+
+p.clct-desc {
+  font-size: 14px;
+  width: 100%;
+  max-width: 453px;
+  line-height: 1.87;
+  margin-top: 45px;
+  margin-bottom: 58px; }
+
+.clct-img-wrap figcaption {
+  padding-top: 72px;
+  position: relative;
+  top: -86px;
+  background: #fff;
+  width: -webkit-calc(100% - 12.9%);
+  width: calc(100% - 12.9%);
+  padding-left: 102px; }
+
+.collection-wrap.clct-2 figcaption {
+  left: -1px; }
+
+.clct-img-wrap .but-green {
+  margin-bottom: 64px; }
+
+.collection-wrap.clct-2 .but-green {
+  width: 210px;
+  margin-left: -3px;
+  letter-spacing: 1.5px;
+  margin-top: -1px;
+  padding: 20px 50px 30px 30px; }
+
+.collection-wrap.clct-2 .but-green:hover, .collection-wrap.clct-2 .but-green:active, .collection-wrap.clct-2 .but-green:focus {
+  padding: 19px 49px 28px 29px; }
+
+.collection-wrap.clct-3 {
+  margin-top: 150px;
+  padding-top: 125px;
+  padding-bottom: 150px; }
+
+.collection-wrap.clct-2 .clct-img-wrap:first-child {
+  padding: 0 15px; }
+
+.collection-wrap.clct-3 .clct-img-wrap:nth-of-type(2) {
+  top: -124px;
+  margin-top: 0;
+  position: relative;
+  right: 15px;
+  padding: 0; }
+
+.collection-wrap.clct-3 .clct-img-wrap:nth-of-type(2):before {
+  display: none; }
+
+.collection-wrap.clct-3 .clct-img-wrap {
+  position: relative; }
+
+.collection-wrap.clct-3 .clct-img-wrap:nth-of-type(1) {
+  padding: 0;
+  position: relative;
+  left: 15px; }
+
+.collection-wrap.clct-3 .clct-img-wrap:nth-of-type(3) {
+  padding-left: 0; }
+
+.collection-wrap.clct-3 .clct-img-wrap:nth-of-type(1):before {
+  content: '';
+  display: block;
+  position: absolute;
+  left: 50%;
+  top: -61px;
+  width: 100%;
+  height: 281px;
+  max-width: 553px;
+  z-index: -1;
+  background: #F2F2F2; }
+
+.collection-wrap.clct-3 figcaption {
+  padding-top: 76px;
+  padding-bottom: 76px;
+  position: absolute;
+  top: inherit;
+  max-width: 652px;
+  padding-left: 96px;
+  bottom: -437px;
+  right: -webkit-calc(-46% - 2px);
+  right: calc(-46% - 2px);
+  background: #F1F1F1;
+  z-index: 1; }
+
+.collection-wrap.clct-3 h3 {
+  letter-spacing: 0.019em;
+  position: relative;
+  top: -1px;
+  text-indent: 1.6px;
+  word-spacing: 2px; }
+
+.collection-wrap.clct-3 p.clct-desc {
+  letter-spacing: 0.015em;
+  max-width: 440px;
+  margin-bottom: 56px; }
+
+.collection-wrap.clct-3 .clct-img-wrap:nth-of-type(3) {
+  margin-top: 59px;
+  padding-left: 15px; }
+
+.collection-wrap.clct-3 .clct-img-wrap .but-green {
+  width: 180px;
+  letter-spacing: 1.4px;
+  top: 1px; }
+
+.collection-wrap.clct-3 .clct-img-wrap .but-green:hover,
+.collection-wrap.clct-3 .clct-img-wrap .but-green:active,
+.collection-wrap.clct-3 .clct-img-wrap .but-green:focus {
+  padding: 19px 49px 28px 29px; }
+
+.carousel-inner .item {
+  overflow: hidden; }
+
+.collection-wrap.clct-2 .clct-img-wrap:nth-of-type(1) .img-block {
+  padding: 33.5%;
+  -webkit-background-size: 143% 143%;
+          background-size: 143%;
+  background-position: 55% 4%; }
+
+.collection-wrap.clct-2 .clct-img-wrap:nth-of-type(2) .img-block {
+  padding: 73.3% 50%;
+  -webkit-background-size: 122% 122%;
+          background-size: 122%;
+  background-position: 25% 14%; }
+
+.collection-wrap.clct-3 .clct-img-wrap:nth-of-type(1) .img-block {
+  padding: 28.2% 50%;
+  background-position: 25% 13%; }
+
+.collection-wrap.clct-3 .clct-img-wrap:nth-of-type(2) .img-block {
+  padding: 73.3% 50%;
+  background-position: 13% 10%; }
+
+.collection-wrap.clct-3 .clct-img-wrap:nth-of-type(3) .img-block {
+  padding: 73% 50%;
+  background-position: 93% 33%; }

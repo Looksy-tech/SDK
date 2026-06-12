@@ -1,0 +1,502 @@
+.bxmaker-authuserphone-enter {
+  font-size: 16px;
+  display: inline-block;
+  padding: 32px 32px;
+  -webkit-box-shadow: 0 1px 8px 0 rgba(0,0,0,0.15);
+          box-shadow: 0 1px 8px 0 rgba(0,0,0,0.15);
+  border-radius: 2px;
+  width: 370px;
+  color: #000;
+  background-color: #fff;
+  position: relative;
+}
+.bxmaker-authuserphone-enter,
+.bxmaker-authuserphone-enter * {
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+}
+.bxmaker-authuserphone-enter__change-confirm {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  margin-top: 32px;
+}
+.bxmaker-authuserphone-enter__authtype {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  margin-top: 32px;
+}
+.bxmaker-authuserphone-enter .bxmaker-authuserphone-captcha__img {
+  margin-bottom: 0;
+}
+@media (max-width: 400px) {
+  .bxmaker-authuserphone-enter {
+    max-width: 100%;
+    padding: 16px;
+  }
+}
+
+.bxmaker-authuserphone-enter-auth__title {
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  margin-bottom: 24px;
+  font-size: 18px;
+}
+.bxmaker-authuserphone-enter-auth__toregistration,
+.bxmaker-authuserphone-enter-auth__change-confirm,
+.bxmaker-authuserphone-enter-auth__back {
+  text-align: center;
+  margin-top: 24px;
+}
+
+.bxmaker-authuserphone-enter-reg__title {
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  margin-bottom: 24px;
+  font-size: 18px;
+}
+.bxmaker-authuserphone-enter-reg__toauth {
+  text-align: center;
+  margin-top: 24px;
+}
+.bxmaker-authuserphone-enter-reg__change-confirm {
+  text-align: center;
+  margin-top: 24px;
+}
+
+
+.bxmaker-authuserphone-enter-smscode {
+  display: block;
+}
+.bxmaker-authuserphone-enter-smscode__notice {
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+.bxmaker-authuserphone-enter-smscode__phone {
+  display: inline-block;
+}
+.bxmaker-authuserphone-enter-smscode__send {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+}
+.bxmaker-authuserphone-enter-smscode__send .bxmaker-authuserphone-enter-smscode__send-loader {
+  color: #939aa1;
+}
+.bxmaker-authuserphone-enter-smscode .bxmaker-authuserphone-message,
+.bxmaker-authuserphone-enter-smscode .bxmaker-authuserphone-header {
+  margin-bottom: 24px;
+}
+.bxmaker-authuserphone-enter-smscode .bxmaker-authuserphone-input-code,
+.bxmaker-authuserphone-enter-smscode .bxmaker-authuserphone-captcha {
+  margin-bottom: 24px;
+}
+.bxmaker-authuserphone-enter-smscode .bxmaker-authuserphone-captcha .bxmaker-authuserphone-input {
+  margin-bottom: 0;
+}
+
+.bxmaker-authuserphone-enter-usercall {
+  display: block;
+}
+.bxmaker-authuserphone-enter-usercall__notice {
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+.bxmaker-authuserphone-enter-usercall__phone {
+  display: inline-block;
+}
+.bxmaker-authuserphone-enter-usercall__start {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  margin-bottom: 32px;
+}
+.bxmaker-authuserphone-enter-usercall__start .bxmaker-authuserphone-enter-usercall__start-loader {
+  color: #939aa1;
+}
+.bxmaker-authuserphone-enter-usercall .bxmaker-authuserphone-message,
+.bxmaker-authuserphone-enter-usercall .bxmaker-authuserphone-header,
+.bxmaker-authuserphone-enter-usercall .bxmaker-authuserphone-captcha,
+.bxmaker-authuserphone-enter-usercall .bxmaker-authuserphone-timeout {
+  margin-bottom: 24px;
+}
+.bxmaker-authuserphone-enter-usercall .bxmaker-authuserphone-usercallto {
+  margin-bottom: 16px;
+}
+.bxmaker-authuserphone-enter-usercall .bxmaker-authuserphone-captcha .bxmaker-authuserphone-input {
+  margin-bottom: 0;
+}
+
+.bxmaker-authuserphone-enter-botcall {
+  display: block;
+}
+.bxmaker-authuserphone-enter-botcall__notice {
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+.bxmaker-authuserphone-enter-botcall__phone {
+  display: inline-block;
+}
+.bxmaker-authuserphone-enter-botcall__send {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+}
+.bxmaker-authuserphone-enter-botcall__send .bxmaker-authuserphone-enter-botcall__send-loader {
+  color: #939aa1;
+}
+.bxmaker-authuserphone-enter-botcall .bxmaker-authuserphone-message,
+.bxmaker-authuserphone-enter-botcall .bxmaker-authuserphone-header {
+  margin-bottom: 24px;
+}
+.bxmaker-authuserphone-enter-botcall .bxmaker-authuserphone-input-code,
+.bxmaker-authuserphone-enter-botcall .bxmaker-authuserphone-captcha {
+  margin-bottom: 24px;
+}
+.bxmaker-authuserphone-enter-botcall .bxmaker-authuserphone-captcha .bxmaker-authuserphone-input {
+  margin-bottom: 0;
+}
+
+.bxmaker-authuserphone-enter-botspeech {
+  display: block;
+}
+.bxmaker-authuserphone-enter-botspeech__notice {
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+.bxmaker-authuserphone-enter-botspeech__phone {
+  display: inline-block;
+}
+.bxmaker-authuserphone-enter-botspeech__send {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+}
+.bxmaker-authuserphone-enter-botspeech__send .bxmaker-authuserphone-enter-botspeech__send-loader {
+  color: #939aa1;
+}
+.bxmaker-authuserphone-enter-botspeech .bxmaker-authuserphone-message,
+.bxmaker-authuserphone-enter-botspeech .bxmaker-authuserphone-header {
+  margin-bottom: 24px;
+}
+.bxmaker-authuserphone-enter-botspeech .bxmaker-authuserphone-input-code,
+.bxmaker-authuserphone-enter-botspeech .bxmaker-authuserphone-captcha {
+  margin-bottom: 24px;
+}
+.bxmaker-authuserphone-enter-botspeech .bxmaker-authuserphone-captcha .bxmaker-authuserphone-input {
+  margin-bottom: 0;
+}
+
+.bxmaker-authuserphone-enter-telegramcode {
+  display: block;
+}
+.bxmaker-authuserphone-enter-telegramcode__notice {
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+.bxmaker-authuserphone-enter-telegramcode__phone {
+  display: inline-block;
+}
+.bxmaker-authuserphone-enter-telegramcode__send {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+}
+.bxmaker-authuserphone-enter-telegramcode__send .bxmaker-authuserphone-enter-telegramcode__send-loader {
+  color: #939aa1;
+}
+.bxmaker-authuserphone-enter-telegramcode .bxmaker-authuserphone-message,
+.bxmaker-authuserphone-enter-telegramcode .bxmaker-authuserphone-header {
+  margin-bottom: 24px;
+}
+.bxmaker-authuserphone-enter-telegramcode .bxmaker-authuserphone-input-code,
+.bxmaker-authuserphone-enter-telegramcode .bxmaker-authuserphone-captcha {
+  margin-bottom: 24px;
+}
+.bxmaker-authuserphone-enter-telegramcode .bxmaker-authuserphone-captcha .bxmaker-authuserphone-input {
+  margin-bottom: 0;
+}
+.bxmaker-authuserphone-enter-telegramcode .bxmaker-authuserphone-icon--telegram {
+  width: 1em;
+  height: 1em;
+  margin: 0 0.15em 0 0;
+  display: inline;
+}
+
+.bxmaker-authuserphone-enter-simpush {
+  display: block;
+}
+.bxmaker-authuserphone-enter-simpush__notice {
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+.bxmaker-authuserphone-enter-simpush__phone {
+  display: inline-block;
+}
+.bxmaker-authuserphone-enter-simpush__start {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  margin-bottom: 32px;
+}
+.bxmaker-authuserphone-enter-simpush__start .bxmaker-authuserphone-enter-simpush__start-loader {
+  color: #939aa1;
+}
+.bxmaker-authuserphone-enter-simpush .bxmaker-authuserphone-message,
+.bxmaker-authuserphone-enter-simpush .bxmaker-authuserphone-header,
+.bxmaker-authuserphone-enter-simpush .bxmaker-authuserphone-captcha,
+.bxmaker-authuserphone-enter-simpush .bxmaker-authuserphone-timeout {
+  margin-bottom: 24px;
+}
+.bxmaker-authuserphone-enter-simpush .bxmaker-authuserphone-captcha .bxmaker-authuserphone-input {
+  margin-bottom: 0;
+}
+
+.bxmaker-authuserphone-enter-maxbot {
+  display: block;
+}
+.bxmaker-authuserphone-enter-maxbot__notice {
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+.bxmaker-authuserphone-enter-maxbot__phone {
+  display: inline-block;
+}
+.bxmaker-authuserphone-enter-maxbot__link {
+  margin-bottom: 24px;
+  text-align: center;
+}
+.bxmaker-authuserphone-enter-maxbot__start {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  margin-bottom: 32px;
+}
+.bxmaker-authuserphone-enter-maxbot__start .bxmaker-authuserphone-enter-maxbot__start-loader {
+  color: #939aa1;
+}
+.bxmaker-authuserphone-enter-maxbot .bxmaker-authuserphone-message,
+.bxmaker-authuserphone-enter-maxbot .bxmaker-authuserphone-header,
+.bxmaker-authuserphone-enter-maxbot .bxmaker-authuserphone-captcha,
+.bxmaker-authuserphone-enter-maxbot .bxmaker-authuserphone-timeout {
+  margin-bottom: 24px;
+}
+.bxmaker-authuserphone-enter-maxbot .bxmaker-authuserphone-qrcode {
+  margin-bottom: 8px;
+}
+.bxmaker-authuserphone-enter-maxbot .bxmaker-authuserphone-captcha .bxmaker-authuserphone-input {
+  margin-bottom: 0;
+}
+
+.bxmaker-authuserphone-enter-auth-form {
+  display: block;
+}
+.bxmaker-authuserphone-enter-auth-form .bxmaker-authuserphone-header1,
+.bxmaker-authuserphone-enter-auth-form .bxmaker-authuserphone-header,
+.bxmaker-authuserphone-enter-auth-form .bxmaker-authuserphone-message,
+.bxmaker-authuserphone-enter-auth-form .bxmaker-authuserphone-captcha,
+.bxmaker-authuserphone-enter-auth-form .bxmaker-authuserphone-input,
+.bxmaker-authuserphone-enter-auth-form .bxmaker-authuserphone-input-password,
+.bxmaker-authuserphone-enter-auth-form .bxmaker-authuserphone-input-code,
+.bxmaker-authuserphone-enter-auth-form .bxmaker-authuserphone-input-phone {
+  margin-bottom: 24px;
+}
+.bxmaker-authuserphone-enter-auth-form .bxmaker-authuserphone-captcha .bxmaker-authuserphone-input {
+  margin-bottom: 0;
+}
+.bxmaker-authuserphone-enter-auth-form__by {
+  margin-top: 24px;
+  text-align: center;
+}
+
+.bxmaker-authuserphone-enter-auth-by-password-form {
+  display: block;
+}
+.bxmaker-authuserphone-enter-auth-by-password-form .bxmaker-authuserphone-header,
+.bxmaker-authuserphone-enter-auth-by-password-form .bxmaker-authuserphone-message,
+.bxmaker-authuserphone-enter-auth-by-password-form .bxmaker-authuserphone-captcha,
+.bxmaker-authuserphone-enter-auth-by-password-form .bxmaker-authuserphone-input,
+.bxmaker-authuserphone-enter-auth-by-password-form .bxmaker-authuserphone-input-password,
+.bxmaker-authuserphone-enter-auth-by-password-form .bxmaker-authuserphone-input-code,
+.bxmaker-authuserphone-enter-auth-by-password-form .bxmaker-authuserphone-input-phone {
+  margin-bottom: 24px;
+}
+.bxmaker-authuserphone-enter-auth-by-password-form .bxmaker-authuserphone-captcha .bxmaker-authuserphone-input {
+  margin-bottom: 0;
+}
+.bxmaker-authuserphone-enter-auth-by-password-form__forget {
+  position: relative;
+  top: -16px;
+}
+.bxmaker-authuserphone-enter-auth-by-password-form__back {
+  margin-top: 24px;
+  text-align: center;
+}
+
+.bxmaker-authuserphone-enter-authbyemailcode-form {
+  display: block;
+}
+.bxmaker-authuserphone-enter-authbyemailcode-form__subtitle {
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+.bxmaker-authuserphone-enter-authbyemailcode-form .bxmaker-authuserphone-header {
+  margin-bottom: 16px;
+}
+.bxmaker-authuserphone-enter-authbyemailcode-form .bxmaker-authuserphone-message,
+.bxmaker-authuserphone-enter-authbyemailcode-form .bxmaker-authuserphone-consent,
+.bxmaker-authuserphone-enter-authbyemailcode-form .bxmaker-authuserphone-checkbox,
+.bxmaker-authuserphone-enter-authbyemailcode-form .bxmaker-authuserphone-captcha {
+  margin-bottom: 24px;
+}
+.bxmaker-authuserphone-enter-authbyemailcode-form > .bxmaker-authuserphone-input {
+  margin-bottom: 24px;
+}
+.bxmaker-authuserphone-enter-authbyemailcode-form .bxmaker-authuserphone-button {
+  margin-top: 8px;
+}
+
+.bxmaker-authuserphone-enter-authbyemail-code {
+  display: block;
+}
+.bxmaker-authuserphone-enter-authbyemail-code__notice {
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+.bxmaker-authuserphone-enter-authbyemail-code__email {
+  display: inline-block;
+}
+.bxmaker-authuserphone-enter-authbyemail-code__send {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+}
+.bxmaker-authuserphone-enter-authbyemail-code__send .bxmaker-authuserphone-enter-authbyemail-code__send-loader {
+  color: #939aa1;
+}
+.bxmaker-authuserphone-enter-authbyemail-code .bxmaker-authuserphone-message,
+.bxmaker-authuserphone-enter-authbyemail-code .bxmaker-authuserphone-header {
+  margin-bottom: 24px;
+}
+.bxmaker-authuserphone-enter-authbyemail-code .bxmaker-authuserphone-input-code,
+.bxmaker-authuserphone-enter-authbyemail-code .bxmaker-authuserphone-captcha {
+  margin-bottom: 24px;
+}
+
+.bxmaker-authuserphone-enter-otp {
+  display: block;
+}
+.bxmaker-authuserphone-enter-otp__notice {
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+.bxmaker-authuserphone-enter-otp__send {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+}
+.bxmaker-authuserphone-enter-otp__send .bxmaker-authuserphone-enter-otp__send-loader {
+  color: #939aa1;
+}
+.bxmaker-authuserphone-enter-otp .bxmaker-authuserphone-message,
+.bxmaker-authuserphone-enter-otp .bxmaker-authuserphone-header {
+  margin-bottom: 24px;
+}
+.bxmaker-authuserphone-enter-otp .bxmaker-authuserphone-input-otp,
+.bxmaker-authuserphone-enter-otp .bxmaker-authuserphone-captcha {
+  margin-bottom: 24px;
+}
+.bxmaker-authuserphone-enter-otp .bxmaker-authuserphone-captcha .bxmaker-authuserphone-input {
+  margin-bottom: 0;
+}
+
+.bxmaker-authuserphone-enter-reg-form {
+  display: block;
+}
+.bxmaker-authuserphone-enter-reg-form__before-button {
+  margin-bottom: 24px;
+  font-size: 14px;
+  text-align: center;
+  max-width: 280px;
+}
+.bxmaker-authuserphone-enter-reg-form .bxmaker-authuserphone-header,
+.bxmaker-authuserphone-enter-reg-form .bxmaker-authuserphone-message,
+.bxmaker-authuserphone-enter-reg-form .bxmaker-authuserphone-captcha,
+.bxmaker-authuserphone-enter-reg-form .bxmaker-authuserphone-input,
+.bxmaker-authuserphone-enter-reg-form .bxmaker-authuserphone-input-password,
+.bxmaker-authuserphone-enter-reg-form .bxmaker-authuserphone-input-code,
+.bxmaker-authuserphone-enter-reg-form .bxmaker-authuserphone-input-phone,
+.bxmaker-authuserphone-enter-reg-form .bxmaker-authuserphone-input-fio,
+.bxmaker-authuserphone-enter-reg-form .bxmaker-authuserphone-consent,
+.bxmaker-authuserphone-enter-reg-form .bxmaker-authuserphone-checkbox,
+.bxmaker-authuserphone-enter-reg-form .bxmaker-authuserphone-input-location {
+  margin-bottom: 24px;
+}
+.bxmaker-authuserphone-enter-reg-form .bxmaker-authuserphone-captcha .bxmaker-authuserphone-input {
+  margin-bottom: 0;
+}
+
+.bxmaker-authuserphone-enter-forget-form {
+  display: block;
+}
+.bxmaker-authuserphone-enter-forget-form .bxmaker-authuserphone-header,
+.bxmaker-authuserphone-enter-forget-form .bxmaker-authuserphone-message,
+.bxmaker-authuserphone-enter-forget-form .bxmaker-authuserphone-captcha,
+.bxmaker-authuserphone-enter-forget-form .bxmaker-authuserphone-input,
+.bxmaker-authuserphone-enter-forget-form .bxmaker-authuserphone-input-password,
+.bxmaker-authuserphone-enter-forget-form .bxmaker-authuserphone-input-code,
+.bxmaker-authuserphone-enter-forget-form .bxmaker-authuserphone-input-phone {
+  margin-bottom: 24px;
+}
+.bxmaker-authuserphone-enter-forget-form .bxmaker-authuserphone-captcha .bxmaker-authuserphone-input {
+  margin-bottom: 0;
+}
+.bxmaker-authuserphone-enter-forget-form__or {
+  position: relative;
+  text-align: center;
+  top: -18px;
+  height: 8px;
+  color: #939aa1;
+}

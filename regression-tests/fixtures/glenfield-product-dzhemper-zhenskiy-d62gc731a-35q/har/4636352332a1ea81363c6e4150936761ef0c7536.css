@@ -1,0 +1,101 @@
+.kd-reg_auth-block .btn_dark:focus:hover {
+    color: #202427;
+}
+.kd-reg_auth-block .btn_dark:focus {
+    color: #fff;
+}
+.btn_white {
+    text-transform: uppercase;
+    background-color: #EFEFEFFF;
+    border: 1px solid #EFEFEFFF;
+    color: #202427;
+    font: 600 12px/50px OpenSans, sans-serif;
+    padding: 0 23px;
+    height:50px;
+    letter-spacing: 1.5px;
+}
+.btn_white:hover {
+    border: 1px solid #202427;
+    background-color: #202427;
+    color: #EFEFEFFF;
+}
+
+.btn_white:disabled {
+    background-color: #bcbdbf;
+    border-color: #bcbdbf;
+}
+
+.btn_white:disabled:hover {
+    color: #fff;
+}
+
+.kd-reg_auth-wrap .btn_white {
+    height: 50px;
+}
+
+@media screen and (max-width: 480px){
+    .kd-reg_auth-wrap .btn_white {
+        width: 100%;
+        height: 50px;
+    }
+}
+
+
+.auth--loading::before,
+.auth--loading::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+.auth--loading::before {
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    background: rgba(0,0,0,0.2);
+}
+.auth--loading::after {
+    width: 50px;
+    height: 50px;
+    margin: auto;
+    border: 4px solid transparent;
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: auth-loading-spinner 1s ease infinite;
+    z-index: 11;
+}
+
+@keyframes auth-loading-spinner {
+    from {
+        transform: rotate(0turn);
+    }
+
+    to {
+        transform: rotate(1turn);
+    }
+}
+
+.s-another-number-link-wrapper a {
+    color: #0E8845;
+    text-decoration: underline;
+}
+
+.kd-reg_auth-wrap .s-step-code-description-message {
+    margin-top: -16px;
+    font-size: 14px;
+    line-height: 20px;
+    margin-bottom: 15px;
+}
+
+.kd-reg_auth-wrap .s-step-code-description-message a {
+    color: #0E8845;
+    text-decoration: underline;
+    font-size: 14px;
+}
+
+.kd-reg_auth-wrap .s-step-code-description-message a:hover,
+.s-another-number-link-wrapper a:hover {
+    text-decoration: none;
+}

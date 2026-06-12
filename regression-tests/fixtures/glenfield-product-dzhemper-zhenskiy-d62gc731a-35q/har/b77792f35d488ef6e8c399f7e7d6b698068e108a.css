@@ -1,0 +1,171 @@
+#ds_pvz_popup{
+    font-family: Helvetica;
+}
+
+#ds_vidget_sidebar{
+
+}
+#ds_vidget_map{
+    margin: -1px;
+    /*float: left;*/
+    height: 386px;
+    width: 100%;
+}
+@media (min-width: 720px) {
+    #ds_vidget_map {
+        margin: -1px;
+        float: left;
+        height: 480px;
+        width: 64%;
+         }
+    #ds_vidget_sidebar{
+        font-family: Arial;
+        float: left;
+        position: relative;
+        height: 480px;
+        width: 34%;
+        border: 1px solid #0054ab;
+        right: 5px;
+        border-radius: 2px;
+        padding: 8px;
+    }
+    .sidebar_wrapper{
+        height: 93%;
+        overflow-y: auto;
+        clear: left;
+    }
+}
+
+#popup-window-content-ds_pvz{
+    background-color: white !important;
+    padding: 0px !important;
+}
+
+#ds_pvz_popup{
+	/*min-width: 880px;*/
+    border: 2px solid white;
+    border-radius: 3px;
+    box-shadow: 0 0 10px;
+    width: 80%;
+    /*height: 500px;*/
+}
+
+.partnerblock{
+    /*border: 1px solid #656565;
+    border-radius: 3px;*/
+    margin: 10px;
+    position: relative;
+}
+
+.partnerblock img{
+    /*width: 80%;*/
+    height: 50px;
+}
+
+#ds_vidget_map h4{
+    margin-top: 2px;
+}
+
+#confirmChooze{
+    opacity: 0.5;
+    width: 100%;
+    height: 34px;
+    color: white;
+    background-color: #0054ab;
+    border-radius: 5px;
+}
+
+.ds_date, .ds_price{
+    float: left;
+    font-family: Arial;
+    font-weight: bold;
+    /* color: blue;
+     float: right;*/
+}
+
+.vidget_desc_row{
+    margin: 10px;
+}
+
+.vidget_icon{
+    clear: left;
+    float: left;
+    margin-right: 5px;
+    width: 15px;
+    min-height: 15px;
+    top: 0;
+    /*margin-top: 1px;*/
+}
+.vidget_address{
+    background: url(/bitrix/images/dalliservicecom.delivery/address_icon.png) no-repeat;
+    background-size: 15px;
+}
+.vidget_phone{
+    background: url(/bitrix/images/dalliservicecom.delivery/phone_icon.png) no-repeat;
+    background-size: 15px;
+}
+.vidget_workshedule{
+    background: url(/bitrix/images/dalliservicecom.delivery/time_icon.png) no-repeat;
+    background-size: 15px;
+}
+.vidget_description{
+    background: url(/bitrix/images/dalliservicecom.delivery/desc_icon.png) no-repeat;
+    background-size: 15px;
+}
+.vidget_cost{
+    background: url(/bitrix/images/dalliservicecom.delivery/cost_icon.png) no-repeat;
+    background-size: 15px;
+}
+.vidget_delivery{
+    background: url(/bitrix/images/dalliservicecom.delivery/delivery_icon.png) no-repeat;
+    background-size: 15px;
+}
+.partner_img{
+    float:left;
+    width: 70%;
+    margin-right: 10px;
+}
+.partner_delivery_info{
+    float:left;
+    /* width: 30%;*/
+    text-align: center;
+}
+#partners_info{
+    float:left;
+}
+.delivery_info_row{
+    margin: 10px 10px 10px 0;
+    /*height: 15px;*/
+}
+.question {
+    font-size: 20px;
+    cursor: pointer;
+}
+.answer {
+    font-size: 15px;
+}
+/*на мобилке*/
+@media (max-width: 720px) {
+    #confirmChooze {
+        margin-top: 10px;
+    }
+}
+/*Таблица формы отправки*/
+.edit-table td{
+    padding-bottom: 5px;
+}
+.edit-table{
+    font-size: 14px !important;
+}
+/*Кнопка добавления товарной позиции в форме отправки*/
+.add-prod-pos {
+    display: block;
+    font-size: 12px;
+    font-weight: bold;
+    margin-top: 6px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.edit-table-items td{
+    text-align: center;
+}
