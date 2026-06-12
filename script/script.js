@@ -2900,16 +2900,21 @@
     // Trigger Intec's own add-to-cart flow.
     button.click();
 
-    // Additional items from recommendations — added via Bitrix API in parallel.
+    // Additional items from recommendations — trigger via virtual Intec basket button.
     var additionalItems = payload.additional_items || [];
-    if (additionalItems.length) {
-      var bitrixConfig = detectBitrixCartConfig();
-      if (bitrixConfig) {
-        for (var ai = 0; ai < additionalItems.length; ai++) {
-          var extId = additionalItems[ai].external_id;
-          if (extId) addToCartBitrix(extId, bitrixConfig);
-        }
-      }
+    for (var ai = 0; ai < additionalItems.length; ai++) {
+      var extId = additionalItems[ai].external_id;
+      if (!extId) continue;
+      var vBtn = document.createElement('div');
+      vBtn.setAttribute('data-basket-id', String(extId));
+      vBtn.setAttribute('data-basket-action', 'add');
+      vBtn.setAttribute('data-basket-state', 'none');
+      vBtn.style.cssText = 'position:fixed;left:-9999px;top:-9999px;';
+      document.body.appendChild(vBtn);
+      vBtn.click();
+      (function(b) {
+        setTimeout(function() { try { document.body.removeChild(b); } catch(e) {} }, 15000);
+      })(vBtn);
     }
   }
 
