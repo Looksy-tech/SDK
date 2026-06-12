@@ -520,14 +520,14 @@ function expectGlenfieldExtendedProductData(product) {
   expect(product.extendedProductData.offers).toHaveLength(6);
 }
 
-test("@regression popnshop adapter sends extendedProductData without buybtn_debug", async ({ page }) => {
+test("@regression popnshop adapter sends extendedProductData", async ({ page }) => {
   await installAdapterRoutes(page);
   const product = await openFixtureAndReadProduct(page, "/adapter/bitrix-v1.html?offer=102");
 
   expectBitrixExtendedProductData(product);
 });
 
-test("@regression popnshop_debug=true sends extendedProductData without adapter or buybtn_debug", async ({ page }) => {
+test("@regression popnshop_debug=true sends extendedProductData without adapter", async ({ page }) => {
   await installAdapterRoutes(page);
   const product = await openFixtureAndReadProduct(
     page,
@@ -537,23 +537,16 @@ test("@regression popnshop_debug=true sends extendedProductData without adapter 
   expectBitrixExtendedProductData(product);
 });
 
-test("@regression popnshop adapter still sends extendedProductData with buybtn_debug", async ({ page }) => {
-  await installAdapterRoutes(page);
-  const product = await openFixtureAndReadProduct(page, "/adapter/bitrix-v1.html?offer=102&buybtn_debug=true");
-
-  expectBitrixExtendedProductData(product);
-});
-
-test("@regression Bitrix fixture without adapter or buybtn_debug sends null extendedProductData", async ({ page }) => {
+test("@regression Bitrix fixture without adapter sends null extendedProductData", async ({ page }) => {
   await installAdapterRoutes(page);
   const product = await openFixtureAndReadProduct(page, "/adapter/no-adapter.html?offer=102");
 
   expect(product.extendedProductData).toBeNull();
 });
 
-test("@regression Glenfield debug adapter collects offers and blocks SDK add-to-cart with buybtn_debug", async ({ page }) => {
+test("@regression Glenfield debug adapter collects offers and adds selected offer", async ({ page }) => {
   await installAdapterRoutes(page);
-  await page.goto(`${LOCAL_ORIGIN}/adapter/glenfield-debug.html?glenfield_debug=true&buybtn_debug=true`, {
+  await page.goto(`${LOCAL_ORIGIN}/adapter/glenfield-debug.html?glenfield_debug=true`, {
     waitUntil: "domcontentloaded",
   });
 
@@ -595,12 +588,14 @@ test("@regression Glenfield debug adapter collects offers and blocks SDK add-to-
   await frame.waitForFunction(() => Boolean(document.body.dataset.addToCartResult));
   const addToCartResult = await frame.evaluate(() => JSON.parse(document.body.dataset.addToCartResult));
 
-  expect(addToCartResult.success).toBe(false);
-  expect(addToCartResult.message).toBe("buybtn_debug is disabled");
-  await expect(page.locator("#cart_quality_top")).toHaveText("");
+  expect(addToCartResult.success).toBe(true);
+  expect(addToCartResult.message).toBe("Added to cart");
+  await expect(page.locator(".goods-var_size .goods-var-item_active")).toHaveAttribute("data-size", "68");
+  await expect(page.locator(".js-add-basket")).toHaveAttribute("data-id", "496085");
+  await expect(page.locator("#cart_quality_top")).toHaveText("1");
 });
 
-test("@regression Glenfield debug adapter collects offers and blocks SDK add-to-cart without buybtn_debug", async ({ page }) => {
+test("@regression Glenfield debug adapter fetches offer data once and adds selected offer", async ({ page }) => {
   await installAdapterRoutes(page);
   let cartDataRequests = 0;
 
@@ -641,9 +636,11 @@ test("@regression Glenfield debug adapter collects offers and blocks SDK add-to-
 
   await frame.waitForFunction(() => Boolean(document.body.dataset.addToCartResult));
   const addToCartResult = await frame.evaluate(() => JSON.parse(document.body.dataset.addToCartResult));
-  expect(addToCartResult.success).toBe(false);
-  expect(addToCartResult.message).toBe("buybtn_debug is disabled");
-  await expect(page.locator("#cart_quality_top")).toHaveText("");
+  expect(addToCartResult.success).toBe(true);
+  expect(addToCartResult.message).toBe("Added to cart");
+  await expect(page.locator(".goods-var_size .goods-var-item_active")).toHaveAttribute("data-size", "68");
+  await expect(page.locator(".js-add-basket")).toHaveAttribute("data-id", "496085");
+  await expect(page.locator("#cart_quality_top")).toHaveText("1");
 });
 
 test("@regression one SDK instance handles multiple product buttons", async ({ page }) => {

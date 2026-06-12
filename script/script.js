@@ -1988,10 +1988,6 @@
             debugLog("PRESS_ADD_TO_CART_BTN: missing request_id");
             break;
           }
-          if (isGlenfieldAdapterRequested()) {
-            sendAddToCartResult(request_id, false, "buybtn_debug is disabled");
-            break;
-          }
           dispatchAddToCartRequest(payload || {}, request_id);
           break;
 
@@ -2262,7 +2258,7 @@
   //
   // The function reads data-adapter from the current script tag.
   // Popnshop keeps its existing adapter/debug behavior.
-  // Glenfield requires ?buybtn_debug=true before it starts collecting buy-button data.
+  // Glenfield returns a Promise because it fetches offer data before opening the widget.
   // If adapter is missing or extraction fails, it returns null.
   //
   // This block must stay isolated at the bottom of the file.
@@ -2820,11 +2816,21 @@
     }
 
     const offerId = textOrEmpty(payload && payload.offer_id);
-    const sizeXmlId = textOrEmpty(
+    // The widget normally sends only offer_id. Glenfield needs the SIZE xml id
+    // to activate the native size swatch before clicking its own basket button.
+    let sizeXmlId = textOrEmpty(
       (payload && payload.values && payload.values.SIZE) ||
+        (payload && payload.selected && payload.selected.SIZE) ||
         (payload && payload.size_xml_id) ||
         (payload && payload.size_id),
     );
+
+    if (!sizeXmlId && offerId && currentProduct?.extendedProductData?.offers) {
+      const matchingOffer = currentProduct.extendedProductData.offers.find(function (offer) {
+        return textOrEmpty(offer && offer.id) === offerId;
+      });
+      sizeXmlId = textOrEmpty(matchingOffer && matchingOffer.values && matchingOffer.values.SIZE);
+    }
 
     console.log("[Looksy][Glenfield] add-to-cart request", {
       offerId: offerId,
@@ -2907,7 +2913,7 @@
       const ready =
         !!addButton &&
         isSizeActive() &&
-        (!offerId || currentOfferId === offerId || currentOfferId);
+        (offerId ? currentOfferId === offerId : !!currentOfferId);
 
       if (!ready) {
         if (Date.now() - startedAt > timeoutMs) {
