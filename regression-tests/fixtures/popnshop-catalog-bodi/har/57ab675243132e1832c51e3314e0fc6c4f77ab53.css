@@ -1,0 +1,1382 @@
+.bxmaker-authuserphone-button {
+  width: 100%;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  padding: 0;
+  cursor: pointer;
+  -webkit-appearance: none;
+     -moz-appearance: none;
+          appearance: none;
+  background: transparent;
+  border: none;
+  color: inherit;
+  display: block;
+  font-weight: inherit;
+  line-height: 0;
+  margin: 0;
+  position: relative;
+  text-decoration: none;
+  white-space: normal;
+  font-size: 16px;
+}
+.bxmaker-authuserphone-button__inner {
+  padding: 8px 16px;
+  min-height: 48px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  background-color: #338eef;
+  border-radius: 6px;
+  -webkit-transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, opacity 0.3s ease-in-out;
+  -o-transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, opacity 0.3s ease-in-out;
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, opacity 0.3s ease-in-out;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+}
+.bxmaker-authuserphone-button:hover .bxmaker-authuserphone-button__inner {
+  background-color: #256ebb;
+}
+.bxmaker-authuserphone-button__title {
+  color: #fff;
+  font-weight: 900;
+}
+.bxmaker-authuserphone-button:hover .bxmaker-authuserphone-button__title {
+  color: #fff;
+}
+.bxmaker-authuserphone-button--white .bxmaker-authuserphone-button__inner {
+  background-color: #fff;
+  border: 1px solid #338eef;
+}
+.bxmaker-authuserphone-button--white:hover .bxmaker-authuserphone-button__inner {
+  background-color: #fff;
+  border: 1px solid #256ebb;
+}
+.bxmaker-authuserphone-button--white .bxmaker-authuserphone-button__title {
+  color: #338eef;
+}
+.bxmaker-authuserphone-button--white:hover .bxmaker-authuserphone-button__title {
+  color: #256ebb;
+}
+
+.bxmaker-authuserphone-captcha {
+  position: absolute;
+  width: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  height: 100%;
+  left: 0;
+  top: 0;
+  z-index: 10;
+  background: #fff;
+  opacity: 0.98;
+}
+.bxmaker-authuserphone-captcha__wrap {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  padding: 16px;
+  gap: 32px;
+  -webkit-box-flex: 0;
+      -ms-flex-positive: 0;
+          flex-grow: 0;
+}
+.bxmaker-authuserphone-captcha__title {
+  font-size: 16px;
+  font-weight: 500;
+}
+.bxmaker-authuserphone-enter .bxmaker-authuserphone-captcha .bxmaker-authuserphone-header,
+.bxmaker-authuserphone-simple .bxmaker-authuserphone-captcha .bxmaker-authuserphone-header,
+.bxmaker-authuserphone-edit .bxmaker-authuserphone-captcha .bxmaker-authuserphone-header {
+  margin-bottom: 0;
+}
+
+.bxmaker-authuserphone-empty {
+  text-align: center;
+  width: 100%;
+}
+
+.bxmaker-authuserphone-header {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  font-weight: 900;
+  font-size: 18px;
+}
+
+.bxmaker-authuserphone-input {
+  max-width: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+}
+.bxmaker-authuserphone-input * {
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+}
+.bxmaker-authuserphone-input__field {
+  position: relative;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  background-color: #fff;
+  border: 2px solid #d9dcde;
+  border-radius: 6px;
+}
+.bxmaker-authuserphone-input:hover .bxmaker-authuserphone-input__field,
+.bxmaker-authuserphone-input--focus .bxmaker-authuserphone-input__field,
+.bxmaker-authuserphone-input--hover .bxmaker-authuserphone-input__field {
+  border-color: #338eef;
+}
+.bxmaker-authuserphone-input--invalid .bxmaker-authuserphone-input__field {
+  border-color: #f9004c;
+}
+.bxmaker-authuserphone-input input[type=otp],
+.bxmaker-authuserphone-input input[type=phone],
+.bxmaker-authuserphone-input input[type=password],
+.bxmaker-authuserphone-input input[type=text],
+.bxmaker-authuserphone-input input[type=tel],
+.bxmaker-authuserphone-input input[type=email] {
+  padding: 18px 12px 6px;
+  text-align: left;
+  vertical-align: top;
+  width: 100%;
+  margin: 0;
+  outline: none;
+  background-color: rgba(255,255,255,0);
+  border: 0;
+  font-size: 16px;
+}
+.bxmaker-authuserphone-input__title {
+  color: #939aa1;
+  display: block;
+  position: absolute;
+  left: 10px;
+  text-align: left;
+  white-space: pre-wrap;
+  pointer-events: none;
+  -webkit-transform-origin: 0 0;
+      -ms-transform-origin: 0 0;
+          transform-origin: 0 0;
+  -webkit-transition: -webkit-transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: -webkit-transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  -o-transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), -webkit-transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  will-change: transform;
+  font-size: 16px;
+  line-height: 1.2;
+  top: 14px;
+}
+.bxmaker-authuserphone-input--focus .bxmaker-authuserphone-input__title,
+.bxmaker-authuserphone-input--hover .bxmaker-authuserphone-input__title {
+  -webkit-transform: translateY(-12px) scale(0.8);
+      -ms-transform: translateY(-12px) scale(0.8);
+          transform: translateY(-12px) scale(0.8);
+}
+.bxmaker-authuserphone-input__validation {
+  color: #f9004c;
+  font-size: 14px;
+  line-height: 1.4;
+  margin-top: 8px;
+}
+.bxmaker-authuserphone-input__description {
+  font-size: 14px;
+  line-height: 1.4;
+  margin-top: 8px;
+}
+
+.bxmaker-authuserphone-input-fio {
+  max-width: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  position: relative;
+}
+.bxmaker-authuserphone-input-fio * {
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+}
+.bxmaker-authuserphone-input-fio__field {
+  position: relative;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  background-color: #fff;
+  border: 2px solid #d9dcde;
+  border-radius: 6px;
+}
+.bxmaker-authuserphone-input-fio:hover .bxmaker-authuserphone-input-fio__field,
+.bxmaker-authuserphone-input-fio--focus .bxmaker-authuserphone-input-fio__field,
+.bxmaker-authuserphone-input-fio--hover .bxmaker-authuserphone-input-fio__field {
+  border-color: #338eef;
+}
+.bxmaker-authuserphone-input-fio--invalid .bxmaker-authuserphone-input-fio__field {
+  border-color: #f9004c;
+}
+.bxmaker-authuserphone-input-fio input[type=text] {
+  padding: 18px 12px 6px;
+  text-align: left;
+  vertical-align: top;
+  width: 100%;
+  margin: 0;
+  outline: none;
+  background-color: rgba(255,255,255,0);
+  border: 0;
+  font-size: 16px;
+}
+.bxmaker-authuserphone-input-fio__input {
+  width: 100%;
+}
+.bxmaker-authuserphone-input-fio__title {
+  color: #939aa1;
+  display: block;
+  position: absolute;
+  left: 10px;
+  text-align: left;
+  white-space: pre-wrap;
+  pointer-events: none;
+  -webkit-transform-origin: 0 0;
+      -ms-transform-origin: 0 0;
+          transform-origin: 0 0;
+  -webkit-transition: -webkit-transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: -webkit-transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  -o-transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), -webkit-transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  will-change: transform;
+  font-size: 16px;
+  line-height: 1.2;
+  top: 14px;
+}
+.bxmaker-authuserphone-input-fio--focus .bxmaker-authuserphone-input-fio__title,
+.bxmaker-authuserphone-input-fio--hover .bxmaker-authuserphone-input-fio__title {
+  -webkit-transform: translateY(-12px) scale(0.8);
+      -ms-transform: translateY(-12px) scale(0.8);
+          transform: translateY(-12px) scale(0.8);
+}
+.bxmaker-authuserphone-input-fio,
+.bxmaker-authuserphone-input-fio * {
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+}
+.bxmaker-authuserphone-input-fio__popup {
+  background: #fff;
+  border-radius: 0 0 6px 6px;
+  -webkit-box-shadow: 0 0 8px 1px rgba(0,0,0,0.1);
+          box-shadow: 0 0 8px 1px rgba(0,0,0,0.1);
+  padding: 3.2px 0;
+  position: absolute;
+  z-index: 1;
+  width: 100%;
+  overflow-y: auto;
+  max-height: 300px;
+  display: none;
+  top: 49px;
+}
+.bxmaker-authuserphone-input-fio--options .bxmaker-authuserphone-input-fio__popup {
+  display: block;
+}
+.bxmaker-authuserphone-input-fio--options .bxmaker-authuserphone-input-fio__popup:empty {
+  display: none;
+}
+.bxmaker-authuserphone-input-fio__option {
+  padding: 4px 8px;
+  cursor: pointer;
+}
+.bxmaker-authuserphone-input-fio__option:hover {
+  background-color: #f2f2f2;
+}
+.bxmaker-authuserphone-input-fio__option--selection {
+  background-color: #fff9d7;
+}
+
+.bxmaker-authuserphone-input-inn {
+  max-width: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  position: relative;
+}
+.bxmaker-authuserphone-input-inn * {
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+}
+.bxmaker-authuserphone-input-inn__field {
+  position: relative;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  background-color: #fff;
+  border: 2px solid #d9dcde;
+  border-radius: 6px;
+}
+.bxmaker-authuserphone-input-inn:hover .bxmaker-authuserphone-input-inn__field,
+.bxmaker-authuserphone-input-inn--focus .bxmaker-authuserphone-input-inn__field,
+.bxmaker-authuserphone-input-inn--hover .bxmaker-authuserphone-input-inn__field {
+  border-color: #338eef;
+}
+.bxmaker-authuserphone-input-inn--invalid .bxmaker-authuserphone-input-inn__field {
+  border-color: #f9004c;
+}
+.bxmaker-authuserphone-input-inn input[type=text] {
+  padding: 18px 12px 6px;
+  text-align: left;
+  vertical-align: top;
+  width: 100%;
+  margin: 0;
+  outline: none;
+  background-color: rgba(255,255,255,0);
+  border: 0;
+  font-size: 16px;
+}
+.bxmaker-authuserphone-input-inn__input {
+  width: 100%;
+}
+.bxmaker-authuserphone-input-inn__title {
+  color: #939aa1;
+  display: block;
+  position: absolute;
+  left: 10px;
+  text-align: left;
+  white-space: pre-wrap;
+  pointer-events: none;
+  -webkit-transform-origin: 0 0;
+      -ms-transform-origin: 0 0;
+          transform-origin: 0 0;
+  -webkit-transition: -webkit-transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: -webkit-transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  -o-transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), -webkit-transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  will-change: transform;
+  font-size: 16px;
+  line-height: 1.2;
+  top: 14px;
+}
+.bxmaker-authuserphone-input-inn--focus .bxmaker-authuserphone-input-inn__title,
+.bxmaker-authuserphone-input-inn--hover .bxmaker-authuserphone-input-inn__title {
+  -webkit-transform: translateY(-12px) scale(0.8);
+      -ms-transform: translateY(-12px) scale(0.8);
+          transform: translateY(-12px) scale(0.8);
+}
+.bxmaker-authuserphone-input-inn,
+.bxmaker-authuserphone-input-inn * {
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+}
+.bxmaker-authuserphone-input-inn__popup {
+  background: #fff;
+  border-radius: 0 0 6px 6px;
+  -webkit-box-shadow: 0 0 8px 1px rgba(0,0,0,0.1);
+          box-shadow: 0 0 8px 1px rgba(0,0,0,0.1);
+  padding: 3.2px 0;
+  position: absolute;
+  z-index: 1;
+  width: 100%;
+  overflow-y: auto;
+  max-height: 300px;
+  display: none;
+  top: 49px;
+}
+.bxmaker-authuserphone-input-inn--options .bxmaker-authuserphone-input-inn__popup {
+  display: block;
+}
+.bxmaker-authuserphone-input-inn--options .bxmaker-authuserphone-input-inn__popup:empty {
+  display: none;
+}
+.bxmaker-authuserphone-input-inn__option {
+  padding: 4px 8px;
+  cursor: pointer;
+}
+.bxmaker-authuserphone-input-inn__option:hover {
+  background-color: #f2f2f2;
+}
+.bxmaker-authuserphone-input-inn__option--selection {
+  background-color: #fff9d7;
+}
+
+.bxmaker-authuserphone-input-phone {
+  max-width: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+}
+.bxmaker-authuserphone-input-phone * {
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+}
+.bxmaker-authuserphone-input-phone__field {
+  position: relative;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  background-color: #fff;
+  border: 2px solid #d9dcde;
+  border-radius: 6px;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+}
+.bxmaker-authuserphone-input-phone:hover .bxmaker-authuserphone-input-phone__field,
+.bxmaker-authuserphone-input-phone--focus .bxmaker-authuserphone-input-phone__field,
+.bxmaker-authuserphone-input-phone--hover .bxmaker-authuserphone-input-phone__field {
+  border-color: #338eef;
+}
+.bxmaker-authuserphone-input-phone--invalid .bxmaker-authuserphone-input-phone__field {
+  border-color: #f9004c;
+}
+.bxmaker-authuserphone-input-phone__input {
+  display: -webkit-inline-box;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  -webkit-box-flex: 1;
+      -ms-flex-positive: 1;
+          flex-grow: 1;
+  position: relative;
+}
+.bxmaker-authuserphone-input-phone--hover .bxmaker-authuserphone-input-phone__input,
+.bxmaker-authuserphone-input-phone--focus .bxmaker-authuserphone-input-phone__input {
+  position: static;
+}
+.bxmaker-authuserphone-input-phone input[type=text] {
+  padding: 18px 12px 6px;
+  text-align: left;
+  vertical-align: top;
+  width: 100%;
+  margin: 0;
+  outline: none;
+  background-color: rgba(255,255,255,0);
+  border: 0;
+  font-size: 16px;
+  -webkit-box-flex: 1;
+      -ms-flex-positive: 1;
+          flex-grow: 1;
+}
+.bxmaker-authuserphone-input-phone--flag.bxmaker-authuserphone-input-phone input[type=text] {
+  padding-left: 0;
+}
+.bxmaker-authuserphone-input-phone__title {
+  color: #939aa1;
+  display: block;
+  position: absolute;
+  text-align: left;
+  white-space: pre-wrap;
+  pointer-events: none;
+  -webkit-transform-origin: 0 0;
+      -ms-transform-origin: 0 0;
+          transform-origin: 0 0;
+  -webkit-transition: left 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), -webkit-transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: left 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), -webkit-transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  -o-transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), left 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), left 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), left 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), -webkit-transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  will-change: transform;
+  font-size: 16px;
+  line-height: 1.2;
+  top: 14px;
+}
+.bxmaker-authuserphone-input-phone--focus .bxmaker-authuserphone-input-phone__title,
+.bxmaker-authuserphone-input-phone--hover .bxmaker-authuserphone-input-phone__title {
+  left: 8px;
+  -webkit-transform: translateY(-12px) scale(0.8);
+      -ms-transform: translateY(-12px) scale(0.8);
+          transform: translateY(-12px) scale(0.8);
+}
+.bxmaker-authuserphone-input-phone__validation {
+  color: #f9004c;
+  font-size: 14px;
+  line-height: 1.4;
+  margin-top: 8px;
+}
+.bxmaker-authuserphone-input-phone__flag {
+  display: none;
+  position: relative;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  padding: 0 8px;
+  -webkit-box-flex: 0;
+      -ms-flex-positive: 0;
+          flex-grow: 0;
+  -ms-flex-negative: 0;
+      flex-shrink: 0;
+  -webkit-transition: padding-top 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  -o-transition: padding-top 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: padding-top 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+.bxmaker-authuserphone-input-phone--flag .bxmaker-authuserphone-input-phone__flag {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+.bxmaker-authuserphone-input-phone--flag.bxmaker-authuserphone-input-phone--hover .bxmaker-authuserphone-input-phone__flag,
+.bxmaker-authuserphone-input-phone--flag.bxmaker-authuserphone-input-phone--focus .bxmaker-authuserphone-input-phone__flag {
+  padding-top: 12px;
+}
+.bxmaker-authuserphone-input-phone__flag span:after {
+  content: ' ';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+}
+
+.bxmaker-authuserphone-input-code {
+  max-width: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+}
+.bxmaker-authuserphone-input-code * {
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+}
+.bxmaker-authuserphone-input-code__field {
+  position: relative;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  background-color: #fff;
+  border: 2px solid #d9dcde;
+  border-radius: 6px;
+}
+.bxmaker-authuserphone-input-code:hover .bxmaker-authuserphone-input-code__field,
+.bxmaker-authuserphone-input-code--focus .bxmaker-authuserphone-input-code__field {
+  border-color: #338eef;
+}
+.bxmaker-authuserphone-input-code--invalid .bxmaker-authuserphone-input-code__field,
+.bxmaker-authuserphone-input-code--invalid:hover .bxmaker-authuserphone-input-code__field {
+  border-color: #f9004c;
+}
+.bxmaker-authuserphone-input-code__field .bxmaker-authuserphone-loader {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  -webkit-transform: translateY(-50%);
+      -ms-transform: translateY(-50%);
+          transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  color: #939aa1;
+}
+.bxmaker-authuserphone-input-code input[type=otp],
+.bxmaker-authuserphone-input-code input[type=phone],
+.bxmaker-authuserphone-input-code input[type=password],
+.bxmaker-authuserphone-input-code input[type=text] {
+  padding: 2px 12px;
+  vertical-align: top;
+  width: 100%;
+  margin: 0;
+  outline: none;
+  background-color: rgba(255,255,255,0);
+  border: 0;
+  font-size: 30px;
+  text-align: center;
+  font-weight: 700;
+}
+.bxmaker-authuserphone-input-code__title {
+  color: #939aa1;
+  display: block;
+  position: absolute;
+  left: 10px;
+  text-align: left;
+  white-space: pre-wrap;
+  pointer-events: none;
+  -webkit-transform-origin: 0 0;
+      -ms-transform-origin: 0 0;
+          transform-origin: 0 0;
+  -webkit-transition: -webkit-transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: -webkit-transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  -o-transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), -webkit-transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  will-change: transform;
+  font-size: 16px;
+  line-height: 1.2;
+  top: 12px;
+}
+.bxmaker-authuserphone-input-code--focus .bxmaker-authuserphone-input-code__title {
+  -webkit-transform: translateY(-10px) scale(0.8);
+      -ms-transform: translateY(-10px) scale(0.8);
+          transform: translateY(-10px) scale(0.8);
+}
+.bxmaker-authuserphone-input-code__validation {
+  color: #f9004c;
+  font-size: 14px;
+  line-height: 1.4;
+  margin-top: 8px;
+}
+
+.bxmaker-authuserphone-input-otp {
+  max-width: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+}
+.bxmaker-authuserphone-input-otp * {
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+}
+.bxmaker-authuserphone-input-otp__field {
+  position: relative;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  background-color: #fff;
+  border: 2px solid #d9dcde;
+  border-radius: 6px;
+}
+.bxmaker-authuserphone-input-otp:hover .bxmaker-authuserphone-input-otp__field,
+.bxmaker-authuserphone-input-otp--focus .bxmaker-authuserphone-input-otp__field {
+  border-color: #338eef;
+}
+.bxmaker-authuserphone-input-otp--invalid .bxmaker-authuserphone-input-otp__field,
+.bxmaker-authuserphone-input-otp--invalid:hover .bxmaker-authuserphone-input-otp__field {
+  border-color: #f9004c;
+}
+.bxmaker-authuserphone-input-otp input[type=otp],
+.bxmaker-authuserphone-input-otp input[type=text] {
+  padding: 2px 12px;
+  vertical-align: top;
+  width: 100%;
+  margin: 0;
+  outline: none;
+  background-color: rgba(255,255,255,0);
+  border: 0;
+  font-size: 30px;
+  text-align: center;
+  font-weight: 700;
+}
+
+.bxmaker-authuserphone-input-password {
+  max-width: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+}
+.bxmaker-authuserphone-input-password * {
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+}
+.bxmaker-authuserphone-input-password__field {
+  position: relative;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  background-color: #fff;
+  border: 2px solid #d9dcde;
+  border-radius: 6px;
+}
+.bxmaker-authuserphone-input-password:hover .bxmaker-authuserphone-input-password__field,
+.bxmaker-authuserphone-input-password--focus .bxmaker-authuserphone-input-password__field,
+.bxmaker-authuserphone-input-password--hover .bxmaker-authuserphone-input-password__field {
+  border-color: #338eef;
+}
+.bxmaker-authuserphone-input-password--invalid .bxmaker-authuserphone-input-password__field {
+  border-color: #f9004c;
+}
+.bxmaker-authuserphone-input-password input[type=password],
+.bxmaker-authuserphone-input-password input[type=text] {
+  padding: 18px 40px 6px 12px;
+  text-align: left;
+  vertical-align: top;
+  width: 100%;
+  margin: 0;
+  outline: none;
+  background-color: rgba(255,255,255,0);
+  border: 0;
+  font-size: 16px;
+}
+.bxmaker-authuserphone-input-password__title {
+  color: #939aa1;
+  display: block;
+  position: absolute;
+  left: 10px;
+  text-align: left;
+  white-space: pre-wrap;
+  pointer-events: none;
+  -webkit-transform-origin: 0 0;
+      -ms-transform-origin: 0 0;
+          transform-origin: 0 0;
+  -webkit-transition: -webkit-transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: -webkit-transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  -o-transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), -webkit-transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  will-change: transform;
+  font-size: 16px;
+  line-height: 1.2;
+  top: 14px;
+}
+.bxmaker-authuserphone-input-password--focus .bxmaker-authuserphone-input-password__title,
+.bxmaker-authuserphone-input-password--hover .bxmaker-authuserphone-input-password__title {
+  -webkit-transform: translateY(-12px) scale(0.8);
+      -ms-transform: translateY(-12px) scale(0.8);
+          transform: translateY(-12px) scale(0.8);
+}
+.bxmaker-authuserphone-input-password__validation {
+  color: #f9004c;
+  font-size: 14px;
+  line-height: 1.4;
+  margin-top: 8px;
+}
+.bxmaker-authuserphone-input-password__visible {
+  cursor: pointer;
+  position: absolute;
+  right: 0;
+  opacity: 0.3;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  height: 100%;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  width: 40px;
+  -webkit-transition: opacity 0.2s;
+  -o-transition: opacity 0.2s;
+  transition: opacity 0.2s;
+}
+.bxmaker-authuserphone-input-password__visible:after {
+  content: '';
+  background-image: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDMiIGhlaWdodD0iNDIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik00MC41NiAyLjQ0YTEuNSAxLjUgMCAwMTAgMi4xMmwtNy40MzcgNy40MzhjMy41OTUgMS42NjUgNi43NzMgNC4yMTEgOS4xMTcgNy42NTlhMS41IDEuNSAwIDAxLS4wMjMgMS43MmMtNi4zMzcgOC44MDItMTcuNzggMTIuMjQzLTI3Ljg3NSA5LjQwMkw1LjA2IDQwLjA2MWExLjUgMS41IDAgMDEtMi4xMjItMi4xMjJsOC4yNjctOC4yNjdjLTMuOTQ3LTEuNjkxLTcuNTYtNC40My0xMC40MTEtOC4yOGExLjUgMS41IDAgMDEuMDM0LTEuODI5YzUuMzE3LTYuNjQ2IDEzLjM5NS05LjkzOCAyMS4yMzQtOS45MzggMi43MTcgMCA1LjQyNi4zOTYgNy45OTUgMS4xOTVsOC4zODEtOC4zOGExLjUgMS41IDAgMDEyLjEyMiAwek0yNy42MTkgMTMuMjZhMjQuMjc3IDI0LjI3NyAwIDAwLTUuNTU1LS42MzVjLTYuNjY3IDAtMTMuNDU0IDIuNjU1LTE4LjEzMiA3LjkxMiAyLjY3MSAzLjI1MiA2IDUuNTA3IDkuNTkgNi44MmwxNC4wOTctMTQuMDk2ek0xNi44MyAyOC4yOTJjOC4xNDggMS42NSAxNi45NzktMS4xNTQgMjIuMzA0LTcuODEzLTIuMTY1LTIuODItNS4wNDQtNC44OTQtOC4yOTEtNi4yTDE2LjgzIDI4LjI5MnoiIGZpbGw9IiMwMDAiLz48cGF0aCBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGNsaXAtcnVsZT0iZXZlbm9kZCIgZD0iTTIyIDI1LjVhNC41IDQuNSAwIDEwMC05IDQuNSA0LjUgMCAwMDAgOXptMCAyLjVhNyA3IDAgMTAwLTE0IDcgNyAwIDAwMCAxNHoiIGZpbGw9IiMwMDAiLz48cGF0aCBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGNsaXAtcnVsZT0iZXZlbm9kZCIgZD0iTTQxLjIzLjY5NmEyLjUgMi41IDAgMDEuMDc0IDMuNTM1bC0zNS41IDM3YTIuNSAyLjUgMCAxMS0zLjYwOC0zLjQ2MmwzNS41LTM3YTIuNSAyLjUgMCAwMTMuNTM1LS4wNzN6IiBmaWxsPSIjZmZmIi8+PHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik00MS4wMzguOTE4YTEuNSAxLjUgMCAwMS4wNDQgMi4xMmwtMzUuNSAzN2ExLjUgMS41IDAgMDEtMi4xNjQtMi4wNzZsMzUuNS0zN2ExLjUgMS41IDAgMDEyLjEyLS4wNDR6IiBmaWxsPSIjMDAwIi8+PC9zdmc+");
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: contain;
+  width: 19px;
+  height: 22px;
+  display: -webkit-inline-box;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+}
+.bxmaker-authuserphone-input-password__visible:hover {
+  opacity: 1;
+}
+.bxmaker-authuserphone-input-password__visible--active {
+  opacity: 1;
+}
+.bxmaker-authuserphone-input-password__visible--active:after {
+  background-image: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDMiIGhlaWdodD0iMjMiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0zLjkzIDExLjUzN2M5LjM0NCAxMS4zNzQgMjYuNzIxIDEwLjU0NyAzNS4yMDQtLjA1OS0zLjk4Ny01LjE5NS0xMC4zOTQtNy44NTMtMTcuMDcyLTcuODUzLTYuNjY2IDAtMTMuNDUzIDIuNjU1LTE4LjEzMSA3LjkxMnpNMjIuMDY0LjYyNWM3LjgzNiAwIDE1LjU5NyAzLjI5NiAyMC4xNzcgMTAuMDMxYTEuNSAxLjUgMCAwMS0uMDIzIDEuNzJjLTkuNTczIDEzLjI5Ny0zMC43OTcgMTQuMzYtNDEuNDIyLjAxN2ExLjUgMS41IDAgMDEuMDM0LTEuODNDNi4xNDYgMy45MTcgMTQuMjI0LjYyNSAyMi4wNjMuNjI1eiIgZmlsbD0iIzAwMCIvPjxwYXRoIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBkPSJNMjIgMTYuNWE0LjUgNC41IDAgMTAwLTkgNC41IDQuNSAwIDAwMCA5em0wIDIuNWE3IDcgMCAxMDAtMTQgNyA3IDAgMDAwIDE0eiIgZmlsbD0iIzAwMCIvPjwvc3ZnPg==");
+}
+
+a.bxmaker-authuserphone-link {
+  display: inline;
+  text-decoration: none;
+  font-size: 14px;
+}
+a.bxmaker-authuserphone-link,
+a.bxmaker-authuserphone-link:visited {
+  color: #338eef;
+  text-decoration: none;
+}
+a.bxmaker-authuserphone-link:hover,
+a.bxmaker-authuserphone-link:active {
+  color: #256ebb;
+  text-decoration: none;
+}
+
+.bxmaker-authuserphone-loader {
+  color: #fff;
+  width: 28px;
+  height: 28px;
+}
+.bxmaker-authuserphone-loader svg {
+  width: 100%;
+  height: 100%;
+}
+
+.bxmaker-authuserphone-message {
+  display: block;
+  font-size: 14px;
+  padding: 0;
+  word-break: break-word;
+}
+.bxmaker-authuserphone-message--error {
+  color: #f9004c;
+}
+.bxmaker-authuserphone-message--success {
+  color: #059733;
+}
+
+.bxmaker-authuserphone-refresh {
+  display: -webkit-inline-box;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+.bxmaker-authuserphone-refresh svg {
+  width: 16px;
+  height: 16px;
+}
+
+.bxmaker-authuserphone-timeout {
+  text-align: center;
+  font-size: 14px;
+  color: #939aa1;
+}
+
+.bxmaker-authuserphone-usercallto {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  background: #f2f2f2;
+  border-radius: 6px;
+}
+.bxmaker-authuserphone-usercallto__value,
+a.bxmaker-authuserphone-usercallto__value,
+a.bxmaker-authuserphone-usercallto__value:hover,
+a.bxmaker-authuserphone-usercallto__value:visited,
+a.bxmaker-authuserphone-usercallto__value:active {
+  font-size: 24px;
+  letter-spacing: 2px;
+  line-height: 48px;
+  display: -webkit-inline-box;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  text-decoration: none;
+  border: none;
+}
+
+.bxmaker-authuserphone-consent {
+  width: 100%;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+}
+.bxmaker-authuserphone-consent .bxmaker-authuserphone-loader {
+  color: #000;
+  margin: 0 auto;
+  width: 16px;
+  height: 16px;
+}
+.bxmaker-authuserphone-consent-button {
+  cursor: pointer;
+  margin: 0;
+  font-weight: normal;
+  line-height: 1.2;
+  font-size: 0.8em;
+}
+.bxmaker-authuserphone-consent-button input[type=checkbox] {
+  margin: 0 4px 0 0 !important;
+  vertical-align: text-top;
+}
+.bxmaker-authuserphone-consent-popup {
+  position: fixed;
+  left: 0;
+  top: 0;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  height: 100%;
+  width: 100%;
+  background: rgba(27,35,42,0.28);
+  z-index: 99999;
+}
+.bxmaker-authuserphone-consent-popup__container {
+  width: 800px;
+  max-width: 95%;
+  background: #fff;
+  border-radius: 6px;
+  max-height: 85vh;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  overflow: hidden;
+}
+.bxmaker-authuserphone-consent-popup__title {
+  font-size: 1.5em;
+  padding: 16px;
+  text-align: center;
+  -webkit-box-shadow: 0 1px 16px 0 rgba(0,0,0,0.1);
+          box-shadow: 0 1px 16px 0 rgba(0,0,0,0.1);
+  border-bottom: 1px solid #e9e9e9;
+  position: relative;
+}
+.bxmaker-authuserphone-consent-popup__text {
+  overflow-y: auto;
+  padding: 24px 32px;
+  background-color: #f9f9f9;
+}
+.bxmaker-authuserphone-consent-popup__action {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  padding: 16px 16px;
+  -webkit-box-shadow: 0 -1px 16px 0 rgba(0,0,0,0.1);
+          box-shadow: 0 -1px 16px 0 rgba(0,0,0,0.1);
+  position: relative;
+  border-top: 1px solid #e9e9e9;
+}
+.bxmaker-authuserphone-consent-popup__action .bxmaker-authuserphone-button {
+  margin: 0 16px;
+  max-width: 160px;
+}
+@media (max-width: 800px) {
+  .bxmaker-authuserphone-consent-popup {
+    -webkit-box-align: start;
+        -ms-flex-align: start;
+            align-items: flex-start;
+    padding: 64px 0;
+  }
+  .bxmaker-authuserphone-consent-popup__action {
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+        -ms-flex-direction: column;
+            flex-direction: column;
+  }
+  .bxmaker-authuserphone-consent-popup__action .bxmaker-authuserphone-button {
+    max-width: none;
+    margin: 8px 0;
+  }
+}
+@media (max-width: 480px) {
+  .bxmaker-authuserphone-consent-popup {
+    -webkit-box-align: start;
+        -ms-flex-align: start;
+            align-items: flex-start;
+    padding: 32px 0;
+  }
+  .bxmaker-authuserphone-consent-popup__action {
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+        -ms-flex-direction: column;
+            flex-direction: column;
+  }
+  .bxmaker-authuserphone-consent-popup__action .bxmaker-authuserphone-button {
+    max-width: none;
+    margin: 8px 0;
+  }
+}
+html body.bxmaker-authuserphone-consent-popup-overflow-hidden,
+body.bxmaker-authuserphone-consent-popup-overflow-hidden {
+  overflow: hidden;
+}
+
+.bxmaker-authuserphone-qrcode {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  color: #000;
+}
+.bxmaker-authuserphone-qrcode .bxmaker-authuserphone-loader {
+  max-width: 60px;
+  color: #000;
+}
+
+.bxmaker-authuserphone-checkbox {
+  width: 100%;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+}
+.bxmaker-authuserphone-checkbox-button {
+  cursor: pointer;
+  margin: 0;
+  font-weight: normal;
+  line-height: 1.2;
+  font-size: 0.8em;
+}
+.bxmaker-authuserphone-checkbox-button input[type=checkbox] {
+  margin: 0 4px 0 0 !important;
+  vertical-align: text-top;
+}
+
+.bxmaker-authuserphone-input-location {
+  max-width: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  position: relative;
+}
+.bxmaker-authuserphone-input-location * {
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+}
+.bxmaker-authuserphone-input-location__field {
+  position: relative;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  background-color: #fff;
+  border: 2px solid #d9dcde;
+  border-radius: 6px;
+}
+.bxmaker-authuserphone-input-location:hover .bxmaker-authuserphone-input-location__field,
+.bxmaker-authuserphone-input-location--focus .bxmaker-authuserphone-input-location__field,
+.bxmaker-authuserphone-input-location--hover .bxmaker-authuserphone-input-location__field {
+  border-color: #338eef;
+}
+.bxmaker-authuserphone-input-location--invalid .bxmaker-authuserphone-input-location__field {
+  border-color: #f9004c;
+}
+.bxmaker-authuserphone-input-location input[type=text] {
+  padding: 18px 12px 6px;
+  text-align: left;
+  vertical-align: top;
+  width: 100%;
+  margin: 0;
+  outline: none;
+  background-color: rgba(255,255,255,0);
+  border: 0;
+  font-size: 16px;
+}
+.bxmaker-authuserphone-input-location__input {
+  width: 100%;
+}
+.bxmaker-authuserphone-input-location__title {
+  color: #939aa1;
+  display: block;
+  position: absolute;
+  left: 10px;
+  text-align: left;
+  white-space: pre-wrap;
+  pointer-events: none;
+  -webkit-transform-origin: 0 0;
+      -ms-transform-origin: 0 0;
+          transform-origin: 0 0;
+  -webkit-transition: -webkit-transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: -webkit-transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  -o-transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), -webkit-transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  will-change: transform;
+  font-size: 16px;
+  line-height: 1.2;
+  top: 14px;
+}
+.bxmaker-authuserphone-input-location--focus .bxmaker-authuserphone-input-location__title,
+.bxmaker-authuserphone-input-location--hover .bxmaker-authuserphone-input-location__title {
+  -webkit-transform: translateY(-12px) scale(0.8);
+      -ms-transform: translateY(-12px) scale(0.8);
+          transform: translateY(-12px) scale(0.8);
+}
+.bxmaker-authuserphone-input-location,
+.bxmaker-authuserphone-input-location * {
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+}
+.bxmaker-authuserphone-input-location__popup {
+  background: #fff;
+  border-radius: 0 0 6px 6px;
+  -webkit-box-shadow: 0 0 8px 1px rgba(0,0,0,0.1);
+          box-shadow: 0 0 8px 1px rgba(0,0,0,0.1);
+  padding: 3.2px 0;
+  position: absolute;
+  z-index: 1;
+  width: 100%;
+  overflow-y: auto;
+  max-height: 300px;
+  display: none;
+  top: 49px;
+}
+.bxmaker-authuserphone-input-location--options .bxmaker-authuserphone-input-location__popup {
+  display: block;
+}
+.bxmaker-authuserphone-input-location--options .bxmaker-authuserphone-input-location__popup:empty {
+  display: none;
+}
+.bxmaker-authuserphone-input-location__option {
+  padding: 4px 8px;
+  cursor: pointer;
+}
+.bxmaker-authuserphone-input-location__option:hover {
+  background-color: #f2f2f2;
+}
+.bxmaker-authuserphone-input-location__option--selection {
+  background-color: #fff9d7;
+}
+
+.bxmaker-authuserphone-icon--telegram {
+  color: #0ea5e9;
+  width: 16px;
+  height: 16px;
+}
+
+.bxmaker-authuserphone-captcha-bitrix {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  gap: 24px;
+}
+.bxmaker-authuserphone-captcha-bitrix__img {
+  width: 100%;
+  display: -webkit-inline-box;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  position: relative;
+  -ms-flex-negative: 0;
+      flex-shrink: 0;
+  border: 2px solid #d9dcde;
+  border-radius: 6px;
+  margin-bottom: 0;
+}
+.bxmaker-authuserphone-captcha-bitrix__img .bxmaker-authuserphone-loader {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  -webkit-transform: translateY(-50%) translateX(-50%);
+      -ms-transform: translateY(-50%) translateX(-50%);
+          transform: translateY(-50%) translateX(-50%);
+  color: #939aa1;
+}
+.bxmaker-authuserphone-captcha-bitrix__img img {
+  max-width: 100%;
+  height: 46px;
+  border-radius: 6px;
+  overflow: hidden;
+}
+.bxmaker-authuserphone-captcha-bitrix--loading .bxmaker-authuserphone-captcha-bitrix__img img {
+  opacity: 0.1;
+}
+.bxmaker-authuserphone-captcha-bitrix__img-title {
+  position: absolute;
+  left: 50%;
+  -webkit-transform: translateX(-50%);
+      -ms-transform: translateX(-50%);
+          transform: translateX(-50%);
+  top: 107%;
+  font-size: 0.8em;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.bxmaker-authuserphone-captcha-bitrix__img-title:hover {
+  text-decoration: underline;
+  -webkit-text-decoration-style: dashed;
+          text-decoration-style: dashed;
+  text-underline-offset: 2px;
+}
+.bxmaker-authuserphone-captcha-bitrix__input {
+  width: 100%;
+  display: -webkit-inline-box;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  -ms-flex-negative: 0;
+      flex-shrink: 0;
+}
+.bxmaker-authuserphone-captcha-bitrix .bxmaker-authuserphone-refresh {
+  position: absolute;
+  right: 0;
+  top: 0;
+  -webkit-transform: translateY(-30%) translateX(30%);
+      -ms-transform: translateY(-30%) translateX(30%);
+          transform: translateY(-30%) translateX(30%);
+  display: -webkit-inline-box;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  background: #fff;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  -webkit-box-shadow: 0 0 5px 0 rgba(0,0,0,0.1);
+          box-shadow: 0 0 5px 0 rgba(0,0,0,0.1);
+  padding: 2px;
+  cursor: pointer;
+}
+.bxmaker-authuserphone-captcha-bitrix .bxmaker-authuserphone-refresh svg {
+  -webkit-transition: -webkit-transform 0.3s ease-in-out;
+  transition: -webkit-transform 0.3s ease-in-out;
+  -o-transition: transform 0.3s ease-in-out;
+  transition: transform 0.3s ease-in-out;
+  transition: transform 0.3s ease-in-out, -webkit-transform 0.3s ease-in-out;
+}
+.bxmaker-authuserphone-captcha-bitrix .bxmaker-authuserphone-refresh:hover {
+  background-color: #f2f2f2;
+}
+.bxmaker-authuserphone-captcha-bitrix .bxmaker-authuserphone-refresh:hover svg {
+  -webkit-transform: rotate(45deg);
+      -ms-transform: rotate(45deg);
+          transform: rotate(45deg);
+}
+
+.bxmaker-captcha--authuserphone {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-flex: 1;
+      -ms-flex-positive: 1;
+          flex-grow: 1;
+}
+.bxmaker-captcha--authuserphone .bxmaker-captcha__content {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-flex: 1;
+      -ms-flex-positive: 1;
+          flex-grow: 1;
+}
+.bxmaker-captcha--authuserphone .bxmaker-captcha__content .bxmaker-authuserphone-loader {
+  position: relative;
+  left: 50%;
+  top: 50%;
+  -webkit-transform: translateY(-50%) translateX(-50%);
+      -ms-transform: translateY(-50%) translateX(-50%);
+          transform: translateY(-50%) translateX(-50%);
+  color: #939aa1;
+}

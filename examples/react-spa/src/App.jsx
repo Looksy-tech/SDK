@@ -72,8 +72,11 @@ function useLooksyInitOnRouteChange() {
   }, [location.pathname]);
 }
 
+function setupAddToCartBridge() {}
+
 export default function App() {
   useLooksyInitOnRouteChange();
+  setupAddToCartBridge();
 
   return (
     <Routes>

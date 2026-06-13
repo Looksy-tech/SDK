@@ -1,0 +1,32 @@
+    .js-store-prod-text a {
+    display: inline-block;
+    padding: 10px 15px;
+    margin-right: 15px;
+    margin-top: 20px;
+    font-weight: 600;
+}
+.js-store-prod-text a:first-of-type {
+    background-color: #EEDCCE;
+    color: #791317 
+    border-width: 1px;
+    border-radius: 4px;
+    background-color: #eedcce;
+    border-color: #791317; !important;
+}
+.js-store-prod-text a:last-of-type {
+    background-color: #EEDCCE;
+    color: #791317 
+    border-width: 1px;
+    border-radius: 4px;
+    background-color: #eedcce;
+    border-color: #791317; !important;
+
+}
+.t706__cartwin_showed {
+    z-index: 999999999;
+}
+
+
+.t-store__card__sold-out-msg {
+  visibility: hidden;
+  

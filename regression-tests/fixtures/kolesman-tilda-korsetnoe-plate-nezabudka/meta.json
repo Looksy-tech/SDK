@@ -1,0 +1,19 @@
+{
+  "name": "kolesman-tilda-korsetnoe-plate-nezabudka",
+  "sourceUrl": "https://kolesman.ru/tproduct/160942049062-korsetnoe-plate-nezabudka",
+  "capturedAt": "2026-06-06T23:35:56.522Z",
+  "script": {
+    "src": "https://looksy.tech/min-script.js",
+    "attrs": {
+      "data-shop-token": "cd84db03-009c-4548-96da-76dc9455bf7d"
+    }
+  },
+  "viewports": [
+    "desktop",
+    "mobile"
+  ],
+  "clickButtons": [
+    0
+  ],
+  "notes": "Real Tilda product page."
+}

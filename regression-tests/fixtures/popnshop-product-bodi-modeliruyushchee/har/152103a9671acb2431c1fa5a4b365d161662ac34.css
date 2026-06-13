@@ -1,0 +1,86 @@
+.bxmaker-authid-area {
+  display: block;
+}
+.bxmaker-authid-area__error {
+  padding: 8px;
+  color: #f00;
+}
+.bxmaker-authid-area__line {
+  margin: 24px 0;
+  height: 1px;
+  background-color: #ccc;
+  text-align: center;
+  line-height: 1;
+}
+.bxmaker-authid-area__line span {
+  background-color: #fff;
+  position: relative;
+  top: -0.5em;
+  padding: 0 16px;
+  color: #999;
+  font-weight: 500;
+  font-size: 14px;
+}
+.bxmaker-authid-area__button {
+  margin: 0 8px 16px;
+}
+.bxmaker-authid-area__list {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+  margin: 0 -8px;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+}
+.bxmaker-authid-area__list--personal {
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+}
+.bxmaker-authid-area .bxmaker-authid-area-YandexID-size_xs {
+  max-height: 36px;
+  overflow: hidden;
+}
+.bxmaker-authid-area .bxmaker-authid-area-YandexID-size_s {
+  max-height: 40px;
+  overflow: hidden;
+}
+.bxmaker-authid-area .bxmaker-authid-area-YandexID-size_m {
+  max-height: 44px;
+  overflow: hidden;
+}
+.bxmaker-authid-area .bxmaker-authid-area-YandexID-size_l {
+  max-height: 48px;
+  overflow: hidden;
+}
+.bxmaker-authid-area .bxmaker-authid-area-YandexID-size_xl {
+  max-height: 52px;
+  overflow: hidden;
+}
+.bxmaker-authid-area .bxmaker-authid-area-YandexID-size_xxl {
+  max-height: 56px;
+  overflow: hidden;
+}
+
+.bxmaker-authid-message {
+  display: block;
+  font-size: fontSizeSub;
+  padding: 0;
+  word-break: break-word;
+  border-radius: 3px;
+  margin: 16px 0;
+}
+.bxmaker-authid-message--error {
+  color: #f00;
+}
+.bxmaker-authid-message--success {
+  color: #444;
+}

@@ -1,0 +1,53 @@
+
+
+/* Start:/local/components/mediamint/auth.wrapper/templates/.default/style.css?1769979069926*/
+.wrapper {
+    /*padding: 32px;*/
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    /*display: flex;*/
+    /*justify-content: center;*/
+    /*align-items: center;*/
+}
+
+.bxmaker-authuserphone-enter {
+    width: 100%;
+    box-shadow: none;
+    border: none;
+    display: block;
+    border-radius: 0;
+}
+
+/*.popup .wrapper {*/
+/*    padding: 32px;*/
+/*}*/
+
+.login-by-id-wrapper {
+    margin-top: 30px;
+}
+
+.bxmaker-authuserphone-header {
+    font-weight: 400;
+}
+
+.bxmaker-authuserphone-button__inner {
+    background-color: #d6df78;
+    color: #fff;
+
+    transition: all .3s;
+}
+
+.bxmaker-authuserphone-button:hover .bxmaker-authuserphone-button__inner {
+    background-color: #e3e9a1;
+}
+
+.bxmaker-authuserphone-button__title {
+    font-weight: 400;
+}
+
+.bxmaker-authuserphone-enter-auth-form .bxmaker-authuserphone-enter-auth-form__by:nth-of-type(3) {
+    display: none;
+}
+/* End */
+/* /local/components/mediamint/auth.wrapper/templates/.default/style.css?1769979069926 */

@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Looksy Mock Widget</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      color: #1f2933;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    main {
+      width: min(520px, calc(100vw - 32px));
+      border: 1px solid #d7dce2;
+      border-radius: 8px;
+      background: #fff;
+      padding: 20px;
+      box-shadow: 0 10px 28px rgba(31, 41, 51, 0.12);
+    }
+
+    h1 {
+      margin: 0 0 16px;
+      font-size: 22px;
+      line-height: 1.2;
+    }
+
+    dl {
+      display: grid;
+      grid-template-columns: 112px minmax(0, 1fr);
+      gap: 8px 12px;
+      margin: 0 0 18px;
+      font-size: 14px;
+    }
+
+    dt {
+      font-weight: 700;
+      color: #52606d;
+    }
+
+    dd {
+      margin: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    button {
+      border: 1px solid #9aa5b1;
+      border-radius: 6px;
+      background: #fff;
+      color: #1f2933;
+      min-height: 34px;
+      padding: 0 10px;
+      font: inherit;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Looksy Mock Widget</h1>
+    <dl>
+      <dt>Product name</dt>
+      <dd id="product-name">-</dd>
+      <dt>Product price</dt>
+      <dd id="product-price">-</dd>
+      <dt>Image</dt>
+      <dd id="product-image">-</dd>
+    </dl>
+    <div class="actions">
+      <button type="button" data-action="close">Close</button>
+      <button type="button" data-action="minimize">Minimize</button>
+      <button type="button" data-action="processing">Processing</button>
+      <button type="button" data-action="ready">Ready</button>
+      <button type="button" data-action="error">Error</button>
+      <button type="button" data-action="add-to-cart">Add to cart</button>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      "use strict";
+
+      var product = null;
+      var shopConfig = null;
+
+      function safeJson(value) {
+        try {
+          return JSON.stringify(value || null);
+        } catch (error) {
+          return "null";
+        }
+      }
+
+      function render() {
+        document.body.dataset.product = safeJson(product);
+        document.body.dataset.shopConfig = safeJson(shopConfig);
+        document.getElementById("product-name").textContent = product && product.name || "-";
+        document.getElementById("product-price").textContent = product && product.price || "-";
+        document.getElementById("product-image").textContent = product && product.image || "-";
+      }
+
+      function send(message) {
+        window.parent.postMessage(message, "*");
+      }
+
+      window.addEventListener("message", function (event) {
+        var message = event.data || {};
+        if (message.type === "PRODUCT_DATA") {
+          product = message.product || message.payload || null;
+          render();
+        }
+        if (message.type === "SHOP_CONFIG") {
+          shopConfig = message.config || message.payload || null;
+          render();
+        }
+        if (message.type === "PRESS_ADD_TO_CART_BTN_RESULT") {
+          document.body.dataset.addToCartResult = safeJson(message);
+        }
+      });
+
+      document.addEventListener("click", function (event) {
+        var button = event.target.closest("[data-action]");
+        if (!button) return;
+
+        var action = button.getAttribute("data-action");
+        if (action === "close") send({ type: "CLOSE_WIDGET" });
+        if (action === "minimize") send({ type: "MINIMIZE_WIDGET" });
+        if (action === "processing") send({ type: "PROCESSING" });
+        if (action === "ready") send({ type: "GENERATION_READY" });
+        if (action === "error") send({ type: "GENERATION_ERROR", error: "Mock generation error" });
+        if (action === "add-to-cart") {
+          send({
+            source: "looksy-widget",
+            type: "PRESS_ADD_TO_CART_BTN",
+            request_id: "mock-add-to-cart-request",
+            payload: { quantity: 1 }
+          });
+        }
+      });
+
+      render();
+      send({ type: "WIDGET_READY" });
+    })();
+  </script>
+</body>
+</html>

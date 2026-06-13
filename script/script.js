@@ -13,6 +13,8 @@
   const BUTTON_RENDER_DELAY_MS = 140;
   const ST305N_RELOAD_STEPS_MS = [120, 450, 900, 1600, 2600, 3800];
   const ICON_URL = "https://s3.regru.cloud/looksy-widget/try_on.svg";
+  const GLENFIELD_RU_SHOP_TOKEN = "ru_a5428add-7a7c-41ef-b385-1018c5dd6939";
+  const GLENFIELD_DEBUG_WIDGET_URL = "https://leadsalarm.ru/looksy/widget";
   // =====================================================
 
   // Получаем shopToken из data-атрибута текущего скрипта
@@ -54,6 +56,7 @@
   };
   const DATA_WIDGET_URL = (currentScript && currentScript.getAttribute("data-widget-url") || "").trim();
   const IS_RU_TOKEN = SHOP_TOKEN.startsWith('ru_');
+  const IS_GLENFIELD_DEBUG_WIDGET = SHOP_TOKEN === GLENFIELD_RU_SHOP_TOKEN;
   const RESOLVED_WIDGET_URL = DATA_WIDGET_URL || (LANG === 'en' ? EN_WIDGET_URL : IS_RU_TOKEN ? RU_WIDGET_URL : WIDGET_URL);
 
   if (!SHOP_TOKEN) {
@@ -65,6 +68,10 @@
     const args = Array.prototype.slice.call(arguments);
     args.unshift("[Looksy]");
     console.log.apply(console, args);
+  }
+
+  function getIframeWidgetUrl() {
+    return IS_GLENFIELD_DEBUG_WIDGET ? GLENFIELD_DEBUG_WIDGET_URL : WIDGET_CONFIG.widgetUrl;
   }
 
   const WIDGET_CONFIG = {
@@ -274,9 +281,9 @@
   // Helper: получить origin из URL (нормализованный, без trailing slash)
   function getWidgetOrigin() {
     try {
-      return new URL(WIDGET_CONFIG.widgetUrl).origin;
+      return new URL(getIframeWidgetUrl()).origin;
     } catch (e) {
-      return WIDGET_CONFIG.widgetUrl.replace(/\/$/, "");
+      return getIframeWidgetUrl().replace(/\/$/, "");
     }
   }
 
@@ -523,7 +530,51 @@
         right: 12px;
         bottom: 12px;
       }
+      .${WIDGET_CONFIG.buttonClass}.${BUTTON_SLOT_CLASS},
+      .${WIDGET_CONFIG.buttonClass}.${EN_LAUNCHER_MODIFIER}.${BUTTON_SLOT_CLASS} {
+        position: static !important;
+        right: auto !important;
+        bottom: auto !important;
+        left: auto !important;
+        top: auto !important;
+        transform: none !important;
+      }
+      .${WIDGET_CONFIG.buttonClass}.${BUTTON_FULL_WIDTH_CLASS},
+      .${WIDGET_CONFIG.buttonClass}.${EN_LAUNCHER_MODIFIER}.${BUTTON_FULL_WIDTH_CLASS} {
+        width: 100% !important;
+      }
+      .${WIDGET_CONFIG.buttonClass}.${EN_LAUNCHER_MODIFIER}.${BUTTON_SLOT_CLASS}:hover {
+        padding-right: 16px;
+      }
+      .${WIDGET_CONFIG.buttonClass}.${BUTTON_SLOT_CLASS}.${BUTTON_FULL_WIDTH_CLASS},
+      .${WIDGET_CONFIG.buttonClass}.${EN_LAUNCHER_MODIFIER}.${BUTTON_SLOT_CLASS}.${BUTTON_FULL_WIDTH_CLASS} {
+        display: flex;
+        justify-content: center;
+        min-height: var(--height-buy-buttons, 52px);
+      }
       `
+      }
+      .${WIDGET_CONFIG.buttonClass}.${BUTTON_SLOT_CLASS},
+      .${WIDGET_CONFIG.buttonClass}.${EN_LAUNCHER_MODIFIER}.${BUTTON_SLOT_CLASS} {
+        position: static !important;
+        right: auto !important;
+        bottom: auto !important;
+        left: auto !important;
+        top: auto !important;
+        transform: none !important;
+      }
+      .${WIDGET_CONFIG.buttonClass}.${BUTTON_FULL_WIDTH_CLASS},
+      .${WIDGET_CONFIG.buttonClass}.${EN_LAUNCHER_MODIFIER}.${BUTTON_FULL_WIDTH_CLASS} {
+        width: 100% !important;
+      }
+      .${WIDGET_CONFIG.buttonClass}.${EN_LAUNCHER_MODIFIER}.${BUTTON_SLOT_CLASS}:hover {
+        padding-right: 16px;
+      }
+      .${WIDGET_CONFIG.buttonClass}.${BUTTON_SLOT_CLASS}.${BUTTON_FULL_WIDTH_CLASS},
+      .${WIDGET_CONFIG.buttonClass}.${EN_LAUNCHER_MODIFIER}.${BUTTON_SLOT_CLASS}.${BUTTON_FULL_WIDTH_CLASS} {
+        display: flex;
+        justify-content: center;
+        min-height: var(--height-buy-buttons, 52px);
       }
       .t-store__prod-popup__slider,
       .t-catalog__prod-popup__slider,
@@ -1510,7 +1561,7 @@
       ),
     });
     if (VISITOR_ID) params.set("visitorId", VISITOR_ID);
-    const baseUrl = WIDGET_CONFIG.widgetUrl.replace(/\/$/, "");
+    const baseUrl = getIframeWidgetUrl().replace(/\/$/, "");
     widgetIframe.src = `${baseUrl}/?${params.toString()}`;
 
     // Даём браузеру время отрендерить элементы перед анимацией
@@ -1745,13 +1796,26 @@
     const description = resolveProductDescription(productElement);
     const externalId = productElement.getAttribute("data-fitting-id") || undefined;
 
-    return {
-      image: imageSrc,
-      name: name,
-      price: price,
-      description: description || undefined,
-      external_id: externalId,
+    const buildProductData = function (extendedProductData) {
+      return {
+        image: imageSrc,
+        name: name,
+        price: price,
+        description: description || undefined,
+        external_id: externalId,
+        extendedProductData: extendedProductData,
+      };
     };
+
+    const extendedProductData = extractExtendedProductData();
+
+    if (extendedProductData && typeof extendedProductData.then === "function") {
+      return extendedProductData.then((resolvedExtendedProductData) => {
+        return buildProductData(resolvedExtendedProductData);
+      });
+    }
+
+    return buildProductData(extendedProductData);
   }
 
   function createButton(productElement) {
@@ -1831,10 +1895,33 @@
         ? (resolveOpenProductElement(document) || productElement)
         : productElement;
       const productData = extractProductData(effectiveProduct);
+      if (productData && typeof productData.then === "function") {
+        productData
+          .then((resolvedProductData) => {
+            if (resolvedProductData) {
+              openWidget(resolvedProductData);
+            }
+          })
+          .catch((error) => {
+            debugLog("product data extraction failed", error);
+          });
+        return;
+      }
+
       if (productData) {
         openWidget(productData);
       }
     });
+
+    if (
+      tryRenderButtonInCustomSlot({
+        productElement: productElement,
+        button: button,
+        existingButton: existingButton,
+      })
+    ) {
+      return;
+    }
 
     const imageElement = productElement.querySelector(
       WIDGET_CONFIG.imageSelector,
@@ -1873,6 +1960,111 @@
     console.log(`Virtual Fitting: Initialized ${count} buttons`);
   }
 
+  function tryClickAddToCartButton(offerId) {
+    if (!offerId) return false;
+    var selectors = [
+      '[data-offer-id="' + offerId + '"]',
+      '[data-fitting-offer-id="' + offerId + '"]',
+      '[data-product-id="' + offerId + '"]',
+      'button[data-id="' + offerId + '"]',
+      'a[data-id="' + offerId + '"]',
+      '[data-sku="' + offerId + '"]',
+    ];
+    for (var i = 0; i < selectors.length; i++) {
+      var el = document.querySelector(selectors[i]);
+      if (el) {
+        el.click();
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function detectBitrixCartConfig() {
+    try {
+      var entries = window.performance && window.performance.getEntriesByType("resource");
+      if (!entries) return null;
+      var fallback = null;
+      for (var i = 0; i < entries.length; i++) {
+        var u = entries[i].name || "";
+        // Primary: Intec basket component URL with parameters[ID] — this is the real add-to-cart endpoint
+        if (u.indexOf("component=intec.universe") !== -1 &&
+            u.indexOf("sale.basket") !== -1 &&
+            u.indexOf("page=components.get") !== -1 &&
+            u.indexOf("parameters%5BID%5D=") !== -1) {
+          return { intecBasketTemplate: u };
+        }
+        // Fallback: classic request.php with siteId+templateId
+        if (!fallback) {
+          var idx = u.indexOf("/request.php");
+          if (idx === -1) continue;
+          var base = u.substring(0, idx + "/request.php".length);
+          var qs = u.indexOf("?") !== -1 ? u.substring(u.indexOf("?") + 1) : "";
+          var siteId = "";
+          var templateId = "";
+          qs.split("&").forEach(function(p) {
+            var kv = p.split("=");
+            if (kv[0] === "siteId") siteId = decodeURIComponent(kv[1] || "");
+            if (kv[0] === "templateId") templateId = decodeURIComponent(kv[1] || "");
+          });
+          if (siteId && templateId) {
+            fallback = { url: base, siteId: siteId, templateId: templateId };
+          }
+        }
+      }
+      return fallback;
+    } catch (e) {}
+    return null;
+  }
+
+  function addToCartBitrix(productId, config) {
+    if (config.intecBasketTemplate) {
+      // Replace parameters[ID] in the Intec basket component URL
+      var url = config.intecBasketTemplate.replace(
+        /(parameters%5BID%5D=)[^&]*/i,
+        "$1" + encodeURIComponent(String(productId))
+      );
+      return fetch(url, { method: "GET", credentials: "same-origin" })
+        .then(function(r) { return r.ok; })
+        .catch(function() { return false; });
+    }
+    // Fallback: basket.add POST
+    var formData = new FormData();
+    formData.append("actions[0][name]", "basket.add");
+    formData.append("actions[0][data][quantity]", "0");
+    formData.append("actions[0][data][price]", "1");
+    formData.append("actions[0][data][additional]", "true");
+    formData.append("actions[0][data][id]", String(productId));
+    var postUrl = config.url + "?siteId=" + encodeURIComponent(config.siteId) + "&templateId=" + encodeURIComponent(config.templateId);
+    return fetch(postUrl, { method: "POST", credentials: "same-origin", body: formData })
+      .then(function(r) { return r.ok; })
+      .catch(function() { return false; });
+  }
+
+  function handleAddToCart(offerId, additionalItems) {
+    if (window.VirtualFitting && typeof window.VirtualFitting.onAddToCart === "function") {
+      return window.VirtualFitting.onAddToCart(offerId, additionalItems);
+    }
+    var success = tryClickAddToCartButton(offerId);
+
+    if (additionalItems && additionalItems.length) {
+      var bitrixConfig = detectBitrixCartConfig();
+      for (var i = 0; i < additionalItems.length; i++) {
+        var extId = additionalItems[i].external_id;
+        if (!extId) continue;
+        if (bitrixConfig) {
+          addToCartBitrix(extId, bitrixConfig);
+        } else {
+          tryClickAddToCartButton(extId);
+        }
+      }
+    }
+
+    window.dispatchEvent(new CustomEvent("looksy:additional-items", { detail: { items: additionalItems } }));
+    window.dispatchEvent(new CustomEvent("looksy:add-to-cart", { detail: { offer_id: offerId, additional_items: additionalItems, success: success } }));
+    return success;
+  }
+
   function setupMessageListener() {
     const widgetOrigin = getWidgetOrigin();
 
@@ -1880,7 +2072,8 @@
       // Проверяем что сообщение пришло от нашего виджета
       if (event.origin !== widgetOrigin) return;
 
-      const { type, data } = event.data;
+      const message = event.data || {};
+      const { type, source, request_id, payload } = message;
 
       switch (type) {
         case "CLOSE_WIDGET":
@@ -1907,6 +2100,15 @@
               product: currentProduct,
             });
           }
+          break;
+
+        case "PRESS_ADD_TO_CART_BTN":
+          if (source && source !== "looksy-widget") return;
+          if (!request_id) {
+            debugLog("PRESS_ADD_TO_CART_BTN: missing request_id");
+            break;
+          }
+          dispatchAddToCartRequest(payload || {}, request_id);
           break;
 
         case "PROCESSING":
@@ -1944,7 +2146,6 @@
           }
           break;
 
-          
         default:
           break;
       }
@@ -2159,11 +2360,878 @@
     }
   }
   
+ 
+
+  // ============================================================================
+  // CUSTOM BUTTON SLOT PLACEMENT
+  // ============================================================================
+  //
+  // Optional manual placement for the Try On button.
+  //
+  // Public HTML API:
+  //
+  //   <div data-fitting-button-slot></div>
+  //   <div data-fitting-button-slot data-fitting-full-width="true"></div>
+  //
+  // If a slot exists inside the current product context, the SDK renders or
+  // moves the Try On button into that slot and skips the default absolute
+  // image placement.
+  // ============================================================================
+
+  const BUTTON_SLOT_SELECTOR = "[data-fitting-button-slot]";
+  const BUTTON_SLOT_CLASS = "virtual-fitting-button-slot";
+  const BUTTON_FULL_WIDTH_CLASS = "virtual-fitting-button-full-width";
+  const FULL_WIDTH_ATTR = "data-fitting-full-width";
+
+  function isCustomSlotButtonDebugEnabled() {
+    try {
+      return new URLSearchParams(window.location.search).get("slot_button_debug") === "true";
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function isTruthyFittingAttribute(value) {
+    if (value == null) return false;
+
+    var normalized = String(value).trim().toLowerCase();
+    return normalized === "" || normalized === "true" || normalized === "1" || normalized === "yes";
+  }
+
+  function getButtonSlotContexts(productElement) {
+    var contexts = [];
+    var seen = [];
+
+    function pushContext(ctx) {
+      if (!ctx || !ctx.nodeType) return;
+      if (ctx === document || ctx === document.body || ctx === document.documentElement) return;
+      if (seen.indexOf(ctx) !== -1) return;
+      seen.push(ctx);
+      contexts.push(ctx);
+    }
+
+    pushContext(productElement);
+    pushContext(resolveOpenProductElement(productElement));
+    pushContext(getOpenCardRoot(productElement));
+
+    if (productElement && productElement.closest) {
+      pushContext(
+        productElement.closest(
+          ".js-store-prod-all, .js-catalog-prod-all, .js-product-single-wrapper, .t-store__prod-popup, .t-catalog__prod-popup, .js-store-product, .js-catalog-product, .t-store__product-snippet, .t-catalog__product-snippet",
+        ),
+      );
+    }
+
+    return contexts;
+  }
+
+  function resolveButtonSlotElement(productElement) {
+    var contexts = getButtonSlotContexts(productElement);
+
+    for (var i = 0; i < contexts.length; i++) {
+      var ctx = contexts[i];
+      if (!ctx || !ctx.querySelector) continue;
+
+      var slot = ctx.querySelector(BUTTON_SLOT_SELECTOR);
+      if (slot) return slot;
+    }
+
+    return null;
+  }
+
+  function applyCustomSlotButtonClasses(button, slotElement) {
+    if (!button) return;
+
+    button.classList.add(BUTTON_SLOT_CLASS);
+    button.classList.toggle(BUTTON_FULL_WIDTH_CLASS, isTruthyFittingAttribute(slotElement && slotElement.getAttribute(FULL_WIDTH_ATTR)));
+  }
+
+  function removeCustomSlotButtonClasses(button) {
+    if (!button) return;
+
+    button.classList.remove(BUTTON_SLOT_CLASS);
+    button.classList.remove(BUTTON_FULL_WIDTH_CLASS);
+  }
+
+  function tryRenderButtonInCustomSlot(args) {
+    var productElement = args.productElement;
+    var button = args.button;
+    var existingButton = args.existingButton;
+
+    if (!isCustomSlotButtonDebugEnabled()) {
+      if (existingButton) {
+        removeCustomSlotButtonClasses(existingButton);
+      }
+      return false;
+    }
+
+    var slotElement = resolveButtonSlotElement(productElement);
+
+    if (!slotElement) {
+      if (existingButton) {
+        removeCustomSlotButtonClasses(existingButton);
+      }
+      return false;
+    }
+
+    var targetButton = existingButton || button;
+    applyCustomSlotButtonClasses(targetButton, slotElement);
+
+    if (targetButton.parentNode !== slotElement) {
+      slotElement.appendChild(targetButton);
+    }
+
+    return true;
+  }
+
+  // ============================================================================
+  // END CUSTOM BUTTON SLOT PLACEMENT
+  // ============================================================================
+
+
+
+
+  // ============================================================================
+  // EXTENDED PRODUCT DATA ADAPTERS
+  // ============================================================================
+  //
+  // Optional extra product data extraction.
+  //
+  // Main code only calls:
+  //
+  // extendedProductData: extractExtendedProductData()
+  //
+  // The function reads data-adapter from the current script tag.
+  // Popnshop keeps its existing adapter/debug behavior.
+  // Glenfield returns a Promise because it fetches offer data before opening the widget.
+  // If adapter is missing or extraction fails, it returns null.
+  //
+  // This block must stay isolated at the bottom of the file.
+  // ============================================================================
+
+  // Reads the adapter name from the Looksy script tag so the SDK can pick the
+  // matching product-data parser and add-to-cart handler.
+  function getLooksyAdapterName() {
+    const script =
+      document.currentScript ||
+      document.querySelector("script[data-shop-token]");
+
+    return script?.getAttribute("data-adapter") || "";
+  }
+
+
+
+  function isGlenfieldAdapterRequested() {
+    try {
+      return (
+        getLooksyAdapterName() === "glenfield" ||
+        new URLSearchParams(window.location.search).get("glenfield_debug") === "true"
+      );
+    } catch (error) {
+      return false;
+    }
+  }
+
+
+  // Returns true when Popnshop should own the Bitrix adapter flow.
+  function isPopnshopAdapterEnabled() {
+    try {
+      return (
+        getLooksyAdapterName() === "popnshop" ||
+        shopConfig.adapter === "popnshop" ||
+        new URLSearchParams(window.location.search).get("popnshop_debug") === "true"
+      );
+    } catch (error) {
+      return false;
+    }
+  }
+
+
+
+  // Entry point for extended product data extraction.
+  // Popnshop stays synchronous; Glenfield returns a Promise with fetched offers.
+  function extractExtendedProductData() {
+    try {
+      if (isGlenfieldAdapterRequested()) {
+        console.log("[Looksy][Glenfield] adapter enabled");
+        return extract_Glenfield_ExtendedProductData().catch(() => null);
+      }
+
+      if (isPopnshopAdapterEnabled()) {
+        console.log("[Looksy][Popnshop] adapter enabled");
+        return extract_Popnshop_ExtendedProductData();
+      }
+
+      return null;
+    } catch (error) {
+      return null;
+    }
+  }
+
+
+  // ============================================================================
+  // POPNSHOP FOR BITRIX ADAPTER
+
+  function extract_Popnshop_ExtendedProductData() {
+    const root = document.querySelector(
+      ".c-catalog-element[data-data][data-properties]"
+    );
+
+    if (!root) return null;
+
+    let productData = null;
+    let properties = null;
+
+    try {
+      productData = JSON.parse(root.getAttribute("data-data"));
+      properties = JSON.parse(root.getAttribute("data-properties"));
+    } catch (error) {
+      return null;
+    }
+
+    if (!productData || !Array.isArray(properties)) return null;
+
+    const offers = productData.offers || {};
+    const offerFromUrl = new URLSearchParams(window.location.search).get("offer");
+
+    const selectedOffer =
+      (offerFromUrl && offers[offerFromUrl]) ||
+      Object.values(offers).find((offer) => offer?.available) ||
+      Object.values(offers)[0] ||
+      null;
+
+    if (!selectedOffer) return null;
+
+    const variants = properties
+      .map((property) => ({
+        code: property.code,
+        name: property.name,
+        type: property.type || null,
+        values: Object.entries(property.values || {})
+          .filter(([id, value]) => (
+            id !== "0" &&
+            value &&
+            value.id !== 0 &&
+            value.name !== "-" &&
+            value.stub !== true
+          ))
+          .map(([id, value]) => ({
+            id: String(id),
+            name: value.name,
+            picture: value.picture || null,
+          })),
+      }))
+      .filter((property) => property.values.length > 0);
+
+    // Full map of every offer (SKU) and the exact variant combination it
+    // represents, so the widget can resolve the target offer_id itself when
+    // the user switches a variant — then send that offer_id back to us to add.
+    const extractOfferPrice = (offer) => {
+      const price = (offer.prices && offer.prices[0]) || null;
+      if (!price) return null;
+      const source =
+        price.discount && price.discount.use ? price.discount : price.base;
+      if (!source) return null;
+      return { value: source.value, display: source.display || null };
+    };
+
+    const offerList = Object.values(offers).map((offer) => ({
+      id: String(offer.id),
+      values: offer.values || {},
+      available: !!offer.available,
+      price: extractOfferPrice(offer),
+    }));
+
+    const result = {
+      product_id: String(productData.id),
+      variants,
+      selected: selectedOffer.values || {},
+      offers: offerList,
+    };
+
+    console.log("[Looksy] extendedProductData", result);
+
+    return result;
+  }
+
+  // ============================================================================
+  // GLENFIELD FOR BITRIX ADAPTER
+  // ============================================================================
+
+  // Collects Glenfield product data in one step and returns the final DTO.
+  async function extract_Glenfield_ExtendedProductData() {
+    // GLENFIELD DATA COLLECTION FLOW:
+    //
+    // 1. Find product root.
+    // 2. Read product id.
+    // 3. Read active color xml id.
+    // 4. Read DOM sizes only as source data.
+    // 5. Fetch offer data for every size.
+    // 6. Read fields.id as offer_id.
+    // 7. Build offers from successful responses.
+    // 8. Build variants from offers.
+    // 9. Build final DTO.
+    // 10. Return DTO.
+
+    console.log("[Looksy][Glenfield] STEP 1: start extracting data");
+
+    // STEP 1: Find product root
+    const root = document.querySelector(".card-product.card-product_page[data-id]");
+
+    if (!root) {
+      console.log("[Looksy][Glenfield] product root not found");
+      return null;
+    }
+
+    console.log("[Looksy][Glenfield] product root", root);
+
+    // STEP 2: Read product id
+    const productId = String(root.getAttribute("data-id") || "").trim();
+
+    if (!productId) {
+      console.log("[Looksy][Glenfield] productId not found");
+      return null;
+    }
+
+    console.log("[Looksy][Glenfield] productId", productId);
+
+    // STEP 3: Read active color xml id
+    const activeColorEl =
+      root.querySelector(".goods-var_colors .goods-var-item_active") ||
+      root.querySelector(".goods-var_colors .goods-var-item[data-color]") ||
+      root.querySelector(".goods-var_colors .goods-var-item");
+
+    const colorXmlId = String(
+      activeColorEl?.getAttribute("data-color") ||
+        activeColorEl?.getAttribute("data-color-xml-id") ||
+        activeColorEl?.getAttribute("data-xml-id") ||
+        activeColorEl?.getAttribute("data-id") ||
+        "",
+    ).trim();
+
+    if (!colorXmlId) {
+      console.log("[Looksy][Glenfield] colorXmlId not found", activeColorEl);
+      return null;
+    }
+
+    console.log("[Looksy][Glenfield] colorXmlId", colorXmlId);
+
+    // STEP 4: Read DOM sizes only as source data
+    const sizeSourceList = Array.from(
+      root.querySelectorAll(".goods-var_size .goods-var-item[data-size]"),
+    )
+      .map((el) => {
+        const className = el.className || "";
+
+        return {
+          sizeXmlId: String(el.getAttribute("data-size") || "").trim(),
+          label: String(el.textContent || "").replace(/\s+/g, " ").trim(),
+          selected: el.classList.contains("goods-var-item_active"),
+          disabled:
+            className.includes("disabled") ||
+            className.includes("goods-var-item_disabled") ||
+            el.getAttribute("aria-disabled") === "true",
+        };
+      })
+      .filter((item) => {
+        return item.sizeXmlId && item.label && !item.disabled;
+      });
+
+    console.log("[Looksy][Glenfield] size source list", sizeSourceList);
+
+    if (!sizeSourceList.length) {
+      console.log("[Looksy][Glenfield] sizes not found");
+      return null;
+    }
+
+    // STEP 5: Fetch offer data for every size
+    console.log("[Looksy][Glenfield] STEP 5: fetch offers");
+
+    const offerResults = await Promise.all(
+      sizeSourceList.map(async (size) => {
+        try {
+          const requestBody = new URLSearchParams({
+            el_id: productId,
+            color_xml_id: colorXmlId,
+            size_xml_id: size.sizeXmlId,
+            getPictures: "false",
+          });
+
+          console.log("[Looksy][Glenfield] fetch request", {
+            size: size,
+            body: requestBody.toString(),
+          });
+
+          const response = await fetch("/local/ajax/getCartData.php", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+              "X-Requested-With": "XMLHttpRequest",
+            },
+            credentials: "same-origin",
+            body: requestBody,
+          });
+
+          const data = await response.json();
+
+          console.log("[Looksy][Glenfield] fetch response", {
+            size: size,
+            data: data,
+          });
+
+          if (!data || data.res !== true || !data.fields || !data.fields.id) {
+            console.log("[Looksy][Glenfield] invalid offer response", {
+              size: size,
+              data: data,
+            });
+
+            return null;
+          }
+
+          const quantity = Number(data.fields.quantity || 0);
+
+          // STEP 6: Read fields.id as offer_id
+          return {
+            sizeXmlId: size.sizeXmlId,
+            label: size.label,
+            selected: size.selected,
+            offer: {
+              id: String(data.fields.id),
+              available:
+                data.fields.active === "Y" &&
+                data.fields.in_online_store === true &&
+                quantity > 0,
+              quantity: quantity,
+              price: data.fields.price || null,
+              price_raw: data.fields.price_raw ?? null,
+              old_price: data.fields.old_price ?? null,
+              values: {
+                SIZE: String(size.sizeXmlId),
+                COLOR: String(colorXmlId),
+              },
+            },
+          };
+        } catch (error) {
+          console.log("[Looksy][Glenfield] fetch failed", {
+            size: size,
+            error: error,
+          });
+
+          return null;
+        }
+      }),
+    );
+
+    // STEP 7: Build offers from successful responses
+    const successfulResults = offerResults.filter(Boolean);
+    const offers = successfulResults.map((item) => item.offer);
+
+    console.log("[Looksy][Glenfield] successful offer results", successfulResults);
+    console.log("[Looksy][Glenfield] offers", offers);
+
+    if (!offers.length) {
+      console.log("[Looksy][Glenfield] no offers collected");
+      return null;
+    }
+
+    // STEP 8: Build variants from offers
+    const sizeVariantValues = successfulResults.map((item) => {
+      return {
+        id: String(item.sizeXmlId),
+        name: item.label,
+      };
+    });
+
+    const selectedSource =
+      successfulResults.find((item) => item.selected) ||
+      successfulResults[0];
+
+    const variants = [
+      {
+        code: "SIZE",
+        name: "Размер",
+        values: sizeVariantValues,
+      },
+    ];
+
+    // STEP 9: Build final DTO
+    const result = {
+      adapter: "glenfield",
+      product_id: String(productId),
+      color_xml_id: String(colorXmlId),
+      variants: variants,
+      selected: {
+        SIZE: selectedSource ? String(selectedSource.sizeXmlId) : "",
+        COLOR: String(colorXmlId),
+      },
+      offers: offers,
+    };
+
+    // STEP 10: Return DTO
+    console.log("[Looksy][Glenfield] received result", result);
+
+    return result;
+  }
+
+  // ============================================================================
+  // ADD TO CART BRIDGE
+  // ============================================================================
+
+  const ADD_TO_CART_RESPONSE_TIMEOUT_MS = 15000;
+
+  function sendAddToCartResult(requestId, success, message) {
+    console.log("[Looksy] add-to-cart result -> iframe", {
+      request_id: requestId,
+      success: !!success,
+      message: message || undefined,
+    });
+    postMessageToIframe({
+      source: "looksy-sdk",
+      type: "PRESS_ADD_TO_CART_BTN_RESULT",
+      request_id: requestId,
+      success: !!success,
+      message: message || undefined,
+    });
+  }
+
+  function dispatchAddToCartRequest(payload, requestId) {
+    let responded = false;
+
+    console.log("[Looksy] add-to-cart request <- iframe", {
+      request_id: requestId,
+      payload,
+    });
+
+    const reply = function (result) {
+      if (responded) return;
+      responded = true;
+      console.log("[Looksy] add-to-cart reply <- parent", {
+        request_id: requestId,
+        success: !!(result && result.success),
+        message: result && result.message ? String(result.message) : undefined,
+      });
+      sendAddToCartResult(
+        requestId,
+        !!(result && result.success),
+        result && result.message ? String(result.message) : "",
+      );
+    };
+
+    // Global safety net: if the handler never settles, fail closed so the
+    // iframe is not left waiting forever.
+    window.setTimeout(function () {
+      if (responded) return;
+      reply({
+        success: false,
+        message: "Add-to-cart handler did not respond",
+      });
+    }, ADD_TO_CART_RESPONSE_TIMEOUT_MS);
+
+    try {
+      if (isGlenfieldAdapterRequested()) {
+        perform_Glenfield_AddToCart(payload || {}, reply);
+        return;
+      }
+
+      perform_Popnshop_AddToCart(payload || {}, reply);
+    } catch (error) {
+      debugLog("add-to-cart handler failed", error);
+      reply({
+        success: false,
+        message: "Add-to-cart handler threw an error",
+      });
+    }
+  }
+
+  // ====================================================================
+  // POPNSHOP ADD TO CART BTN
+  // 
+  // Performs add-to-cart on Bitrix/Intec storefronts (e.g. popnshop.ru).
+  //
+  // Intec renders a basket control for every offer:
+  //   <div class="intec-ui intec-ui-control-basket-button"
+  //        data-basket-id="<offerId>" data-basket-action="add"
+  //        data-basket-state="none"> ... </div>
+  //
+  // Intec binds its own click handler to that element and runs the real
+  // basket AJAX request (correct session, CSRF, stock checks, etc.). While
+  // the request is in flight it sets data-basket-state="processing"; on
+  // success the state becomes a terminal in-basket value ("basket"), on
+  // failure it reverts to "none".
+  //
+  // We don't reimplement their AJAX — we drive their own button with the
+  // offer_id coming from the iframe and watch data-basket-state to learn the
+  // outcome, then report it back through `reply`.
+  //
+  // The widget already knows the full offer map (sent in extendedProductData),
+  // so it resolves the variant combination to a concrete offer_id itself and
+  // sends just that offer_id here.
+  function perform_Popnshop_AddToCart(payload, reply) {
+    const offerId = String(payload.offer_id || "").trim();
+
+    if (!offerId) {
+      reply({
+        success: false,
+        message: "offer_id is missing in payload",
+      });
+      return;
+    }
+
+    const button = document.querySelector(
+      '.intec-ui-control-basket-button[data-basket-id="' +
+        offerId +
+        '"][data-basket-action="add"]',
+    );
+
+    if (!button) {
+      reply({
+        success: false,
+        message: "Add-to-cart button not found for offer " + offerId,
+      });
+      return;
+    }
+
+    const currentState = function () {
+      return button.getAttribute("data-basket-state") || "none";
+    };
+    // Intec uses "none" (not in basket) and "processing" (request in flight);
+    // any other terminal value means the offer is in the basket.
+    const isInBasket = function (state) {
+      return state !== "none" && state !== "processing";
+    };
+
+    // Already in the basket — treat as success without re-adding.
+    if (isInBasket(currentState())) {
+      reply({ success: true, message: "Already in basket" });
+      return;
+    }
+
+    let settled = false;
+    let timer = null;
+    const observer = new MutationObserver(function () {
+      const state = currentState();
+      if (state === "processing") return; // still in flight, keep waiting
+
+      if (isInBasket(state)) {
+        settle(true, "");
+      } else {
+        // Reverted to "none" => Intec rejected it (out of stock, error, ...).
+        settle(false, "Item was not added to basket");
+      }
+    });
+
+    function settle(success, message) {
+      if (settled) return;
+      settled = true;
+      observer.disconnect();
+      if (timer) window.clearTimeout(timer);
+      reply({ success: success, message: message });
+    }
+
+    observer.observe(button, {
+      attributes: true,
+      attributeFilter: ["data-basket-state"],
+    });
+
+    // If Intec never settles the state, fall back to whatever it ended on.
+    timer = window.setTimeout(function () {
+      const inBasket = isInBasket(currentState());
+      settle(inBasket, inBasket ? "" : "Add-to-cart timed out");
+    }, ADD_TO_CART_RESPONSE_TIMEOUT_MS - 1000);
+
+    // Trigger Intec's own add-to-cart flow.
+    button.click();
+
+    // Additional items from recommendations — trigger via virtual Intec basket button.
+    var additionalItems = payload.additional_items || [];
+    for (var ai = 0; ai < additionalItems.length; ai++) {
+      var extId = additionalItems[ai].external_id;
+      if (!extId) continue;
+      var vBtn = document.createElement('div');
+      vBtn.setAttribute('data-basket-id', String(extId));
+      vBtn.setAttribute('data-basket-action', 'add');
+      vBtn.setAttribute('data-basket-state', 'none');
+      vBtn.style.cssText = 'position:fixed;left:-9999px;top:-9999px;';
+      document.body.appendChild(vBtn);
+      vBtn.click();
+      (function(b) {
+        setTimeout(function() { try { document.body.removeChild(b); } catch(e) {} }, 15000);
+      })(vBtn);
+    }
+  }
+
+
+  // ====================================================================
+  // GLENFIELD ADD TO CART BTN
+  //
+  // Glenfield uses native size swatches and its own basket button, so the SDK
+  // clicks the size first, waits for the offer id to settle, then triggers the
+  // page's own add-to-cart flow.
+  function perform_Glenfield_AddToCart(payload, reply) {
+    const root = document.querySelector(".card-product.card-product_page[data-id]");
+
+    if (!root) {
+      reply({
+        success: false,
+        message: "Glenfield product root not found",
+      });
+      return;
+    }
+
+    const offerId = textOrEmpty(payload && payload.offer_id);
+    // The widget normally sends only offer_id. Glenfield needs the SIZE xml id
+    // to activate the native size swatch before clicking its own basket button.
+    let sizeXmlId = textOrEmpty(
+      (payload && payload.values && payload.values.SIZE) ||
+        (payload && payload.selected && payload.selected.SIZE) ||
+        (payload && payload.size_xml_id) ||
+        (payload && payload.size_id),
+    );
+
+    if (!sizeXmlId && offerId && currentProduct?.extendedProductData?.offers) {
+      const matchingOffer = currentProduct.extendedProductData.offers.find(function (offer) {
+        return textOrEmpty(offer && offer.id) === offerId;
+      });
+      sizeXmlId = textOrEmpty(matchingOffer && matchingOffer.values && matchingOffer.values.SIZE);
+    }
+
+    console.log("[Looksy][Glenfield] add-to-cart request", {
+      offerId: offerId,
+      sizeXmlId: sizeXmlId,
+      payload: payload,
+    });
+
+    if (!sizeXmlId && !offerId) {
+      reply({
+        success: false,
+        message: "Glenfield size or offer_id is missing",
+      });
+      return;
+    }
+
+    const sizeButton = sizeXmlId
+      ? root.querySelector(
+          '.goods-var_size .goods-var-item[data-size="' +
+            String(sizeXmlId).replace(/"/g, '\\"') +
+            '"]',
+        )
+      : null;
+
+    if (sizeXmlId && !sizeButton) {
+      reply({
+        success: false,
+        message: "Glenfield size button not found",
+      });
+      return;
+    }
+
+    const addButtonSelector = ".js-add-basket[data-id]";
+    const getAddButton = function () {
+      return root.querySelector(addButtonSelector);
+    };
+    const getCurrentOfferId = function () {
+      const addButton = getAddButton();
+      return addButton ? textOrEmpty(addButton.getAttribute("data-id")) : "";
+    };
+    const isSizeActive = function () {
+      return !sizeButton || sizeButton.classList.contains("goods-var-item_active");
+    };
+    const triggerClick = function (el) {
+      if (!el) return;
+      if (typeof el.click === "function") {
+        el.click();
+        return;
+      }
+      el.dispatchEvent(
+        new MouseEvent("click", {
+          bubbles: true,
+          cancelable: true,
+          view: window,
+        }),
+      );
+    };
+
+    if (sizeButton && !sizeButton.classList.contains("goods-var-item_active")) {
+      triggerClick(sizeButton);
+    }
+
+    let settled = false;
+    let timer = null;
+    const startedAt = Date.now();
+    const timeoutMs = 3000;
+
+    const settle = function (success, message) {
+      if (settled) return;
+      settled = true;
+      if (timer) window.clearInterval(timer);
+      reply({
+        success: success,
+        message: message,
+      });
+    };
+
+    timer = window.setInterval(function () {
+      const addButton = getAddButton();
+      const currentOfferId = getCurrentOfferId();
+      const ready =
+        !!addButton &&
+        isSizeActive() &&
+        (offerId ? currentOfferId === offerId : !!currentOfferId);
+
+      if (!ready) {
+        if (Date.now() - startedAt > timeoutMs) {
+          settle(false, "Glenfield add-to-cart button did not become ready");
+        }
+        return;
+      }
+
+      if (timer) window.clearInterval(timer);
+
+      const beforeCartCount = textOrEmpty(
+        document.querySelector("#cart_quality_top")?.textContent,
+      );
+
+      console.log("[Looksy][Glenfield] clicking native add button", {
+        currentOfferId: currentOfferId,
+        expectedOfferId: offerId,
+        beforeCartCount: beforeCartCount,
+      });
+
+      triggerClick(addButton);
+
+      window.setTimeout(function () {
+        const afterCartCount = textOrEmpty(
+          document.querySelector("#cart_quality_top")?.textContent,
+        );
+        const result = {
+          success: true,
+          message:
+            afterCartCount && afterCartCount !== beforeCartCount
+              ? "Added to cart"
+              : "Native add-to-cart clicked",
+        };
+
+        console.log("[Looksy][Glenfield] add-to-cart result", {
+          currentOfferId: currentOfferId,
+          beforeCartCount: beforeCartCount,
+          afterCartCount: afterCartCount,
+          result: result,
+        });
+
+        settle(result.success, result.message);
+      }, 800);
+    }, 80);
+  }
+
+  // ============================================================================
+  // END ADD TO CART BRIDGE
+  // ============================================================================
 
   window.VirtualFitting = {
     open: openWidget,
     close: closeWidget,
     init: initButtons,
+    onAddToCart: null,
     track: function(eventName, data) { _sendEvent(eventName, data || {}); },
   };
 

@@ -1,0 +1,109 @@
+.widget.c-product-timer.c-product-timer-template-1 {
+  display: block;
+}
+.widget.c-product-timer.c-product-timer-template-1 .widget-date-end {
+  display: none;
+}
+.widget.c-product-timer.c-product-timer-template-1 .widget-title {
+  font-size: 16px;
+  margin-bottom: 7px;
+}
+.widget.c-product-timer.c-product-timer-template-1 .widget-time-header,
+.widget.c-product-timer.c-product-timer-template-1 .widget-quantity-header {
+  margin-bottom: 8px;
+  font-weight: 500;
+  font-size: 12px;
+  color: #404040;
+  word-break: break-all;
+  max-width: 110px;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  max-height: 34px;
+}
+.widget.c-product-timer.c-product-timer-template-1 .widget-timer-items {
+  display: inline-block;
+}
+.widget.c-product-timer.c-product-timer-template-1 .widget-timer-item {
+  padding: 6px;
+  text-align: center;
+  background-color: #F2F2F2;
+  max-width: 65px;
+  min-width: 40px;
+  font-size: 0;
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  border-radius: 2px;
+}
+.widget.c-product-timer.c-product-timer-template-1 .widget-timer-item.widget-timer-item-quantity {
+  background-color: #FBCD56;
+}
+.widget.c-product-timer.c-product-timer-template-1 .widget-timer-item-title {
+  font-weight: bold;
+  font-size: 14px;
+  line-height: 1;
+  color: #404040;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.widget.c-product-timer.c-product-timer-template-1 .widget-timer-item-title-delimeter {
+  display: none;
+  vertical-align: middle;
+  font-weight: bold;
+  font-size: 14px;
+  line-height: 16px;
+  color: #404040;
+}
+.widget.c-product-timer.c-product-timer-template-1 .widget-timer-item-description {
+  font-weight: 500;
+  margin-top: 2px;
+  font-size: 11px;
+  line-height: 12px;
+  color: #808080;
+  overflow: hidden;
+}
+@media all and (max-width: 768px) {
+  .widget.c-product-timer.c-product-timer-template-1 .widget-time-header,
+.widget.c-product-timer.c-product-timer-template-1 .widget-quantity-header {
+    display: none;
+  }
+  .widget.c-product-timer.c-product-timer-template-1 .widget-quantity-wrapper {
+    display: none;
+  }
+  .widget.c-product-timer.c-product-timer-template-1 .widget-timer-item-title {
+    display: inline-block;
+    vertical-align: middle;
+    font-size: 14px;
+    line-height: 16px;
+    min-width: 24px;
+  }
+  .widget.c-product-timer.c-product-timer-template-1 .widget-timer-item-title-delimeter {
+    display: inline-block;
+  }
+  .widget.c-product-timer.c-product-timer-template-1 .widget-timer-item-description {
+    display: none;
+  }
+  .widget.c-product-timer.c-product-timer-template-1 .widget-timer-item-description[data-role="days.sign"] {
+    display: inline-block;
+    vertical-align: middle;
+    margin-top: 0;
+    margin-left: 4px;
+  }
+  .widget.c-product-timer.c-product-timer-template-1 .widget-timer-items {
+    background-color: #F2F2F2;
+    padding: 6px;
+    border: 1px solid #E8E8E8;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    border-radius: 2px;
+  }
+  .widget.c-product-timer.c-product-timer-template-1 .widget-timer-item {
+    padding: 0;
+    margin: 0 auto;
+    min-width: unset;
+    max-width: unset;
+  }
+}
+
+/*# sourceMappingURL=style.css.map */
