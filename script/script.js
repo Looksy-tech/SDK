@@ -25,17 +25,11 @@
   const LANG = currentScript?.getAttribute('data-lang') || '';
   const VISITOR_ID = (function() {
     var fromAttr = (currentScript?.getAttribute('data-fitting-visitor-id') || '').trim().slice(0, 255);
-    if (fromAttr) return fromAttr;
-    try {
-      var stored = localStorage.getItem('looksy_vid');
-      if (stored) return stored;
-      var newId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID()
-        : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-            var r = Math.random() * 16 | 0; return (c === 'x' ? r : r & 0x3 | 0x8).toString(16);
-          });
-      localStorage.setItem('looksy_vid', newId);
-      return newId;
-    } catch(e) { return ''; }
+    return fromAttr || null;
+  })();
+   const OFFER_ID = (function() {
+    var fromAttr = (currentScript?.getAttribute('data-fitting-offer-id') || '').trim().slice(0, 255);
+    return fromAttr || null;
   })();
   /** Внешняя кнопка на витрине: отдельный UI и иконка без S3 (как на site/Looksy.html). */
   const IS_EN_WIDGET = LANG === "en";
@@ -1561,6 +1555,7 @@
       ),
     });
     if (VISITOR_ID) params.set("visitorId", VISITOR_ID);
+    if (OFFER_ID) params.set("offerId", OFFER_ID);
     const baseUrl = getIframeWidgetUrl().replace(/\/$/, "");
     widgetIframe.src = `${baseUrl}/?${params.toString()}`;
 
@@ -2085,6 +2080,8 @@
             postMessageToIframe({
               type: "PRODUCT_DATA",
               product: currentProduct,
+              visitorId: VISITOR_ID,
+              offerId: OFFER_ID,
             });
           }
           postMessageToIframe({
@@ -2098,6 +2095,8 @@
             postMessageToIframe({
               type: "PRODUCT_DATA",
               product: currentProduct,
+              visitorId: VISITOR_ID,
+              offerId: OFFER_ID,
             });
           }
           break;
@@ -2232,6 +2231,7 @@
       device_type: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent || '') ? 'mobile' : 'desktop',
     };
     if (VISITOR_ID) ev.visitor_id = VISITOR_ID;
+    if (OFFER_ID) ev.offer_id = OFFER_ID;
     if (payload) {
       if (payload.product_id) ev.product_id = payload.product_id;
       var rest = {};
