@@ -89,12 +89,25 @@ type TWidgetProductData = {
 	description?: string
 	external_id?: string
 
+	// Attribution / cross-analytics offer id, read from `data-fitting-offer-id`
+	// on the product element (per-product). Distinct from the SKU ids in
+	// extendedProductData.offers, which the widget uses for add-to-cart variant
+	// resolution. null when the attribute is absent/empty.
+	offer_id?: string | null
+
 	extendedProductData?: TExtendedProductData | null
 }
 
 type TWidgetProductDataMessage = {
 	type: 'PRODUCT_DATA'
 	product: TWidgetProductData
+	// Also mirrored as top-level fields for parity with the iframe URL query
+	// params (`visitorId` / `offerId`), so the widget can read them the same way
+	// regardless of channel. null when absent/empty.
+	// visitorId is global (script tag `data-fitting-visitor-id`); offerId equals
+	// product.offer_id of the currently opened product.
+	visitorId: string | null
+	offerId: string | null
 }
 
 // ---------------------------

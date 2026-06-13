@@ -23,14 +23,15 @@
   const SHOP_TOKEN = currentScript?.getAttribute('data-shop-token') || '';
   const DEBUG_MODE = currentScript?.getAttribute("data-debug") === "true";
   const LANG = currentScript?.getAttribute('data-lang') || '';
-  const VISITOR_ID = (function() {
-    var fromAttr = (currentScript?.getAttribute('data-fitting-visitor-id') || '').trim().slice(0, 255);
-    return fromAttr || null;
-  })();
-   const OFFER_ID = (function() {
-    var fromAttr = (currentScript?.getAttribute('data-fitting-offer-id') || '').trim().slice(0, 255);
-    return fromAttr || null;
-  })();
+  // visitor_id — глобальный идентификатор страницы/сессии. В отличие от shopToken
+  // (статичная конфигурация) это runtime-значение: хост может проставить/изменить
+  // его динамически уже после загрузки скрипта. Поэтому читаем лениво — в момент
+  // открытия виджета и отправки события, а не один раз при загрузке.
+  // Пустая/пробельная строка (trim().length === 0) и отсутствие атрибута → null.
+  function getVisitorId() {
+    var raw = (currentScript && currentScript.getAttribute('data-fitting-visitor-id') || '').trim().slice(0, 255);
+    return raw || null;
+  }
   /** Внешняя кнопка на витрине: отдельный UI и иконка без S3 (как на site/Looksy.html). */
   const IS_EN_WIDGET = LANG === "en";
   const EN_LAUNCHER_MODIFIER = "virtual-fitting-button--en";
@@ -1554,8 +1555,9 @@
         }),
       ),
     });
-    if (VISITOR_ID) params.set("visitorId", VISITOR_ID);
-    if (OFFER_ID) params.set("offerId", OFFER_ID);
+    const visitorId = getVisitorId();
+    if (visitorId) params.set("visitorId", visitorId);
+    if (productData.offer_id) params.set("offerId", productData.offer_id);
     const baseUrl = getIframeWidgetUrl().replace(/\/$/, "");
     widgetIframe.src = `${baseUrl}/?${params.toString()}`;
 
@@ -1767,6 +1769,21 @@
     return bestSrc;
   }
 
+  // offer_id — идентификатор уровня товара (per-product), а не страницы.
+  // Берём его из data-fitting-offer-id на div товара (или ближайших data-контекстах),
+  // читая в момент клика — так на каталоге у каждой карточки свой offer_id, а на
+  // странице товара значение подхватывается актуальным (напр. после смены варианта).
+  // Пустая/пробельная строка и отсутствие атрибута → null.
+  function resolveOfferId(productElement) {
+    if (!productElement) return null;
+    const contexts = getProductDataContexts(productElement);
+    for (let i = 0; i < contexts.length; i++) {
+      const raw = getAttrValue(contexts[i], "data-fitting-offer-id");
+      if (raw) return raw.slice(0, 255);
+    }
+    return null;
+  }
+
   function extractProductData(productElement) {
     const imageElement = resolveImageElement(productElement);
 
@@ -1790,6 +1807,7 @@
 
     const description = resolveProductDescription(productElement);
     const externalId = productElement.getAttribute("data-fitting-id") || undefined;
+    const offerId = resolveOfferId(productElement);
 
     const buildProductData = function (extendedProductData) {
       return {
@@ -1798,6 +1816,7 @@
         price: price,
         description: description || undefined,
         external_id: externalId,
+        offer_id: offerId,
         extendedProductData: extendedProductData,
       };
     };
@@ -2080,8 +2099,8 @@
             postMessageToIframe({
               type: "PRODUCT_DATA",
               product: currentProduct,
-              visitorId: VISITOR_ID,
-              offerId: OFFER_ID,
+              visitorId: getVisitorId(),
+              offerId: currentProduct.offer_id || null,
             });
           }
           postMessageToIframe({
@@ -2095,8 +2114,8 @@
             postMessageToIframe({
               type: "PRODUCT_DATA",
               product: currentProduct,
-              visitorId: VISITOR_ID,
-              offerId: OFFER_ID,
+              visitorId: getVisitorId(),
+              offerId: currentProduct.offer_id || null,
             });
           }
           break;
@@ -2230,8 +2249,11 @@
       session_id: _sdkSessionId,
       device_type: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent || '') ? 'mobile' : 'desktop',
     };
-    if (VISITOR_ID) ev.visitor_id = VISITOR_ID;
-    if (OFFER_ID) ev.offer_id = OFFER_ID;
+    var visitorId = getVisitorId();
+    if (visitorId) ev.visitor_id = visitorId;
+    // offer_id теперь per-product: берём из текущего открытого товара, если он есть
+    // (для page_view без выбранного товара offer_id отсутствует — это ожидаемо).
+    if (currentProduct && currentProduct.offer_id) ev.offer_id = currentProduct.offer_id;
     if (payload) {
       if (payload.product_id) ev.product_id = payload.product_id;
       var rest = {};
