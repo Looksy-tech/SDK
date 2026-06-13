@@ -2397,6 +2397,7 @@
     try {
       return (
         getLooksyAdapterName() === "popnshop" ||
+        shopConfig.adapter === "popnshop" ||
         new URLSearchParams(window.location.search).get("popnshop_debug") === "true"
       );
     } catch (error) {
