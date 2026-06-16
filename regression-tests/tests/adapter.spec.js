@@ -715,6 +715,40 @@ test("@regression custom button slot takes priority over image placement", async
   });
 });
 
+test("@regression dev_flag query params are passed to widget URL and PRODUCT_DATA", async ({ page }) => {
+  await installAdapterRoutes(page);
+  await page.goto(
+    `${LOCAL_ORIGIN}/adapter/slot-priority.html?dev_flag_alt_flow=true&regular_flag=true&dev_flag_size_test=1&dev_flag_alt_flow=false`,
+    { waitUntil: "domcontentloaded" },
+  );
+
+  await page.waitForFunction(() => window.VirtualFitting && typeof window.VirtualFitting.init === "function");
+  await page.locator(".virtual-fitting-button").click();
+
+  const iframe = page.locator("#virtual-fitting-iframe");
+  await expect(iframe).toBeVisible();
+
+  const iframeSrc = await iframe.getAttribute("src");
+  const params = new URL(iframeSrc).searchParams;
+  expect(JSON.parse(params.get("devFlags"))).toEqual([
+    "dev_flag_alt_flow",
+    "dev_flag_size_test",
+  ]);
+
+  const iframeElement = await iframe.elementHandle();
+  const frame = await iframeElement.contentFrame();
+  await frame.waitForFunction(() => document.body.dataset.product && document.body.dataset.product !== "null");
+
+  const product = await frame.evaluate(() => JSON.parse(document.body.dataset.product));
+  expect(product.devFlags).toBeUndefined();
+
+  const devFlags = await frame.evaluate(() => JSON.parse(document.body.dataset.devFlags));
+  expect(devFlags).toEqual([
+    "dev_flag_alt_flow",
+    "dev_flag_size_test",
+  ]);
+});
+
 test("@regression EN slot button is not absolute", async ({ page }) => {
   await installAdapterRoutes(page);
   await page.goto(`${LOCAL_ORIGIN}/adapter/slot-priority-en.html?slot_button_debug=true`, {

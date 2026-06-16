@@ -108,6 +108,10 @@ type TWidgetProductDataMessage = {
 	// product.offer_id of the currently opened product.
 	visitorId: string | null
 	offerId: string | null
+	// Debug-only flags collected from host page query params whose names start
+	// with `dev_flag_`. Values are intentionally ignored; the flag name is the
+	// feature switch identifier.
+	devFlags?: string[]
 }
 
 // ---------------------------

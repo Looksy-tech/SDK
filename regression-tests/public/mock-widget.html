@@ -123,6 +123,7 @@
         var message = event.data || {};
         if (message.type === "PRODUCT_DATA") {
           product = message.product || message.payload || null;
+          document.body.dataset.devFlags = safeJson(message.devFlags || []);
           render();
         }
         if (message.type === "SHOP_CONFIG") {
