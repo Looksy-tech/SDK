@@ -45,8 +45,13 @@ jobs:
       - name: Build minified script
         run: npm run build
 
+      - name: Build minified RU script
+        run: npm run build:ru
+
       - name: Validate build output
-        run: test -f ./script/script.min.js
+        run: |
+          test -f ./script/script.min.js
+          test -f ./script/script_ru.min.js
 
       - name: Package script files
         run: tar -czf script-test.tar.gz ./script
@@ -133,8 +138,13 @@ jobs:
       - name: Build minified script
         run: npm run build
 
+      - name: Build minified RU script
+        run: npm run build:ru
+
       - name: Validate build output
-        run: test -f ./script/script.min.js
+        run: |
+          test -f ./script/script.min.js
+          test -f ./script/script_ru.min.js
 
       - name: Package script files
         run: tar -czf script-prod.tar.gz ./script
@@ -194,3 +204,35 @@ jobs:
             fi
 
             rm -rf "$PROD_EXTRACT_PATH" "$PROD_ARCHIVE_PATH"
+
+  deploy-prod-ru:
+    needs: build-prod
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download prod package
+        uses: actions/download-artifact@v4
+        with:
+          name: script-prod-package
+
+      - name: Extract RU script
+        run: |
+          tar -xzf script-prod.tar.gz ./script/script_ru.min.js
+
+      - name: Upload RU script to widget-ru server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.WIDGET_RU_SERVER_HOST }}
+          username: ${{ secrets.WIDGET_RU_SERVER_USER }}
+          key: ${{ secrets.WIDGET_RU_SERVER_SSH_KEY }}
+          source: script/script_ru.min.js
+          target: /srv/widget/sdk
+
+      - name: Activate RU script on server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.WIDGET_RU_SERVER_HOST }}
+          username: ${{ secrets.WIDGET_RU_SERVER_USER }}
+          key: ${{ secrets.WIDGET_RU_SERVER_SSH_KEY }}
+          script: |
+            cp /srv/widget/sdk/script/script_ru.min.js /srv/widget/sdk/min-script.js
