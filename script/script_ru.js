@@ -3242,15 +3242,15 @@
 
         // Дополнительные товары из рекомендаций
         var additionalItems = payload.additional_items || [];
-        if (additionalItems.length) {
-          var bitrixConfig = detectBitrixCartConfig();
-          for (var ai = 0; ai < additionalItems.length; ai++) {
-            var extId = additionalItems[ai].external_id;
-            if (!extId) continue;
-            if (bitrixConfig) {
-              addToCartBitrix(extId, bitrixConfig);
-            }
-          }
+        for (var ai = 0; ai < additionalItems.length; ai++) {
+          var extId = additionalItems[ai].external_id;
+          if (!extId) continue;
+          fetch("/local/ajax/addToBasket.php", {
+            method: "POST",
+            credentials: "same-origin",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: "id=" + encodeURIComponent(String(extId)),
+          }).catch(function() {});
         }
 
         settle(result.success, result.message);
