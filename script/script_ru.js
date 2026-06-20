@@ -3242,15 +3242,23 @@
 
         // Дополнительные товары из рекомендаций
         var additionalItems = payload.additional_items || [];
+        var addPromises = [];
         for (var ai = 0; ai < additionalItems.length; ai++) {
           var extId = additionalItems[ai].external_id;
           if (!extId) continue;
-          fetch("/local/ajax/addToBasket.php", {
-            method: "POST",
-            credentials: "same-origin",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: "id=" + encodeURIComponent(String(extId)),
-          }).catch(function() {});
+          addPromises.push(
+            fetch("/local/ajax/addToBasket.php", {
+              method: "POST",
+              credentials: "same-origin",
+              headers: { "Content-Type": "application/x-www-form-urlencoded" },
+              body: "id=" + encodeURIComponent(String(extId)),
+            }).catch(function() {})
+          );
+        }
+        if (addPromises.length) {
+          Promise.all(addPromises).then(function() {
+            fetch("/local/ajax/basketUpdate.php", { credentials: "same-origin" }).catch(function() {});
+          });
         }
 
         settle(result.success, result.message);
