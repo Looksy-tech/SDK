@@ -2546,6 +2546,7 @@
     try {
       return (
         getLooksyAdapterName() === "glenfield" ||
+        shopConfig.adapter === "glenfield" ||
         new URLSearchParams(window.location.search).get("glenfield_debug") === "true"
       );
     } catch (error) {
@@ -3238,6 +3239,19 @@
           afterCartCount: afterCartCount,
           result: result,
         });
+
+        // Дополнительные товары из рекомендаций
+        var additionalItems = payload.additional_items || [];
+        if (additionalItems.length) {
+          var bitrixConfig = detectBitrixCartConfig();
+          for (var ai = 0; ai < additionalItems.length; ai++) {
+            var extId = additionalItems[ai].external_id;
+            if (!extId) continue;
+            if (bitrixConfig) {
+              addToCartBitrix(extId, bitrixConfig);
+            }
+          }
+        }
 
         settle(result.success, result.message);
       }, 800);
