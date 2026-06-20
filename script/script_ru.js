@@ -3255,6 +3255,12 @@
             }).catch(function() {})
           );
         }
+        // Обновляем счётчик корзины
+        var cartEl = document.querySelector("#cart_quality_top");
+        if (cartEl) {
+          var count = parseInt(cartEl.textContent || "0", 10) || 0;
+          cartEl.textContent = String(count + 1 + addPromises.length);
+        }
         if (addPromises.length) {
           Promise.all(addPromises).then(function() {
             fetch("/local/ajax/basketUpdate.php", { credentials: "same-origin" }).catch(function() {});
