@@ -3425,6 +3425,21 @@
     }, 80);
   }
 
+  function refreshShopifyCartUI() {
+    try {
+      fetch("/cart.js", { credentials: "same-origin" })
+        .then(function(r) { return r.json(); })
+        .then(function(cart) {
+          var count = cart.item_count;
+          document.querySelectorAll(
+            ".cart-bubble__text-count, [data-cart-count], .cart-count-bubble, .js-cart-count"
+          ).forEach(function(el) { el.textContent = String(count); });
+          document.dispatchEvent(new CustomEvent("cart:refresh"));
+        })
+        .catch(function() {});
+    } catch (e) { /* non-critical */ }
+  }
+
   // ====================================================================
   // SHOPIFY ADD TO CART
   //
@@ -3465,9 +3480,7 @@
         if (response.ok) {
           return response.json().then(function(data) {
             console.log("[Looksy][Shopify] add-to-cart success", data);
-            try {
-              document.dispatchEvent(new CustomEvent("cart:refresh"));
-            } catch (e) { /* non-critical */ }
+            refreshShopifyCartUI();
             reply({ success: true, message: "Added to cart" });
           });
         }
