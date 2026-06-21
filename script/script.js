@@ -2592,10 +2592,21 @@
     }
   }
 
+  function isShopifyAdapterEnabled() {
+    try {
+      if (getLooksyAdapterName() === "shopify") return true;
+      if (shopConfig.adapter === "shopify") return true;
+      if (new URLSearchParams(window.location.search).get("shopify_debug") === "true") return true;
+      if (window.Shopify && !getLooksyAdapterName() && !shopConfig.adapter) return true;
+      return false;
+    } catch (error) {
+      return false;
+    }
+  }
 
 
   // Entry point for extended product data extraction.
-  // Popnshop stays synchronous; Glenfield returns a Promise with fetched offers.
+  // Popnshop stays synchronous; Glenfield and Shopify may return a Promise.
   function extractExtendedProductData() {
     try {
       if (isGlenfieldAdapterRequested()) {
@@ -2606,6 +2617,15 @@
       if (isPopnshopAdapterEnabled()) {
         console.log("[Looksy][Popnshop] adapter enabled");
         return extract_Popnshop_ExtendedProductData();
+      }
+
+      if (isShopifyAdapterEnabled()) {
+        console.log("[Looksy][Shopify] adapter enabled");
+        var result = extract_Shopify_ExtendedProductData();
+        if (result && typeof result.then === "function") {
+          return result.catch(function() { return null; });
+        }
+        return result;
       }
 
       return null;
@@ -2920,6 +2940,134 @@
   }
 
   // ============================================================================
+  // SHOPIFY ADAPTER
+  // ============================================================================
+
+  function extract_Shopify_ExtendedProductData() {
+    try {
+      var productJson = null;
+
+      var jsonSelectors = [
+        'script[data-product-json]',
+        '#ProductJson-product-template',
+        'script[type="application/json"][data-product]',
+      ];
+
+      for (var i = 0; i < jsonSelectors.length; i++) {
+        var scriptEl = document.querySelector(jsonSelectors[i]);
+        if (scriptEl && scriptEl.textContent) {
+          try {
+            var parsed = JSON.parse(scriptEl.textContent);
+            if (parsed && (parsed.variants || parsed.product)) {
+              productJson = parsed.product || parsed;
+              break;
+            }
+          } catch (e) { /* try next selector */ }
+        }
+      }
+
+      if (!productJson) {
+        var pathname = window.location.pathname;
+        var productMatch = pathname.match(/\/products\/([^\/\?#]+)/);
+        if (productMatch && productMatch[1]) {
+          var handle = productMatch[1];
+          return fetch('/products/' + handle + '.json')
+            .then(function(response) {
+              if (!response.ok) return null;
+              return response.json();
+            })
+            .then(function(data) {
+              if (!data || !data.product) return null;
+              return buildShopifyExtendedData(data.product);
+            })
+            .catch(function() { return null; });
+        }
+      }
+
+      if (!productJson) return null;
+
+      return buildShopifyExtendedData(productJson);
+    } catch (error) {
+      console.log("[Looksy][Shopify] extraction failed", error);
+      return null;
+    }
+  }
+
+  function buildShopifyExtendedData(product) {
+    if (!product || !product.variants || !product.variants.length) return null;
+
+    var optionDefs = Array.isArray(product.options) ? product.options : [];
+    var optionNames = [];
+    for (var oi = 0; oi < optionDefs.length; oi++) {
+      optionNames.push(typeof optionDefs[oi] === 'string' ? optionDefs[oi] : (optionDefs[oi].name || ''));
+    }
+
+    var offers = product.variants.map(function(variant) {
+      var values = {};
+      for (var vi = 0; vi < optionNames.length; vi++) {
+        values[optionNames[vi].toUpperCase()] = variant['option' + (vi + 1)] || '';
+      }
+      return {
+        id: String(variant.id),
+        available: !!variant.available,
+        price: variant.price != null ? { value: Number(variant.price), display: null } : null,
+        values: values,
+      };
+    });
+
+    var variants = [];
+    for (var oi2 = 0; oi2 < optionNames.length; oi2++) {
+      var uniqueValues = [];
+      var seen = {};
+      for (var vi2 = 0; vi2 < product.variants.length; vi2++) {
+        var val = product.variants[vi2]['option' + (oi2 + 1)];
+        if (val && !seen[val]) {
+          seen[val] = true;
+          uniqueValues.push({ id: String(val), name: String(val) });
+        }
+      }
+      variants.push({
+        code: optionNames[oi2].toUpperCase(),
+        name: optionNames[oi2],
+        values: uniqueValues,
+      });
+    }
+
+    var selected = {};
+    var selectedVariantId = null;
+    var selectedInput = document.querySelector('form[action*="/cart/add"] input[name="id"]');
+    if (selectedInput) {
+      selectedVariantId = selectedInput.value;
+    }
+    if (!selectedVariantId && product.variants.length > 0) {
+      var firstAvailable = product.variants.find(function(v) { return v.available; });
+      selectedVariantId = String((firstAvailable || product.variants[0]).id);
+    }
+    if (selectedVariantId) {
+      for (var sv = 0; sv < product.variants.length; sv++) {
+        if (String(product.variants[sv].id) === String(selectedVariantId)) {
+          var sel = product.variants[sv];
+          for (var so = 0; so < optionNames.length; so++) {
+            selected[optionNames[so].toUpperCase()] = sel['option' + (so + 1)] || '';
+          }
+          break;
+        }
+      }
+    }
+
+    var result = {
+      adapter: "shopify",
+      product_id: String(product.id),
+      variants: variants,
+      selected: selected,
+      offers: offers,
+    };
+
+    console.log("[Looksy][Shopify] extendedProductData", result);
+    return result;
+  }
+
+  // ============================================================================
   // ADD TO CART BRIDGE
   // ============================================================================
 
@@ -2976,6 +3124,11 @@
     try {
       if (isGlenfieldAdapterRequested()) {
         perform_Glenfield_AddToCart(payload || {}, reply);
+        return;
+      }
+
+      if (isShopifyAdapterEnabled()) {
+        perform_Shopify_AddToCart(payload || {}, reply);
         return;
       }
 
@@ -3267,6 +3420,72 @@
         settle(result.success, result.message);
       }, 800);
     }, 80);
+  }
+
+  // ====================================================================
+  // SHOPIFY ADD TO CART
+  //
+  // Uses Shopify's standard Ajax Cart API (POST /cart/add.js) which is
+  // available on every Shopify store regardless of theme.
+  function perform_Shopify_AddToCart(payload, reply) {
+    var offerId = String((payload && payload.offer_id) || "").trim();
+
+    if (!offerId) {
+      reply({ success: false, message: "offer_id is missing in payload" });
+      return;
+    }
+
+    var items = [{ id: Number(offerId), quantity: 1 }];
+
+    var additionalItems = (payload && payload.additional_items) || [];
+    for (var i = 0; i < additionalItems.length; i++) {
+      var extId = (additionalItems[i] && additionalItems[i].external_id) || "";
+      if (!extId) continue;
+      items.push({ id: Number(extId), quantity: 1 });
+    }
+
+    console.log("[Looksy][Shopify] add-to-cart request", {
+      offerId: offerId,
+      items: items,
+    });
+
+    fetch("/cart/add.js", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      },
+      credentials: "same-origin",
+      body: JSON.stringify({ items: items }),
+    })
+      .then(function(response) {
+        if (response.ok) {
+          return response.json().then(function(data) {
+            console.log("[Looksy][Shopify] add-to-cart success", data);
+            try {
+              document.dispatchEvent(new CustomEvent("cart:refresh"));
+            } catch (e) { /* non-critical */ }
+            reply({ success: true, message: "Added to cart" });
+          });
+        }
+
+        return response.json()
+          .catch(function() { return {}; })
+          .then(function(errorData) {
+            var errorMessage = (errorData && errorData.description) ||
+                               (errorData && errorData.message) ||
+                               "Failed to add to cart (HTTP " + response.status + ")";
+            console.log("[Looksy][Shopify] add-to-cart failed", {
+              status: response.status,
+              error: errorData,
+            });
+            reply({ success: false, message: errorMessage });
+          });
+      })
+      .catch(function(error) {
+        console.log("[Looksy][Shopify] add-to-cart network error", error);
+        reply({ success: false, message: "Network error adding to cart" });
+      });
   }
 
   // ============================================================================
