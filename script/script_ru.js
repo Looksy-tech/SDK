@@ -2985,7 +2985,7 @@
       }
       return {
         id: String(variant.id),
-        available: !!variant.available,
+        available: variant.available !== false,
         price: variant.price != null ? { value: Number(variant.price), display: null } : null,
         values: values,
       };
