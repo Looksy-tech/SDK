@@ -3431,9 +3431,24 @@
           document.querySelectorAll(
             ".cart-bubble__text-count, [data-cart-count], .cart-count-bubble, .js-cart-count"
           ).forEach(function(el) { el.textContent = String(count); });
-          document.dispatchEvent(new CustomEvent("cart:refresh"));
         })
         .catch(function() {});
+
+      var cartSection = document.querySelector("cart-items-component[data-section-id]");
+      var sectionId = cartSection ? cartSection.getAttribute("data-section-id") : null;
+      if (sectionId) {
+        fetch(window.location.pathname + "?sections=" + encodeURIComponent(sectionId))
+          .then(function(r) { return r.json(); })
+          .then(function(sections) {
+            var html = sections[sectionId];
+            if (!html) return;
+            var el = document.getElementById("shopify-section-" + sectionId);
+            if (el) el.innerHTML = html;
+          })
+          .catch(function() {});
+      }
+
+      document.dispatchEvent(new CustomEvent("cart:refresh"));
     } catch (e) { /* non-critical */ }
   }
 
