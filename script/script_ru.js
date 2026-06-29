@@ -3080,6 +3080,12 @@
         success: !!(result && result.success),
         message: result && result.message ? String(result.message) : undefined,
       });
+      if (result && result.success) {
+        _trackAddToCart({
+          source: "widget",
+          offer_id: String((payload && payload.offer_id) || ""),
+        });
+      }
       sendAddToCartResult(
         requestId,
         !!(result && result.success),
