@@ -3109,6 +3109,16 @@
           source: "widget",
           offer_id: String((payload && payload.offer_id) || ""),
         });
+        var additionalItems = payload && Array.isArray(payload.additional_items) ? payload.additional_items : [];
+        for (var i = 0; i < additionalItems.length; i++) {
+          var extId = additionalItems[i] && additionalItems[i].external_id;
+          if (extId) {
+            _trackAddToCart({
+              source: "widget_recommendation",
+              offer_id: String(extId),
+            });
+          }
+        }
       }
       sendAddToCartResult(
         requestId,
