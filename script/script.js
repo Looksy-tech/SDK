@@ -21,7 +21,16 @@
   const currentScript = document.currentScript ||
     document.querySelector('script[data-shop-token]');
   const SHOP_TOKEN = currentScript?.getAttribute('data-shop-token') || '';
-  const DEBUG_MODE = currentScript?.getAttribute("data-debug") === "true";
+  function isDebugModeEnabled() {
+    if (currentScript?.getAttribute("data-debug") === "true") return true;
+    try {
+      var value = new URLSearchParams(window.location.search).get("looksy_debug_mode");
+      return value !== null && value !== "false" && value !== "0";
+    } catch (e) {
+      return false;
+    }
+  }
+  const DEBUG_MODE = isDebugModeEnabled();
   const LANG = currentScript?.getAttribute('data-lang') || '';
   function getYandexMetricaCounterId() {
     var raw = (currentScript && currentScript.getAttribute("data-ym-counter") || "").trim().slice(0, 64);
