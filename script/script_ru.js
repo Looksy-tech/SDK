@@ -2092,6 +2092,7 @@
       if (event.origin !== widgetOrigin) return;
 
       const message = event.data || {};
+      debugLog("postMessage from iframe", message);
       const { type, source, request_id, payload } = message;
 
       switch (type) {
@@ -2136,7 +2137,7 @@
           dispatchAddToCartRequest(payload || {}, request_id);
           break;
 
-        case "YM_TRACK_EVENT":
+        case "TRACK_EVENT":
           if (source && source !== "looksy-widget") return;
           trackYandexMetricaGoal(payload || {});
           break;
@@ -3555,9 +3556,9 @@
   // ============================================================================
   // YANDEX METRICA EVENT BRIDGE
   //
-  // The iframe cannot call the host page's Metrica counter directly. When the
-  // host script has data-ym-counter, widget-en mirrors its Looksy analytics
-  // events as YM_TRACK_EVENT messages and the SDK forwards them to reachGoal.
+  // The iframe sends neutral TRACK_EVENT messages. The SDK decides lazily which
+  // host-page integrations are configured and currently forwards to Yandex
+  // Metrica when script[data-ym-counter] is present.
   function trackYandexMetricaGoal(eventPayload) {
     var counterId = getYandexMetricaCounterId();
     if (!counterId) return;
@@ -3599,5 +3600,3 @@
 
   init();
 })();
-
-
