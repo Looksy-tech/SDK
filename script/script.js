@@ -23,6 +23,10 @@
   const SHOP_TOKEN = currentScript?.getAttribute('data-shop-token') || '';
   const DEBUG_MODE = currentScript?.getAttribute("data-debug") === "true";
   const LANG = currentScript?.getAttribute('data-lang') || '';
+  function getYandexMetricaCounterId() {
+    var raw = (currentScript && currentScript.getAttribute("data-ym-counter") || "").trim().slice(0, 64);
+    return raw || null;
+  }
   // visitor_id — глобальный идентификатор страницы/сессии. В отличие от shopToken
   // (статичная конфигурация) это runtime-значение: хост может проставить/изменить
   // его динамически уже после загрузки скрипта. Поэтому читаем лениво — в момент
@@ -1579,6 +1583,8 @@
     const visitorId = getVisitorId();
     if (visitorId) params.set("visitorId", visitorId);
     if (productData.offer_id) params.set("offerId", productData.offer_id);
+    const ymCounter = getYandexMetricaCounterId();
+    if (ymCounter) params.set("ymCounter", ymCounter);
     const baseUrl = getIframeWidgetUrl().replace(/\/$/, "");
     widgetIframe.src = `${baseUrl}/?${params.toString()}`;
 
@@ -2123,6 +2129,7 @@
               product: currentProduct,
               visitorId: getVisitorId(),
               offerId: currentProduct.offer_id || null,
+              ymCounter: getYandexMetricaCounterId(),
               devFlags: currentDevFlags,
             });
           }
@@ -2139,6 +2146,7 @@
               product: currentProduct,
               visitorId: getVisitorId(),
               offerId: currentProduct.offer_id || null,
+              ymCounter: getYandexMetricaCounterId(),
               devFlags: currentDevFlags,
             });
           }
@@ -2151,6 +2159,11 @@
             break;
           }
           dispatchAddToCartRequest(payload || {}, request_id);
+          break;
+
+        case "YM_TRACK_EVENT":
+          if (source && source !== "looksy-widget") return;
+          trackYandexMetricaGoal(payload || {});
           break;
 
         case "PROCESSING":
@@ -3534,6 +3547,40 @@
 
   // ============================================================================
   // END ADD TO CART BRIDGE
+  // ============================================================================
+
+  // ============================================================================
+  // YANDEX METRICA EVENT BRIDGE
+  //
+  // The iframe cannot call the host page's Metrica counter directly. When the
+  // host script has data-ym-counter, widget-en mirrors its Looksy analytics
+  // events as YM_TRACK_EVENT messages and the SDK forwards them to reachGoal.
+  function trackYandexMetricaGoal(eventPayload) {
+    var counterId = getYandexMetricaCounterId();
+    if (!counterId) return;
+
+    var goalName = eventPayload && (eventPayload.event_name || eventPayload.eventName || eventPayload.goal);
+    if (!goalName || typeof window.ym !== "function") {
+      debugLog("Yandex Metrica event skipped", {
+        reason: goalName ? "ym is not available" : "missing goal name",
+        counterId: counterId,
+        payload: eventPayload,
+      });
+      return;
+    }
+
+    try {
+      window.ym(counterId, "reachGoal", String(goalName), eventPayload);
+      debugLog("Yandex Metrica reachGoal sent", {
+        counterId: counterId,
+        goal: goalName,
+        payload: eventPayload,
+      });
+    } catch (error) {
+      debugLog("Yandex Metrica reachGoal failed", error);
+    }
+  }
+
   // ============================================================================
 
   window.VirtualFitting = {

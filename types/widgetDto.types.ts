@@ -108,6 +108,10 @@ type TWidgetProductDataMessage = {
 	// product.offer_id of the currently opened product.
 	visitorId: string | null
 	offerId: string | null
+	// Optional host page Yandex Metrica counter id from script[data-ym-counter].
+	// The widget uses this only to decide whether to mirror analytics events back
+	// to the SDK; the SDK still reads the actual counter id from its script tag.
+	ymCounter?: string | null
 	// Debug-only flags collected from host page query params whose names start
 	// with `dev_flag_`. Values are intentionally ignored; the flag name is the
 	// feature switch identifier.
