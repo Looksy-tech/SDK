@@ -6,6 +6,7 @@ Embeddable script for adding virtual clothing try-on functionality to e-commerce
 
 - [Quick Start](#quick-start)
 - [Data Attributes](#data-attributes)
+- [Placing the Button Outside the Image](#placing-the-button-outside-the-image)
 - [How It Works](#how-it-works)
 - [Integration Examples for Popular CMS Platforms](#integration-examples-for-popular-cms-platforms)
 - [WooCommerce (WordPress)](#woocommerce-wordpress)
@@ -63,6 +64,35 @@ Add data attributes to the product elements:
 | -------------------- | --------- | ------------ | ----------------------------------------------------------------------------- |
 | `data-fitting-name`  | Container | Product name | First searched in the card/headings text, then taken from the image `alt`     |
 | `data-fitting-price` | Container | Product price | Empty string                                                                  |
+
+---
+
+## Placing the Button Outside the Image
+
+By default, the SDK places the button on top of the product image. To place it elsewhere — for example, below an “Add to cart” button — add an empty slot inside the **same** `data-fitting-product` container:
+
+```html
+<div
+  class="product"
+  data-fitting-product
+  data-fitting-name="Product name"
+  data-fitting-price="$49"
+>
+  <img src="product.jpg" alt="Product name" data-fitting-image />
+
+  <div class="product-actions">
+    <button type="button">Add to cart</button>
+    <div data-fitting-button-slot data-fitting-full-width="true"></div>
+  </div>
+</div>
+```
+
+The SDK creates the try-on button and inserts it into the first slot found for the current product. The click handler and product data are retained, so you do not need to create a button or attach an event handler yourself.
+
+- `data-fitting-button-slot` — where the SDK inserts the button;
+- `data-fitting-full-width="true"` — optional; makes the button span the slot width. `1`, `yes`, and an empty attribute are also accepted.
+
+When no slot is present, the default placement on the image is used. Do not place a slot outside its specific product container; otherwise the SDK cannot reliably associate the button with the correct product.
 
 ---
 

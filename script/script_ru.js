@@ -2357,14 +2357,6 @@
   const BUTTON_FULL_WIDTH_CLASS = "virtual-fitting-button-full-width";
   const FULL_WIDTH_ATTR = "data-fitting-full-width";
 
-  function isCustomSlotButtonDebugEnabled() {
-    try {
-      return new URLSearchParams(window.location.search).get("slot_button_debug") === "true";
-    } catch (e) {
-      return false;
-    }
-  }
-
   function isTruthyFittingAttribute(value) {
     if (value == null) return false;
 
@@ -2431,13 +2423,6 @@
     const productElement = args.productElement;
     const button = args.button;
     const existingButton = args.existingButton;
-
-    if (!isCustomSlotButtonDebugEnabled()) {
-      if (existingButton) {
-        removeCustomSlotButtonClasses(existingButton);
-      }
-      return false;
-    }
 
     const slotElement = resolveButtonSlotElement(productElement);
 
