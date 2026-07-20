@@ -399,9 +399,7 @@
   function loadShopConfig() {
     if (!WIDGET_CONFIG.shopToken) return Promise.resolve();
     const url = WIDGET_CONFIG.widgetUrl.replace(/\/$/, "") + "/api/widget/config?shop_token=" + encodeURIComponent(WIDGET_CONFIG.shopToken);
-    // Конфигурация меняется из админ-панели, поэтому нельзя использовать
-    // потенциально устаревший ответ HTTP-кэша при инициализации виджета.
-    return fetch(url, { cache: "no-store" })
+    return fetch(url)
       .then(function(response) {
         if (response.ok) return response.json();
       })
