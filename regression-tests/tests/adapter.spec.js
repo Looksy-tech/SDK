@@ -316,6 +316,7 @@ function createTildaDesktopColumnsFixtureHtml() {
   <script
     src="${LOCAL_ORIGIN}/script/script.js"
     data-shop-token="tilda-desktop-columns-test-token"
+    data-widget-url="${LOCAL_ORIGIN}"
   ></script>
 </body>
 </html>`;
@@ -347,6 +348,35 @@ async function installAdapterRoutes(page) {
     }
 
     if (requestUrl.origin === LOCAL_ORIGIN && requestUrl.pathname === "/api/widget/config") {
+      if (requestUrl.searchParams.get("shop_token") === "tilda-desktop-columns-test-token") {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json; charset=utf-8",
+          body: JSON.stringify({
+            button: {
+              bg_color: "#323232",
+              text_color: "#ffffff",
+              text: "Примерить онлайн",
+              font_size: 14,
+              height: 37,
+              border_radius: 7,
+              icon_url: null,
+              icon_size: 12,
+              icon_offset_x: 0,
+              icon_offset_y: 0,
+              offset_x: 0,
+              offset_y: 0,
+            },
+            iframe: {
+              primary_button_color: "#0a0a0b",
+              accent_color: "#7886ff",
+              widget_bg_color: "#ffffff",
+            },
+          }),
+        });
+        return;
+      }
+
       await route.fulfill({
         status: 404,
         contentType: "application/json; charset=utf-8",
@@ -740,6 +770,8 @@ test("@regression Tilda desktop columns place one button on the first photo", as
   await expect(page.locator('[data-testid="first-photo-wrapper"] .virtual-fitting-button')).toHaveCount(1);
   await expect(page.locator('[data-testid="second-photo-wrapper"] .virtual-fitting-button')).toHaveCount(0);
   await expect(page.locator('[data-testid="first-photo-wrapper"]')).toHaveCSS("position", "relative");
+  await expect(page.locator('[data-testid="first-photo-wrapper"] .virtual-fitting-button img')).toHaveCSS("width", "12px");
+  await expect(page.locator('[data-testid="first-photo-wrapper"] .virtual-fitting-button img')).toHaveCSS("height", "12px");
 });
 
 test("@regression custom button slot takes priority over image placement", async ({ page }) => {

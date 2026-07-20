@@ -1807,29 +1807,23 @@
     }
 
     const customIconUrl = shopConfig.button.icon_url;
-    if (customIconUrl) {
-      const icon = document.createElement("img");
-      icon.src = customIconUrl;
-      icon.alt = "";
-      icon.setAttribute("aria-hidden", "true");
-      const iconSize = shopConfig.button.icon_size || 18;
-      icon.style.width = iconSize + "px";
-      icon.style.height = iconSize + "px";
-      icon.style.objectFit = "contain";
-      icon.style.flexShrink = "0";
-      const ix = shopConfig.button.icon_offset_x || 0;
-      const iy = shopConfig.button.icon_offset_y || 0;
-      if (ix !== 0 || iy !== 0) {
-        icon.style.transform = "translate(" + ix + "px, " + iy + "px)";
-      }
-      button.appendChild(icon);
-    } else {
-      const icon = document.createElement("img");
-      icon.src = WIDGET_CONFIG.iconUrl;
-      icon.alt = "";
-      icon.setAttribute("aria-hidden", "true");
-      button.appendChild(icon);
+    const icon = document.createElement("img");
+    icon.src = customIconUrl || WIDGET_CONFIG.iconUrl;
+    icon.alt = "";
+    icon.setAttribute("aria-hidden", "true");
+    // icon_size and icon offsets apply equally to the default Looksy icon
+    // and to a shop's custom icon.
+    const iconSize = shopConfig.button.icon_size || 18;
+    icon.style.width = iconSize + "px";
+    icon.style.height = iconSize + "px";
+    icon.style.objectFit = "contain";
+    icon.style.flexShrink = "0";
+    const ix = shopConfig.button.icon_offset_x || 0;
+    const iy = shopConfig.button.icon_offset_y || 0;
+    if (ix !== 0 || iy !== 0) {
+      icon.style.transform = "translate(" + ix + "px, " + iy + "px)";
     }
+    button.appendChild(icon);
 
     const bx = shopConfig.button.offset_x || 0;
     const by = shopConfig.button.offset_y || 0;

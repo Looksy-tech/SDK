@@ -1939,11 +1939,19 @@
     }
 
     const customIconUrl = shopConfig.button.icon_url;
-    if (customIconUrl) {
+    if (!customIconUrl && IS_EN_WIDGET) {
+      const star = document.createElement("span");
+      star.className = "virtual-fitting-button-star";
+      star.setAttribute("aria-hidden", "true");
+      star.textContent = "\u2726";
+      button.appendChild(star);
+    } else {
       const icon = document.createElement("img");
-      icon.src = customIconUrl;
+      icon.src = customIconUrl || WIDGET_CONFIG.iconUrl;
       icon.alt = "";
       icon.setAttribute("aria-hidden", "true");
+      // icon_size and icon offsets apply equally to the default Looksy icon
+      // and to a shop's custom icon.
       const iconSize = shopConfig.button.icon_size || 18;
       icon.style.width = iconSize + "px";
       icon.style.height = iconSize + "px";
@@ -1954,18 +1962,6 @@
       if (ix !== 0 || iy !== 0) {
         icon.style.transform = "translate(" + ix + "px, " + iy + "px)";
       }
-      button.appendChild(icon);
-    } else if (IS_EN_WIDGET) {
-      const star = document.createElement("span");
-      star.className = "virtual-fitting-button-star";
-      star.setAttribute("aria-hidden", "true");
-      star.textContent = "\u2726";
-      button.appendChild(star);
-    } else {
-      const icon = document.createElement("img");
-      icon.src = WIDGET_CONFIG.iconUrl;
-      icon.alt = "";
-      icon.setAttribute("aria-hidden", "true");
       button.appendChild(icon);
     }
 
