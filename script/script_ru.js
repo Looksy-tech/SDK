@@ -377,16 +377,40 @@
     },
   };
 
+  function applyOffsetsToRenderedButtons() {
+    const bx = shopConfig.button.offset_x || 0;
+    const by = shopConfig.button.offset_y || 0;
+    const ix = shopConfig.button.icon_offset_x || 0;
+    const iy = shopConfig.button.icon_offset_y || 0;
+    const buttonTransform = bx !== 0 || by !== 0
+      ? "translate(" + bx + "px, " + (-by) + "px)"
+      : "";
+    const iconTransform = ix !== 0 || iy !== 0
+      ? "translate(" + ix + "px, " + iy + "px)"
+      : "";
+
+    document.querySelectorAll("." + WIDGET_CONFIG.buttonClass).forEach(function(button) {
+      button.style.transform = buttonTransform;
+      const icon = button.querySelector("img");
+      if (icon) icon.style.transform = iconTransform;
+    });
+  }
+
   function loadShopConfig() {
     if (!WIDGET_CONFIG.shopToken) return Promise.resolve();
     const url = WIDGET_CONFIG.widgetUrl.replace(/\/$/, "") + "/api/widget/config?shop_token=" + encodeURIComponent(WIDGET_CONFIG.shopToken);
-    return fetch(url)
+    // Конфигурация меняется из админ-панели, поэтому нельзя использовать
+    // потенциально устаревший ответ HTTP-кэша при инициализации виджета.
+    return fetch(url, { cache: "no-store" })
       .then(function(response) {
         if (response.ok) return response.json();
       })
       .then(function(data) {
         if (data && data.button && data.iframe) {
           shopConfig = data;
+          // На динамических витринах кнопка иногда появляется до завершения
+          // запроса конфига. Применяем offsets и к уже отрисованной кнопке.
+          applyOffsetsToRenderedButtons();
         }
       })
       .catch(function() {
