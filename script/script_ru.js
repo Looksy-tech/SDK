@@ -5,10 +5,7 @@
   // НАСТРОЙКИ ДЛЯ БЫСТРОГО РЕДАКТИРОВАНИЯ
   // =====================================================
   const WIDGET_URL = "https://loosy-widget.online";
-  const EN_WIDGET_URL = "https://en.widget.looksy.tech";
-  const RU_WIDGET_URL = "https://ru.widget.looksy.tech";
   const BUTTON_TEXT = "Примерить на себе";
-  const EN_BUTTON_TEXT = "Try on";
   const Z_INDEX = 2147483646;
   const BUTTON_RENDER_DELAY_MS = 140;
   const ST305N_RELOAD_STEPS_MS = [120, 450, 900, 1600, 2600, 3800];
@@ -24,16 +21,15 @@
   function isDebugModeEnabled() {
     if (currentScript?.getAttribute("data-debug") === "true") return true;
     try {
-      var value = new URLSearchParams(window.location.search).get("looksy_debug_mode");
+      const value = new URLSearchParams(window.location.search).get("looksy_debug_mode");
       return value !== null && value !== "false" && value !== "0";
     } catch (e) {
       return false;
     }
   }
   const DEBUG_MODE = isDebugModeEnabled();
-  const LANG = currentScript?.getAttribute('data-lang') || '';
   function getYandexMetricaCounterId() {
-    var raw = (currentScript && currentScript.getAttribute("data-ym-counter") || "").trim().slice(0, 64);
+    const raw = (currentScript && currentScript.getAttribute("data-ym-counter") || "").trim().slice(0, 64);
     return raw || null;
   }
   // visitor_id — глобальный идентификатор страницы/сессии. В отличие от shopToken
@@ -42,12 +38,9 @@
   // открытия виджета и отправки события, а не один раз при загрузке.
   // Пустая/пробельная строка (trim().length === 0) и отсутствие атрибута → null.
   function getVisitorId() {
-    var raw = (currentScript && currentScript.getAttribute('data-fitting-visitor-id') || '').trim().slice(0, 255);
+    const raw = (currentScript && currentScript.getAttribute('data-fitting-visitor-id') || '').trim().slice(0, 255);
     return raw || null;
   }
-  /** Внешняя кнопка на витрине: отдельный UI и иконка без S3 (как на site/Looksy.html). */
-  const IS_EN_WIDGET = false;
-  const EN_LAUNCHER_MODIFIER = "virtual-fitting-button--en";
   /** Поверх оверлея виджета (Z_INDEX) и кнопки L — блокировка повторного открытия */
   const SESSION_MODAL_Z_INDEX = 2147483647;
   const SESSION_MODAL_ROOT_ID = "looksy-vf-session-modal-root";
@@ -56,11 +49,6 @@
     message:
       "У вас уже есть активная примерка. Закройте текущую или дождитесь её окончания, чтобы начать новую.",
     ok: "Понятно",
-  };
-  const SESSION_MODAL_COPY_EN = {
-    message:
-      "You already have an active try-on. Close the current one or wait for it to finish before starting a new one.",
-    ok: "OK",
   };
   const DATA_WIDGET_URL = (currentScript && currentScript.getAttribute("data-widget-url") || "").trim();
   const IS_GLENFIELD_DEBUG_WIDGET = SHOP_TOKEN === GLENFIELD_RU_SHOP_TOKEN;
@@ -133,6 +121,10 @@
       ".js-catalog-desktop-custom-gallery",
     ],
     firstPhotoSelectors: [
+      // Tilda T-store: desktop layout renders photos as columns instead of a slider.
+      // The first matching wrapper/image pair is the primary product photo.
+      ".t-store__prod-popup__wrapper__col2_fixed .t-store__prod-popup__columns.js-product-img",
+      ".t-store__prod-popup__wrapper .t-store__prod-popup__columns.js-product-img",
       // Попап: специфичные селекторы первого слайда
       ".t-store__prod-popup .t-slds__imgwrapper .js-product-img",
       ".t-catalog__prod-popup .t-slds__imgwrapper .js-product-img",
@@ -285,6 +277,51 @@
     shopToken: SHOP_TOKEN,
   };
 
+  // ─── ОБЩИЕ СЕЛЕКТОРЫ КОНТЕЙНЕРОВ ТОВАРА ──────────────────────────────────
+  // Базовый набор Tilda/каталог-контейнеров карточки товара. Раньше этот список
+  // был захардкожен инлайном в нескольких функциях и успел разойтись между ними.
+  // Порядок внутри списка не влияет на результат closest()/matches()/querySelector()
+  // (они срабатывают по любому совпадению), поэтому важен только сам набор классов.
+  const PRODUCT_CONTEXT_SELECTORS = [
+    ".t-store__prod-popup",
+    ".t-catalog__prod-popup",
+    ".t-catalog__product-popup",
+    ".js-store-prod-all",
+    ".js-catalog-prod-all",
+    ".js-product-single-wrapper",
+    ".js-store-product",
+    ".js-catalog-product",
+    ".js-catalog-desktop-custom-gallery",
+    ".t-store__product-snippet",
+    ".t-catalog__product-snippet",
+  ];
+  const PRODUCT_CONTEXT_SELECTOR = PRODUCT_CONTEXT_SELECTORS.join(", ");
+  // + маркер открытого попапа карточки (.t-popup_show)
+  const OPEN_PRODUCT_CONTEXT_SELECTOR = PRODUCT_CONTEXT_SELECTORS
+    .concat([".t-popup_show"])
+    .join(", ");
+  // hasTildaPopupStructure дополнительно учитывает общий .t-popup
+  const TILDA_POPUP_STRUCTURE_SELECTORS = PRODUCT_CONTEXT_SELECTORS.concat([".t-popup"]);
+  // Детект витрины целиком: + карточки каталога и переключатели частей
+  const TILDA_STOREFRONT_SELECTOR = PRODUCT_CONTEXT_SELECTORS
+    .concat([
+      ".t-store__card",
+      ".t-catalog__card",
+      ".t-store__parts-switch-wrapper",
+      ".t-catalog__parts-switch-wrapper",
+      ".js-catalog-has-new-parts-02-26",
+    ])
+    .join(", ");
+  // Узкий набор контекстов для чтения данных товара (имя/цена/описание)
+  const PRODUCT_DATA_CONTEXT_SELECTOR = [
+    ".js-store-prod-all",
+    ".js-catalog-prod-all",
+    ".js-product-single-wrapper",
+    ".t-store__prod-popup",
+    ".t-catalog__prod-popup",
+  ].join(", ");
+  // ─────────────────────────────────────────────────────────────────────────
+
   // Helper: получить origin из URL (нормализованный, без trailing slash)
   function getWidgetOrigin() {
     try {
@@ -309,14 +346,14 @@
   let iframe = null;
   let overlay = null;
   let currentProduct = null;
-  var sessionModalEscapeHandler = null;
+  let sessionModalEscapeHandler = null;
   let productsProcessQueued = false;
   let productsProcessTimer = null;
 
   // ─── SHOP CUSTOMIZATION ──────────────────────────────────────────────────
   // Загружается из /widget/config?shop_token=XXX при инициализации.
   // Все значения nullable на беке — дефолты совпадают с текущим дизайном.
-  var shopConfig = {
+  let shopConfig = {
     button: {
       bg_color: "#323232",
       text_color: "#ffffff",
@@ -342,7 +379,7 @@
 
   function loadShopConfig() {
     if (!WIDGET_CONFIG.shopToken) return Promise.resolve();
-    var url = WIDGET_CONFIG.widgetUrl.replace(/\/$/, "") + "/api/widget/config?shop_token=" + encodeURIComponent(WIDGET_CONFIG.shopToken);
+    const url = WIDGET_CONFIG.widgetUrl.replace(/\/$/, "") + "/api/widget/config?shop_token=" + encodeURIComponent(WIDGET_CONFIG.shopToken);
     return fetch(url)
       .then(function(response) {
         if (response.ok) return response.json();
@@ -361,14 +398,14 @@
   let startupRenderInterval = null;
   let st305nReloadTimers = [];
   /** Пока iframe на экране генерации (PROCESSING); для кнопки минимайзера — спиннер вместо L */
-  var generationInProgress = false;
+  let generationInProgress = false;
 
   const MINIMIZED_CLASS = "virtual-fitting-minimized";
   const TOGGLE_BTN_ID = "virtual-fitting-toggle-btn";
   const CONTAINER_ID = "virtual-fitting-minimizer";
   const PRODUCT_BTN_ATTR = "data-virtual-fitting-product-btn";
 
-  var MINIMIZER_SPINNER_HTML =
+  const MINIMIZER_SPINNER_HTML =
     '<span class="virtual-fitting-toggle-spinner-wrap" aria-hidden="true">' +
     '<svg class="virtual-fitting-toggle-spinner-svg" width="34" height="34" viewBox="0 0 34 34" xmlns="http://www.w3.org/2000/svg">' +
     '<g transform="translate(17,17)">' +
@@ -400,9 +437,9 @@
   }
 
   function updateMinimizerButton(isMinimized, attentionState) {
-    var btn = document.getElementById(TOGGLE_BTN_ID);
+    const btn = document.getElementById(TOGGLE_BTN_ID);
     if (!btn) return;
-    var showingAttention = attentionState === "success" || attentionState === "error";
+    const showingAttention = attentionState === "success" || attentionState === "error";
     btn.classList.toggle("virtual-fitting-toggle--minimized", isMinimized);
     btn.classList.toggle("virtual-fitting-toggle--attention", showingAttention);
     btn.classList.toggle(
@@ -421,7 +458,7 @@
   }
 
   function triggerMinimizerAttention(isError) {
-    var btn = document.getElementById(TOGGLE_BTN_ID);
+    const btn = document.getElementById(TOGGLE_BTN_ID);
     if (!btn || !overlay || !overlay.classList.contains(MINIMIZED_CLASS)) return;
     updateMinimizerButton(true, isError ? "error" : "success");
     // Галочка/крестик висят и пульсируют до клика по кнопке (развернуть)
@@ -429,10 +466,10 @@
 
   function createMinimizerButton() {
     if (document.getElementById(CONTAINER_ID)) return;
-    var container = document.createElement("div");
+    const container = document.createElement("div");
     container.id = CONTAINER_ID;
     container.style.cssText = "position:fixed;top:0;left:0;width:0;height:0;pointer-events:none;z-index:2147483647;";
-    var btn = document.createElement("button");
+    const btn = document.createElement("button");
     btn.id = TOGGLE_BTN_ID;
     btn.type = "button";
     btn.className = "virtual-fitting-toggle virtual-fitting-toggle--minimized";
@@ -454,53 +491,6 @@
     const style = document.createElement("style");
     style.id = "virtual-fitting-styles";
     style.textContent = `
-      ${
-        IS_EN_WIDGET
-          ? `
-      .${WIDGET_CONFIG.buttonClass}.${EN_LAUNCHER_MODIFIER} {
-        position: absolute;
-        right: 0;
-        bottom: 0;
-        z-index: 999;
-        box-sizing: border-box;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 9px;
-        padding: 10px 16px 10px 18px;
-        border: none;
-        border-radius: 0;
-        background: #0a0a0a;
-        color: #ffffff;
-        font-size: 11px;
-        font-weight: 600;
-        letter-spacing: 0.2em;
-        text-transform: uppercase;
-        white-space: nowrap;
-        cursor: pointer;
-        transition: padding-right 0.2s ease;
-        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-        height: auto;
-      }
-      .${WIDGET_CONFIG.buttonClass}.${EN_LAUNCHER_MODIFIER}:hover {
-        padding-right: 22px;
-      }
-      .${WIDGET_CONFIG.buttonClass}.${EN_LAUNCHER_MODIFIER} .virtual-fitting-button-star {
-        display: inline-block;
-        font-size: 9px;
-        line-height: 1;
-        transform: translateY(-1px);
-        flex-shrink: 0;
-      }
-      .t-slds__bgimg .${WIDGET_CONFIG.buttonClass}.${EN_LAUNCHER_MODIFIER},
-      .js-product-img .${WIDGET_CONFIG.buttonClass}.${EN_LAUNCHER_MODIFIER} {
-        right: 0;
-        bottom: 0;
-      }
-      `
-          : `
       .${WIDGET_CONFIG.buttonClass} {
         position: absolute;
         right: 12px;
@@ -537,8 +527,7 @@
         right: 12px;
         bottom: 12px;
       }
-      .${WIDGET_CONFIG.buttonClass}.${BUTTON_SLOT_CLASS},
-      .${WIDGET_CONFIG.buttonClass}.${EN_LAUNCHER_MODIFIER}.${BUTTON_SLOT_CLASS} {
+      .${WIDGET_CONFIG.buttonClass}.${BUTTON_SLOT_CLASS} {
         position: static !important;
         right: auto !important;
         bottom: auto !important;
@@ -546,39 +535,10 @@
         top: auto !important;
         transform: none !important;
       }
-      .${WIDGET_CONFIG.buttonClass}.${BUTTON_FULL_WIDTH_CLASS},
-      .${WIDGET_CONFIG.buttonClass}.${EN_LAUNCHER_MODIFIER}.${BUTTON_FULL_WIDTH_CLASS} {
+      .${WIDGET_CONFIG.buttonClass}.${BUTTON_FULL_WIDTH_CLASS} {
         width: 100% !important;
       }
-      .${WIDGET_CONFIG.buttonClass}.${EN_LAUNCHER_MODIFIER}.${BUTTON_SLOT_CLASS}:hover {
-        padding-right: 16px;
-      }
-      .${WIDGET_CONFIG.buttonClass}.${BUTTON_SLOT_CLASS}.${BUTTON_FULL_WIDTH_CLASS},
-      .${WIDGET_CONFIG.buttonClass}.${EN_LAUNCHER_MODIFIER}.${BUTTON_SLOT_CLASS}.${BUTTON_FULL_WIDTH_CLASS} {
-        display: flex;
-        justify-content: center;
-        min-height: var(--height-buy-buttons, 52px);
-      }
-      `
-      }
-      .${WIDGET_CONFIG.buttonClass}.${BUTTON_SLOT_CLASS},
-      .${WIDGET_CONFIG.buttonClass}.${EN_LAUNCHER_MODIFIER}.${BUTTON_SLOT_CLASS} {
-        position: static !important;
-        right: auto !important;
-        bottom: auto !important;
-        left: auto !important;
-        top: auto !important;
-        transform: none !important;
-      }
-      .${WIDGET_CONFIG.buttonClass}.${BUTTON_FULL_WIDTH_CLASS},
-      .${WIDGET_CONFIG.buttonClass}.${EN_LAUNCHER_MODIFIER}.${BUTTON_FULL_WIDTH_CLASS} {
-        width: 100% !important;
-      }
-      .${WIDGET_CONFIG.buttonClass}.${EN_LAUNCHER_MODIFIER}.${BUTTON_SLOT_CLASS}:hover {
-        padding-right: 16px;
-      }
-      .${WIDGET_CONFIG.buttonClass}.${BUTTON_SLOT_CLASS}.${BUTTON_FULL_WIDTH_CLASS},
-      .${WIDGET_CONFIG.buttonClass}.${EN_LAUNCHER_MODIFIER}.${BUTTON_SLOT_CLASS}.${BUTTON_FULL_WIDTH_CLASS} {
+      .${WIDGET_CONFIG.buttonClass}.${BUTTON_SLOT_CLASS}.${BUTTON_FULL_WIDTH_CLASS} {
         display: flex;
         justify-content: center;
         min-height: var(--height-buy-buttons, 52px);
@@ -636,27 +596,9 @@
         transform: scale(1);
       }
       @media (max-width: 768px) {
-        ${
-          IS_EN_WIDGET
-            ? `
-        .${WIDGET_CONFIG.buttonClass}.${EN_LAUNCHER_MODIFIER} {
-          padding: 9px 14px 9px 16px;
-          font-size: 10px;
-          letter-spacing: 0.18em;
-        }
-        .${WIDGET_CONFIG.buttonClass}.${EN_LAUNCHER_MODIFIER}:hover {
-          padding-right: 20px;
-        }
-        .${WIDGET_CONFIG.buttonClass}.${EN_LAUNCHER_MODIFIER} .virtual-fitting-button-star {
-          font-size: 8px;
-        }
-        `
-            : `
         .${WIDGET_CONFIG.buttonClass} {
           height: ${shopConfig.button.height - 3}px;
           font-size: ${shopConfig.button.font_size - 1}px;
-        }
-        `
         }
         .${WIDGET_CONFIG.overlayClass} {
           align-items: flex-end;
@@ -940,9 +882,7 @@
     if (openRoot) roots.push(openRoot);
 
     if (context && context.closest) {
-      const contextualRoot = context.closest(
-        ".js-store-prod-all, .js-catalog-prod-all, .js-product-single-wrapper, .t-store__prod-popup, .t-catalog__prod-popup, .t-catalog__product-popup, .t-popup_show, .js-store-product, .js-catalog-product, .js-catalog-desktop-custom-gallery, .t-store__product-snippet, .t-catalog__product-snippet",
-      );
+      const contextualRoot = context.closest(OPEN_PRODUCT_CONTEXT_SELECTOR);
       if (contextualRoot && roots.indexOf(contextualRoot) === -1) {
         roots.push(contextualRoot);
       }
@@ -1008,18 +948,14 @@
   function isLikelyProductPopupContext(element) {
     if (!element || !element.closest) return false;
 
-    const popupContext = element.closest(
-      ".t-store__prod-popup, .t-catalog__prod-popup, .t-catalog__product-popup, .js-store-prod-all, .js-catalog-prod-all, .js-product-single-wrapper, .t-popup_show, .js-store-product, .js-catalog-product, .js-catalog-desktop-custom-gallery, .t-store__product-snippet, .t-catalog__product-snippet",
-    );
+    const popupContext = element.closest(OPEN_PRODUCT_CONTEXT_SELECTOR);
     if (!popupContext) return false;
 
     const storeContainerHint =
       (popupContext.matches &&
-        popupContext.matches(".t-store__prod-popup, .t-catalog__prod-popup, .t-catalog__product-popup, .js-store-prod-all, .js-catalog-prod-all, .js-product-single-wrapper, .js-store-product, .js-catalog-product, .js-catalog-desktop-custom-gallery, .t-store__product-snippet, .t-catalog__product-snippet")) ||
+        popupContext.matches(PRODUCT_CONTEXT_SELECTOR)) ||
       Boolean(
-        popupContext.querySelector(
-          ".t-store__prod-popup, .t-catalog__prod-popup, .t-catalog__product-popup, .js-store-prod-all, .js-catalog-prod-all, .js-product-single-wrapper, .js-store-product, .js-catalog-product, .js-catalog-desktop-custom-gallery, .t-store__product-snippet, .t-catalog__product-snippet",
-        ),
+        popupContext.querySelector(PRODUCT_CONTEXT_SELECTOR),
       );
 
     const productMeta = popupContext.querySelector(
@@ -1044,20 +980,7 @@
 
   function hasTildaPopupStructure(contextElement) {
     const context = contextElement && contextElement.nodeType === 1 ? contextElement : document;
-    const tildaPopupSelectors = [
-      ".t-store__prod-popup",
-      ".t-catalog__prod-popup",
-      ".t-catalog__product-popup",
-      ".t-popup",
-      ".js-store-prod-all",
-      ".js-catalog-prod-all",
-      ".js-product-single-wrapper",
-      ".js-store-product",
-      ".js-catalog-product",
-      ".js-catalog-desktop-custom-gallery",
-      ".t-store__product-snippet",
-      ".t-catalog__product-snippet",
-    ];
+    const tildaPopupSelectors = TILDA_POPUP_STRUCTURE_SELECTORS;
 
     for (let i = 0; i < tildaPopupSelectors.length; i++) {
       const selector = tildaPopupSelectors[i];
@@ -1069,11 +992,7 @@
   }
 
   function isTildaStorefront() {
-    return Boolean(
-      document.querySelector(
-        ".t-store__card, .t-catalog__card, .t-store__parts-switch-wrapper, .t-catalog__parts-switch-wrapper, .t-store__prod-popup, .t-catalog__prod-popup, .t-catalog__product-popup, .js-store-prod-all, .js-catalog-prod-all, .js-product-single-wrapper, .js-store-product, .js-catalog-product, .js-catalog-desktop-custom-gallery, .js-catalog-has-new-parts-02-26, .t-store__product-snippet, .t-catalog__product-snippet",
-      ),
-    );
+    return Boolean(document.querySelector(TILDA_STOREFRONT_SELECTOR));
   }
 
   function isST305NContext() {
@@ -1158,7 +1077,24 @@
 
     if (isTildaPopupOnlyMode()) {
       const activeProductInPopup = resolveOpenProductElement(document);
-      return Boolean(activeProductInPopup && activeProductInPopup === productElement);
+      if (activeProductInPopup) {
+        return activeProductInPopup === productElement;
+      }
+
+      // Tilda desktop product pages may render the gallery as a plain list of
+      // .t-store__prod-popup__wrapper columns. There is no active slider item in
+      // that layout, so resolveOpenProductElement() returns null. processProducts()
+      // already resolves the standalone product through its fallback; allow the
+      // same visible product through here so createButton() can use its first image.
+      const fallbackProduct = resolveFallbackProductElement();
+      return Boolean(
+        fallbackProduct === productElement &&
+        isElementVisible(productElement) &&
+        productElement.querySelector(
+          ".t-store__prod-popup__wrapper .t-store__prod-popup__columns.js-product-img, " +
+          ".t-catalog__prod-popup__wrapper .t-catalog__prod-popup__columns.js-product-img",
+        )
+      );
     }
 
     if (!isOpenCardModeActive(productElement)) return true;
@@ -1210,6 +1146,14 @@
         const gallery = targetImageElement.closest("media-gallery");
         if (gallery) return gallery;
       }
+
+      // Tilda desktop product pages render each photo in its own column wrapper.
+      // Keep the button on the first photo instead of positioning it relative to
+      // the outer slider container that contains the entire long image list.
+      const tildaColumnWrapper = targetImageElement.closest(
+        ".t-store__prod-popup__wrapper, .t-catalog__prod-popup__wrapper",
+      );
+      if (tildaColumnWrapper) return tildaColumnWrapper;
     }
 
     // Для слайдеров крепим к стабильному viewport-контейнеру, а не к active-item
@@ -1226,7 +1170,7 @@
 
     const preferredContainer =
       (targetImageElement && targetImageElement.closest && targetImageElement.closest(
-        ".t-slds__imgwrapper, .t-store__prod-popup__imgwrapper, .t-catalog__prod-popup__imgwrapper, .js-catalog-desktop-custom-gallery, [data-fitting-image-container]",
+        ".t-slds__imgwrapper, .t-store__prod-popup__imgwrapper, .t-catalog__prod-popup__imgwrapper, .t-store__prod-popup__wrapper, .t-catalog__prod-popup__wrapper, .js-catalog-desktop-custom-gallery, [data-fitting-image-container]",
       )) ||
       null;
 
@@ -1255,7 +1199,7 @@
     pushContext(resolveOpenProductElement(productElement));
     pushContext(getOpenCardRoot(productElement));
     if (productElement && productElement.closest) {
-      pushContext(productElement.closest(".js-store-prod-all, .js-catalog-prod-all, .js-product-single-wrapper, .t-store__prod-popup, .t-catalog__prod-popup"));
+      pushContext(productElement.closest(PRODUCT_DATA_CONTEXT_SELECTOR));
     }
 
     return contexts;
@@ -1616,7 +1560,7 @@
 
   function ensureSessionModalStyles() {
     if (document.getElementById(SESSION_MODAL_STYLE_ID)) return;
-    var style = document.createElement("style");
+    const style = document.createElement("style");
     style.id = SESSION_MODAL_STYLE_ID;
     style.textContent =
       "#" +
@@ -1646,7 +1590,7 @@
   }
 
   function dismissSessionModal() {
-    var root = document.getElementById(SESSION_MODAL_ROOT_ID);
+    const root = document.getElementById(SESSION_MODAL_ROOT_ID);
     if (root && root.parentNode) {
       root.parentNode.removeChild(root);
     }
@@ -1659,28 +1603,28 @@
   function showActiveSessionModal() {
     if (document.getElementById(SESSION_MODAL_ROOT_ID)) return;
     ensureSessionModalStyles();
-    var copy = IS_EN_WIDGET ? SESSION_MODAL_COPY_EN : SESSION_MODAL_COPY_RU;
+    const copy = SESSION_MODAL_COPY_RU;
 
-    var root = document.createElement("div");
+    const root = document.createElement("div");
     root.id = SESSION_MODAL_ROOT_ID;
     root.setAttribute("role", "dialog");
     root.setAttribute("aria-modal", "true");
 
-    var backdrop = document.createElement("div");
+    const backdrop = document.createElement("div");
     backdrop.className = "looksy-vf-session-modal__backdrop";
     backdrop.addEventListener("click", dismissSessionModal);
 
-    var panel = document.createElement("div");
+    const panel = document.createElement("div");
     panel.className = "looksy-vf-session-modal__panel";
     panel.addEventListener("click", function (e) {
       e.stopPropagation();
     });
 
-    var p = document.createElement("p");
+    const p = document.createElement("p");
     p.className = "looksy-vf-session-modal__text";
     p.textContent = copy.message;
 
-    var ok = document.createElement("button");
+    const ok = document.createElement("button");
     ok.type = "button";
     ok.className = "looksy-vf-session-modal__ok";
     ok.textContent = copy.ok;
@@ -1712,18 +1656,18 @@
 
   function isTildaSingleColor(productElement) {
     // Tilda помечает опцию цвета атрибутом data-edition-option-id (проверено на текущих партнерах миэндми туматч)
-    var colorSelectors = [
+    const colorSelectors = [
       '[data-edition-option-id="Цвет"] select',
       '[data-edition-option-id="Color"] select',
       '[data-edition-option-id="Colour"] select',
     ];
 
-    var context = (productElement && productElement.closest &&
+    const context = (productElement && productElement.closest &&
       productElement.closest(".t-store__prod-popup, .t-catalog__prod-popup, .js-store-prod-all, .js-catalog-prod-all, .js-product-single-wrapper")) ||
       document;
 
-    for (var i = 0; i < colorSelectors.length; i++) {
-      var sel = context.querySelector(colorSelectors[i]);
+    for (let i = 0; i < colorSelectors.length; i++) {
+      let sel = context.querySelector(colorSelectors[i]);
       if (!sel) sel = document.querySelector(colorSelectors[i]);
       if (sel) return sel.options.length <= 1;
     }
@@ -1732,12 +1676,12 @@
   }
 
   function findFirstImage(productElement) {
-    var selectors = WIDGET_CONFIG.firstPhotoSelectors;
-    for (var i = 0; i < selectors.length; i++) {
-      var el = (productElement && productElement.querySelector(selectors[i])) ||
+    const selectors = WIDGET_CONFIG.firstPhotoSelectors;
+    for (let i = 0; i < selectors.length; i++) {
+      const el = (productElement && productElement.querySelector(selectors[i])) ||
                document.querySelector(selectors[i]);
       if (el) {
-        var src = resolveImageSourceFromElement(el);
+        const src = resolveImageSourceFromElement(el);
         if (src) return src;
       }
     }
@@ -1748,24 +1692,24 @@
     const containerRect = productElement.getBoundingClientRect();
     if (containerRect.width === 0 && containerRect.height === 0) return null;
 
-    var activeSlide = productElement.querySelector(".t-slds__item_active");
-    var candidates = (activeSlide || productElement).querySelectorAll("img, .t-bgimg, .t-slds__bgimg, .js-product-img, [data-original], [data-src]");
-    var bestSrc = null;
-    var bestArea = 0;
+    const activeSlide = productElement.querySelector(".t-slds__item_active");
+    const candidates = (activeSlide || productElement).querySelectorAll("img, .t-bgimg, .t-slds__bgimg, .js-product-img, [data-original], [data-src]");
+    let bestSrc = null;
+    let bestArea = 0;
 
-    for (var i = 0; i < candidates.length; i++) {
-      var el = candidates[i];
+    for (let i = 0; i < candidates.length; i++) {
+      const el = candidates[i];
       if (el.closest && el.closest("." + WIDGET_CONFIG.buttonClass)) continue;
 
-      var src = resolveImageSourceFromElement(el);
+      const src = resolveImageSourceFromElement(el);
       if (!src) continue;
 
       if (el.style && el.style.opacity === "0") continue;
 
-      var rect = el.getBoundingClientRect();
+      const rect = el.getBoundingClientRect();
       if (rect.width === 0 || rect.height === 0) continue;
 
-      var intersects =
+      const intersects =
         rect.right > containerRect.left &&
         rect.left < containerRect.right &&
         rect.bottom > containerRect.top &&
@@ -1773,7 +1717,7 @@
 
       if (!intersects) continue;
 
-      var area = rect.width * rect.height;
+      const area = rect.width * rect.height;
       if (area > bestArea) {
         bestArea = area;
         bestSrc = src;
@@ -1856,37 +1800,29 @@
       : productElement.querySelector(`.${WIDGET_CONFIG.buttonClass}`);
 
     const button = document.createElement("button");
-    button.className = IS_EN_WIDGET
-      ? WIDGET_CONFIG.buttonClass + " " + EN_LAUNCHER_MODIFIER
-      : WIDGET_CONFIG.buttonClass;
+    button.className = WIDGET_CONFIG.buttonClass;
     button.type = "button";
     if (isTildaPopupOnlyMode()) {
       button.setAttribute(PRODUCT_BTN_ATTR, "true");
     }
 
-    var customIconUrl = shopConfig.button.icon_url;
+    const customIconUrl = shopConfig.button.icon_url;
     if (customIconUrl) {
       const icon = document.createElement("img");
       icon.src = customIconUrl;
       icon.alt = "";
       icon.setAttribute("aria-hidden", "true");
-      var iconSize = shopConfig.button.icon_size || 18;
+      const iconSize = shopConfig.button.icon_size || 18;
       icon.style.width = iconSize + "px";
       icon.style.height = iconSize + "px";
       icon.style.objectFit = "contain";
       icon.style.flexShrink = "0";
-      var ix = shopConfig.button.icon_offset_x || 0;
-      var iy = shopConfig.button.icon_offset_y || 0;
+      const ix = shopConfig.button.icon_offset_x || 0;
+      const iy = shopConfig.button.icon_offset_y || 0;
       if (ix !== 0 || iy !== 0) {
         icon.style.transform = "translate(" + ix + "px, " + iy + "px)";
       }
       button.appendChild(icon);
-    } else if (IS_EN_WIDGET) {
-      const star = document.createElement("span");
-      star.className = "virtual-fitting-button-star";
-      star.setAttribute("aria-hidden", "true");
-      star.textContent = "\u2726";
-      button.appendChild(star);
     } else {
       const icon = document.createElement("img");
       icon.src = WIDGET_CONFIG.iconUrl;
@@ -1895,8 +1831,8 @@
       button.appendChild(icon);
     }
 
-    var bx = shopConfig.button.offset_x || 0;
-    var by = shopConfig.button.offset_y || 0;
+    const bx = shopConfig.button.offset_x || 0;
+    const by = shopConfig.button.offset_y || 0;
     if (bx !== 0 || by !== 0) {
       button.style.transform = "translate(" + bx + "px, " + (-by) + "px)";
     }
@@ -1990,7 +1926,7 @@
 
   function tryClickAddToCartButton(offerId) {
     if (!offerId) return false;
-    var selectors = [
+    const selectors = [
       '[data-offer-id="' + offerId + '"]',
       '[data-fitting-offer-id="' + offerId + '"]',
       '[data-product-id="' + offerId + '"]',
@@ -1998,8 +1934,8 @@
       'a[data-id="' + offerId + '"]',
       '[data-sku="' + offerId + '"]',
     ];
-    for (var i = 0; i < selectors.length; i++) {
-      var el = document.querySelector(selectors[i]);
+    for (let i = 0; i < selectors.length; i++) {
+      const el = document.querySelector(selectors[i]);
       if (el) {
         el.click();
         return true;
@@ -2010,11 +1946,11 @@
 
   function detectBitrixCartConfig() {
     try {
-      var entries = window.performance && window.performance.getEntriesByType("resource");
+      const entries = window.performance && window.performance.getEntriesByType("resource");
       if (!entries) return null;
-      var fallback = null;
-      for (var i = 0; i < entries.length; i++) {
-        var u = entries[i].name || "";
+      let fallback = null;
+      for (let i = 0; i < entries.length; i++) {
+        const u = entries[i].name || "";
         // Primary: Intec basket component URL with parameters[ID] — this is the real add-to-cart endpoint
         if (u.indexOf("component=intec.universe") !== -1 &&
             u.indexOf("sale.basket") !== -1 &&
@@ -2024,14 +1960,14 @@
         }
         // Fallback: classic request.php with siteId+templateId
         if (!fallback) {
-          var idx = u.indexOf("/request.php");
+          const idx = u.indexOf("/request.php");
           if (idx === -1) continue;
-          var base = u.substring(0, idx + "/request.php".length);
-          var qs = u.indexOf("?") !== -1 ? u.substring(u.indexOf("?") + 1) : "";
-          var siteId = "";
-          var templateId = "";
+          const base = u.substring(0, idx + "/request.php".length);
+          const qs = u.indexOf("?") !== -1 ? u.substring(u.indexOf("?") + 1) : "";
+          let siteId = "";
+          let templateId = "";
           qs.split("&").forEach(function(p) {
-            var kv = p.split("=");
+            const kv = p.split("=");
             if (kv[0] === "siteId") siteId = decodeURIComponent(kv[1] || "");
             if (kv[0] === "templateId") templateId = decodeURIComponent(kv[1] || "");
           });
@@ -2048,7 +1984,7 @@
   function addToCartBitrix(productId, config) {
     if (config.intecBasketTemplate) {
       // Replace parameters[ID] in the Intec basket component URL
-      var url = config.intecBasketTemplate.replace(
+      const url = config.intecBasketTemplate.replace(
         /(parameters%5BID%5D=)[^&]*/i,
         "$1" + encodeURIComponent(String(productId))
       );
@@ -2057,13 +1993,13 @@
         .catch(function() { return false; });
     }
     // Fallback: basket.add POST
-    var formData = new FormData();
+    const formData = new FormData();
     formData.append("actions[0][name]", "basket.add");
     formData.append("actions[0][data][quantity]", "0");
     formData.append("actions[0][data][price]", "1");
     formData.append("actions[0][data][additional]", "true");
     formData.append("actions[0][data][id]", String(productId));
-    var postUrl = config.url + "?siteId=" + encodeURIComponent(config.siteId) + "&templateId=" + encodeURIComponent(config.templateId);
+    const postUrl = config.url + "?siteId=" + encodeURIComponent(config.siteId) + "&templateId=" + encodeURIComponent(config.templateId);
     return fetch(postUrl, { method: "POST", credentials: "same-origin", body: formData })
       .then(function(r) { return r.ok; })
       .catch(function() { return false; });
@@ -2073,12 +2009,12 @@
     if (window.VirtualFitting && typeof window.VirtualFitting.onAddToCart === "function") {
       return window.VirtualFitting.onAddToCart(offerId, additionalItems);
     }
-    var success = tryClickAddToCartButton(offerId);
+    const success = tryClickAddToCartButton(offerId);
 
     if (additionalItems && additionalItems.length) {
-      var bitrixConfig = detectBitrixCartConfig();
-      for (var i = 0; i < additionalItems.length; i++) {
-        var extId = additionalItems[i].external_id;
+      const bitrixConfig = detectBitrixCartConfig();
+      for (let i = 0; i < additionalItems.length; i++) {
+        const extId = additionalItems[i].external_id;
         if (!extId) continue;
         if (bitrixConfig) {
           addToCartBitrix(extId, bitrixConfig);
@@ -2257,29 +2193,29 @@
   }
 
   // ─── CROSS-ANALYTICS ─────────────────────────────────────────────────────────
-  var _sdkSessionId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID()
+  const _sdkSessionId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID()
     : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        var r = Math.random() * 16 | 0; return (c === 'x' ? r : r & 0x3 | 0x8).toString(16);
+        const r = Math.random() * 16 | 0; return (c === 'x' ? r : r & 0x3 | 0x8).toString(16);
       });
 
   function _sendEvent(eventName, payload) {
     if (!SHOP_TOKEN) return;
-    var url = RESOLVED_WIDGET_URL.replace(/\/$/, '') + '/api/analytics/events';
-    var ev = {
+    const url = RESOLVED_WIDGET_URL.replace(/\/$/, '') + '/api/analytics/events';
+    const ev = {
       event_name: eventName,
       timestamp: new Date().toISOString(),
       session_id: _sdkSessionId,
       device_type: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent || '') ? 'mobile' : 'desktop',
     };
-    var visitorId = getVisitorId();
+    const visitorId = getVisitorId();
     if (visitorId) ev.visitor_id = visitorId;
     // offer_id теперь per-product: берём из текущего открытого товара, если он есть
     // (для page_view без выбранного товара offer_id отсутствует — это ожидаемо).
     if (currentProduct && currentProduct.offer_id) ev.offer_id = currentProduct.offer_id;
     if (payload) {
       if (payload.product_id) ev.product_id = payload.product_id;
-      var rest = {};
-      for (var k in payload) {
+      const rest = {};
+      for (const k in payload) {
         if (k !== 'product_id' && Object.prototype.hasOwnProperty.call(payload, k)) rest[k] = payload[k];
       }
       if (Object.keys(rest).length) ev.payload = rest;
@@ -2292,7 +2228,7 @@
     }).catch(function() {});
   }
 
-  var _purchaseTracked = false;
+  let _purchaseTracked = false;
 
   function _trackPageView() {
     _sendEvent('looksy_page_view', { url: window.location.href });
@@ -2308,15 +2244,15 @@
     _sendEvent('looksy_purchase', data || {});
   }
 
-  var _PURCHASE_PATTERNS = [
+  const _PURCHASE_PATTERNS = [
     /\/thank[-_]?you/i, /\/order[-_]?success/i, /\/checkout\/thank[-_]?you/i,
     /\/спасибо/i, /\/order\/complete/i, /\/order\/received/i,
     /\/success\/?(\?|$)/i, /\/checkout\/order-received/i,
   ];
 
   function _isPurchasePage() {
-    var path = window.location.pathname + window.location.search;
-    for (var i = 0; i < _PURCHASE_PATTERNS.length; i++) {
+    const path = window.location.pathname + window.location.search;
+    for (let i = 0; i < _PURCHASE_PATTERNS.length; i++) {
       if (_PURCHASE_PATTERNS[i].test(path)) return true;
     }
     return false;
@@ -2324,21 +2260,21 @@
 
   function _setupDataLayerListener() {
     window.dataLayer = window.dataLayer || [];
-    var _orig = Array.prototype.push;
+    const _orig = Array.prototype.push;
     window.dataLayer.push = function() {
-      var result = _orig.apply(this, arguments);
+      const result = _orig.apply(this, arguments);
       try {
-        var item = arguments[0];
+        const item = arguments[0];
         if (!item || typeof item !== 'object') return result;
-        var evt = item.event;
+        const evt = item.event;
         if (evt === 'add_to_cart' || evt === 'addToCart') {
-          var ec = item.ecommerce || {};
-          var prod = (ec.items && ec.items[0]) || (ec.add && ec.add.products && ec.add.products[0]) || {};
+          const ec = item.ecommerce || {};
+          const prod = (ec.items && ec.items[0]) || (ec.add && ec.add.products && ec.add.products[0]) || {};
           _trackAddToCart({ product_id: String(prod.id || prod.item_id || '') });
         }
         if (evt === 'purchase' || evt === 'transaction') {
-          var ec2 = item.ecommerce || {};
-          var orderId = ec2.transaction_id
+          const ec2 = item.ecommerce || {};
+          const orderId = ec2.transaction_id
             || (ec2.purchase && ec2.purchase.actionField && ec2.purchase.actionField.id)
             || item.transaction_id || '';
           _trackPurchase({ order_id: String(orderId) });
@@ -2362,7 +2298,7 @@
   }
 
   function _setupSpaListener() {
-    var _lastPath = window.location.pathname;
+    let _lastPath = window.location.pathname;
     function _onNav() {
       if (window.location.pathname === _lastPath) return;
       _lastPath = window.location.pathname;
@@ -2370,7 +2306,7 @@
       _trackPageView();
       if (_isPurchasePage()) _trackPurchase({});
     }
-    var _origPush = history.pushState;
+    const _origPush = history.pushState;
     history.pushState = function() { _origPush.apply(history, arguments); _onNav(); };
     window.addEventListener('popstate', _onNav);
   }
@@ -2438,13 +2374,13 @@
   function isTruthyFittingAttribute(value) {
     if (value == null) return false;
 
-    var normalized = String(value).trim().toLowerCase();
+    const normalized = String(value).trim().toLowerCase();
     return normalized === "" || normalized === "true" || normalized === "1" || normalized === "yes";
   }
 
   function getButtonSlotContexts(productElement) {
-    var contexts = [];
-    var seen = [];
+    const contexts = [];
+    const seen = [];
 
     function pushContext(ctx) {
       if (!ctx || !ctx.nodeType) return;
@@ -2470,13 +2406,13 @@
   }
 
   function resolveButtonSlotElement(productElement) {
-    var contexts = getButtonSlotContexts(productElement);
+    const contexts = getButtonSlotContexts(productElement);
 
-    for (var i = 0; i < contexts.length; i++) {
-      var ctx = contexts[i];
+    for (let i = 0; i < contexts.length; i++) {
+      const ctx = contexts[i];
       if (!ctx || !ctx.querySelector) continue;
 
-      var slot = ctx.querySelector(BUTTON_SLOT_SELECTOR);
+      const slot = ctx.querySelector(BUTTON_SLOT_SELECTOR);
       if (slot) return slot;
     }
 
@@ -2498,9 +2434,9 @@
   }
 
   function tryRenderButtonInCustomSlot(args) {
-    var productElement = args.productElement;
-    var button = args.button;
-    var existingButton = args.existingButton;
+    const productElement = args.productElement;
+    const button = args.button;
+    const existingButton = args.existingButton;
 
     if (!isCustomSlotButtonDebugEnabled()) {
       if (existingButton) {
@@ -2509,7 +2445,7 @@
       return false;
     }
 
-    var slotElement = resolveButtonSlotElement(productElement);
+    const slotElement = resolveButtonSlotElement(productElement);
 
     if (!slotElement) {
       if (existingButton) {
@@ -2518,7 +2454,7 @@
       return false;
     }
 
-    var targetButton = existingButton || button;
+    const targetButton = existingButton || button;
     applyCustomSlotButtonClasses(targetButton, slotElement);
 
     if (targetButton.parentNode !== slotElement) {
@@ -2620,7 +2556,7 @@
 
       if (isShopifyAdapterEnabled()) {
         console.log("[Looksy][Shopify] adapter enabled");
-        var result = extract_Shopify_ExtendedProductData();
+        const result = extract_Shopify_ExtendedProductData();
         if (result && typeof result.then === "function") {
           return result.catch(function() { return null; });
         }
@@ -2944,19 +2880,19 @@
 
   function extract_Shopify_ExtendedProductData() {
     try {
-      var productJson = null;
+      let productJson = null;
 
-      var jsonSelectors = [
+      const jsonSelectors = [
         'script[data-product-json]',
         '#ProductJson-product-template',
         'script[type="application/json"][data-product]',
       ];
 
-      for (var i = 0; i < jsonSelectors.length; i++) {
-        var scriptEl = document.querySelector(jsonSelectors[i]);
+      for (let i = 0; i < jsonSelectors.length; i++) {
+        const scriptEl = document.querySelector(jsonSelectors[i]);
         if (scriptEl && scriptEl.textContent) {
           try {
-            var parsed = JSON.parse(scriptEl.textContent);
+            const parsed = JSON.parse(scriptEl.textContent);
             if (parsed && (parsed.variants || parsed.product)) {
               productJson = parsed.product || parsed;
               break;
@@ -2966,10 +2902,10 @@
       }
 
       if (!productJson) {
-        var pathname = window.location.pathname;
-        var productMatch = pathname.match(/\/products\/([^\/\?#]+)/);
+        const pathname = window.location.pathname;
+        const productMatch = pathname.match(/\/products\/([^\/\?#]+)/);
         if (productMatch && productMatch[1]) {
-          var handle = productMatch[1];
+          const handle = productMatch[1];
           return fetch('/products/' + handle + '.json')
             .then(function(response) {
               if (!response.ok) return null;
@@ -2995,15 +2931,15 @@
   function buildShopifyExtendedData(product) {
     if (!product || !product.variants || !product.variants.length) return null;
 
-    var optionDefs = Array.isArray(product.options) ? product.options : [];
-    var optionNames = [];
-    for (var oi = 0; oi < optionDefs.length; oi++) {
+    const optionDefs = Array.isArray(product.options) ? product.options : [];
+    const optionNames = [];
+    for (let oi = 0; oi < optionDefs.length; oi++) {
       optionNames.push(typeof optionDefs[oi] === 'string' ? optionDefs[oi] : (optionDefs[oi].name || ''));
     }
 
-    var offers = product.variants.map(function(variant) {
-      var values = {};
-      for (var vi = 0; vi < optionNames.length; vi++) {
+    const offers = product.variants.map(function(variant) {
+      const values = {};
+      for (let vi = 0; vi < optionNames.length; vi++) {
         values[optionNames[vi].toUpperCase()] = variant['option' + (vi + 1)] || '';
       }
       return {
@@ -3014,12 +2950,12 @@
       };
     });
 
-    var variants = [];
-    for (var oi2 = 0; oi2 < optionNames.length; oi2++) {
-      var uniqueValues = [];
-      var seen = {};
-      for (var vi2 = 0; vi2 < product.variants.length; vi2++) {
-        var val = product.variants[vi2]['option' + (oi2 + 1)];
+    const variants = [];
+    for (let oi2 = 0; oi2 < optionNames.length; oi2++) {
+      const uniqueValues = [];
+      const seen = {};
+      for (let vi2 = 0; vi2 < product.variants.length; vi2++) {
+        const val = product.variants[vi2]['option' + (oi2 + 1)];
         if (val && !seen[val]) {
           seen[val] = true;
           uniqueValues.push({ id: String(val), name: String(val) });
@@ -3032,21 +2968,21 @@
       });
     }
 
-    var selected = {};
-    var selectedVariantId = null;
-    var selectedInput = document.querySelector('form[action*="/cart/add"] input[name="id"]');
+    const selected = {};
+    let selectedVariantId = null;
+    const selectedInput = document.querySelector('form[action*="/cart/add"] input[name="id"]');
     if (selectedInput) {
       selectedVariantId = selectedInput.value;
     }
     if (!selectedVariantId && product.variants.length > 0) {
-      var firstAvailable = product.variants.find(function(v) { return v.available; });
+      const firstAvailable = product.variants.find(function(v) { return v.available; });
       selectedVariantId = String((firstAvailable || product.variants[0]).id);
     }
     if (selectedVariantId) {
-      for (var sv = 0; sv < product.variants.length; sv++) {
+      for (let sv = 0; sv < product.variants.length; sv++) {
         if (String(product.variants[sv].id) === String(selectedVariantId)) {
-          var sel = product.variants[sv];
-          for (var so = 0; so < optionNames.length; so++) {
+          const sel = product.variants[sv];
+          for (let so = 0; so < optionNames.length; so++) {
             selected[optionNames[so].toUpperCase()] = sel['option' + (so + 1)] || '';
           }
           break;
@@ -3054,7 +2990,7 @@
       }
     }
 
-    var result = {
+    const result = {
       adapter: "shopify",
       product_id: String(product.id),
       variants: variants,
@@ -3108,9 +3044,9 @@
           source: "widget",
           offer_id: String((payload && payload.offer_id) || ""),
         });
-        var additionalItems = payload && Array.isArray(payload.additional_items) ? payload.additional_items : [];
-        for (var i = 0; i < additionalItems.length; i++) {
-          var extId = additionalItems[i] && additionalItems[i].external_id;
+        const additionalItems = payload && Array.isArray(payload.additional_items) ? payload.additional_items : [];
+        for (let i = 0; i < additionalItems.length; i++) {
+          const extId = additionalItems[i] && additionalItems[i].external_id;
           if (extId) {
             _trackAddToCart({
               source: "widget_recommendation",
@@ -3257,11 +3193,11 @@
     button.click();
 
     // Additional items from recommendations — trigger via virtual Intec basket button.
-    var additionalItems = payload.additional_items || [];
-    for (var ai = 0; ai < additionalItems.length; ai++) {
-      var extId = additionalItems[ai].external_id;
+    const additionalItems = payload.additional_items || [];
+    for (let ai = 0; ai < additionalItems.length; ai++) {
+      const extId = additionalItems[ai].external_id;
       if (!extId) continue;
-      var vBtn = document.createElement('div');
+      const vBtn = document.createElement('div');
       vBtn.setAttribute('data-basket-id', String(extId));
       vBtn.setAttribute('data-basket-action', 'add');
       vBtn.setAttribute('data-basket-state', 'none');
@@ -3433,10 +3369,10 @@
         });
 
         // Дополнительные товары из рекомендаций
-        var additionalItems = payload.additional_items || [];
-        var addPromises = [];
-        for (var ai = 0; ai < additionalItems.length; ai++) {
-          var extId = additionalItems[ai].external_id;
+        const additionalItems = payload.additional_items || [];
+        const addPromises = [];
+        for (let ai = 0; ai < additionalItems.length; ai++) {
+          const extId = additionalItems[ai].external_id;
           if (!extId) continue;
           addPromises.push(
             fetch("/local/ajax/addToBasket.php", {
@@ -3448,9 +3384,9 @@
           );
         }
         // Обновляем счётчик корзины
-        var cartEl = document.querySelector("#cart_quality_top");
+        const cartEl = document.querySelector("#cart_quality_top");
         if (cartEl) {
-          var count = parseInt(cartEl.textContent || "0", 10) || 0;
+          const count = parseInt(cartEl.textContent || "0", 10) || 0;
           cartEl.textContent = String(count + 1 + addPromises.length);
         }
         if (addPromises.length) {
@@ -3469,22 +3405,22 @@
       fetch("/cart.js", { credentials: "same-origin" })
         .then(function(r) { return r.json(); })
         .then(function(cart) {
-          var count = cart.item_count;
+          const count = cart.item_count;
           document.querySelectorAll(
             ".cart-bubble__text-count, [data-cart-count], .cart-count-bubble, .js-cart-count"
           ).forEach(function(el) { el.textContent = String(count); });
         })
         .catch(function() {});
 
-      var cartSection = document.querySelector("cart-items-component[data-section-id]");
-      var sectionId = cartSection ? cartSection.getAttribute("data-section-id") : null;
+      const cartSection = document.querySelector("cart-items-component[data-section-id]");
+      const sectionId = cartSection ? cartSection.getAttribute("data-section-id") : null;
       if (sectionId) {
         fetch(window.location.pathname + "?sections=" + encodeURIComponent(sectionId))
           .then(function(r) { return r.json(); })
           .then(function(sections) {
-            var html = sections[sectionId];
+            const html = sections[sectionId];
             if (!html) return;
-            var el = document.getElementById("shopify-section-" + sectionId);
+            const el = document.getElementById("shopify-section-" + sectionId);
             if (el) el.innerHTML = html;
           })
           .catch(function() {});
@@ -3500,18 +3436,18 @@
   // Uses Shopify's standard Ajax Cart API (POST /cart/add.js) which is
   // available on every Shopify store regardless of theme.
   function perform_Shopify_AddToCart(payload, reply) {
-    var offerId = String((payload && payload.offer_id) || "").trim();
+    const offerId = String((payload && payload.offer_id) || "").trim();
 
     if (!offerId) {
       reply({ success: false, message: "offer_id is missing in payload" });
       return;
     }
 
-    var items = [{ id: Number(offerId), quantity: 1 }];
+    const items = [{ id: Number(offerId), quantity: 1 }];
 
-    var additionalItems = (payload && payload.additional_items) || [];
-    for (var i = 0; i < additionalItems.length; i++) {
-      var extId = (additionalItems[i] && additionalItems[i].external_id) || "";
+    const additionalItems = (payload && payload.additional_items) || [];
+    for (let i = 0; i < additionalItems.length; i++) {
+      const extId = (additionalItems[i] && additionalItems[i].external_id) || "";
       if (!extId) continue;
       items.push({ id: Number(extId), quantity: 1 });
     }
@@ -3542,7 +3478,7 @@
         return response.json()
           .catch(function() { return {}; })
           .then(function(errorData) {
-            var errorMessage = (errorData && errorData.description) ||
+            const errorMessage = (errorData && errorData.description) ||
                                (errorData && errorData.message) ||
                                "Failed to add to cart (HTTP " + response.status + ")";
             console.log("[Looksy][Shopify] add-to-cart failed", {
@@ -3569,10 +3505,10 @@
   // host-page integrations are configured and currently forwards to Yandex
   // Metrica when script[data-ym-counter] is present.
   function trackYandexMetricaGoal(eventPayload) {
-    var counterId = getYandexMetricaCounterId();
+    const counterId = getYandexMetricaCounterId();
     if (!counterId) return;
 
-    var goalName = eventPayload && (eventPayload.event_name || eventPayload.eventName || eventPayload.goal);
+    const goalName = eventPayload && (eventPayload.event_name || eventPayload.eventName || eventPayload.goal);
     if (!goalName || typeof window.ym !== "function") {
       debugLog("Yandex Metrica event skipped", {
         reason: goalName ? "ym is not available" : "missing goal name",

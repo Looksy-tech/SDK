@@ -285,6 +285,42 @@ function createSlotPriorityFixtureHtml({ includeSlot = true, lang = "" } = {}) {
 </html>`;
 }
 
+function createTildaDesktopColumnsFixtureHtml() {
+  return `<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Tilda desktop columns regression</title>
+  <style>
+    .js-store-product { width: 900px; }
+    .t-store__prod-popup__slider { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .t-store__prod-popup__wrapper { width: 360px; height: 540px; }
+    .t-store__prod-popup__columns { display: block; width: 100%; height: 100%; object-fit: cover; }
+  </style>
+</head>
+<body>
+  <main>
+    <article class="js-store-product js-product t-store__product-snippet">
+      <div class="t-store__prod-popup__slider js-store-prod-slider">
+        <div class="t-store__prod-popup__wrapper t-store__prod-popup__wrapper__col2_fixed" data-testid="first-photo-wrapper">
+          <img class="t-store__prod-popup__columns t-img js-product-img t-zoomable loaded" src="${PRODUCT_IMAGE}" data-original="${PRODUCT_IMAGE}" alt="First photo">
+        </div>
+        <div class="t-store__prod-popup__wrapper t-store__prod-popup__wrapper__col2_fixed" data-testid="second-photo-wrapper">
+          <img class="t-store__prod-popup__columns t-img t-zoomable loaded" src="${PRODUCT_IMAGE}" data-original="${PRODUCT_IMAGE}" alt="Second photo">
+        </div>
+      </div>
+      <h1 class="js-store-prod-name js-product-name">Tilda desktop dress</h1>
+      <div class="js-product-price">13 500 ₽</div>
+    </article>
+  </main>
+  <script
+    src="${LOCAL_ORIGIN}/script/script.js"
+    data-shop-token="tilda-desktop-columns-test-token"
+  ></script>
+</body>
+</html>`;
+}
+
 async function installAdapterRoutes(page) {
   const sdkScript = fs.readFileSync(SDK_SCRIPT_PATH, "utf8");
   const mockWidget = fs.readFileSync(MOCK_WIDGET_PATH, "utf8");
@@ -424,6 +460,15 @@ async function installAdapterRoutes(page) {
         status: 200,
         contentType: "text/html; charset=utf-8",
         body: createSlotPriorityFixtureHtml({ includeSlot: false }),
+      });
+      return;
+    }
+
+    if (requestUrl.origin === LOCAL_ORIGIN && requestUrl.pathname === "/adapter/tilda-desktop-columns.html") {
+      await route.fulfill({
+        status: 200,
+        contentType: "text/html; charset=utf-8",
+        body: createTildaDesktopColumnsFixtureHtml(),
       });
       return;
     }
@@ -682,6 +727,19 @@ test("@regression one SDK instance handles multiple product buttons", async ({ p
   await expect(page.locator("script[data-shop-token]")).toHaveCount(1);
   await expect(page.locator(".virtual-fitting-overlay")).toHaveCount(1);
   await expect(page.locator("#virtual-fitting-iframe")).toHaveCount(1);
+});
+
+test("@regression Tilda desktop columns place one button on the first photo", async ({ page }) => {
+  await installAdapterRoutes(page);
+  await page.goto(`${LOCAL_ORIGIN}/adapter/tilda-desktop-columns.html`, {
+    waitUntil: "domcontentloaded",
+  });
+
+  await page.waitForFunction(() => window.VirtualFitting && typeof window.VirtualFitting.init === "function");
+  await expect(page.locator(".virtual-fitting-button")).toHaveCount(1);
+  await expect(page.locator('[data-testid="first-photo-wrapper"] .virtual-fitting-button')).toHaveCount(1);
+  await expect(page.locator('[data-testid="second-photo-wrapper"] .virtual-fitting-button')).toHaveCount(0);
+  await expect(page.locator('[data-testid="first-photo-wrapper"]')).toHaveCSS("position", "relative");
 });
 
 test("@regression custom button slot takes priority over image placement", async ({ page }) => {

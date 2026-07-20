@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node --check script.js)",
+      "Bash(node --check script_ru.js)",
+      "Bash(curl -sL -A \"Mozilla/5.0 \\(Macintosh; Intel Mac OS X 10_15_7\\) AppleWebKit/537.36\" \"https://popnshop.ru/catalog/bodi/bodi-s-vyrezomjqs/?offer=89515\" -o popnshop.html)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d.get\\('scripts',{}\\),indent=2,ensure_ascii=False\\)\\)\")",
+      "Bash(timeout 120 npx --yes lebab@latest --transform let /tmp/script.copy.js -o /tmp/script.lebab.js)",
+      "Bash(node --check /tmp/script.lebab.js)",
+      "Bash(npx --yes lebab@latest --transform let /tmp/script.copy.js -o /tmp/script.lebab.js)"
+    ]
+  }
+}
