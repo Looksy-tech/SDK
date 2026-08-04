@@ -12,11 +12,16 @@
 - [WooCommerce (WordPress)](#woocommerce-wordpress)
 - [Shopify](#shopify)
 - [Tilda](#tilda)
+- [Подробная инструкция для Tilda](./TILDA_RU.md)
 - [Вёрстка на чистом HTML/CSS/JS](#вёрстка-на-чистом-htmlcssjs)
 - [React (для SPA)](#react-для-spa)
 - [Vue.js](#vuejs)
 
 ## Быстрый старт
+
+> Актуальный русский production SDK загружается только с
+> `https://loosy-widget.online/min-script.js`. Старый адрес
+> `https://looksy.tech/min-script.js` использовать не нужно.
 
 ### 1. Подключение скрипта
 
@@ -25,7 +30,7 @@
 ```html
 <script
 	defer
-	src="https://looksy.tech/min-script.js"
+	src="https://loosy-widget.online/min-script.js"
 	data-shop-token="YOUR_SHOP_TOKEN"
 ></script>
 ```
@@ -64,6 +69,13 @@
 | -------------------- | --------- | --------------- | ------------------------------------------------------------------------------- |
 | `data-fitting-name`  | Контейнер | Название товара | Сначала ищется в тексте карточки/заголовках, затем берётся из `alt` изображения |
 | `data-fitting-price` | Контейнер | Цена товара     | Пустая строка                                                                   |
+
+### Атрибуты тега SDK
+
+| Атрибут | Обязательный | Описание |
+| --- | --- | --- |
+| `data-shop-token` | Да | Публичный идентификатор магазина, выданный Looksy |
+| `defer` | Рекомендуется | Не блокирует разбор HTML и запускает SDK после построения документа |
 
 ---
 
@@ -136,7 +148,7 @@ Data-атрибуты — это способ «пометить» HTML-элем
 ```html
 <script
 	defer
-	src="https://looksy.tech/min-script.js"
+	src="https://loosy-widget.online/min-script.js"
 	data-shop-token="YOUR_SHOP_TOKEN"
 ></script>
 ```
@@ -154,7 +166,7 @@ Data-атрибуты — это способ «пометить» HTML-элем
 ```html
 <script
 	defer
-	src="https://looksy.tech/min-script.js"
+	src="https://loosy-widget.online/min-script.js"
 	data-shop-token="YOUR_SHOP_TOKEN"
 	data-debug="true"
 ></script>
@@ -202,14 +214,6 @@ Data-атрибуты — это способ «пометить» HTML-элем
 2. Укажите название, например `Looksy WooCommerce Widget`.
 3. Вставьте код ниже.
 4. Замените `YOUR_SHOP_TOKEN` на токен вашего магазина.
-5. При необходимости измените язык через `data-lang`.
-
-Доступные варианты:
-
-```text
-data-lang="en" - английский интерфейс и кнопка Try on
-data-lang="ru" или отсутствие data-lang - русский/default режим
-```
 
 ### 3. Вставьте код
 
@@ -272,9 +276,8 @@ add_action('wp_footer', function () {
 
     <script
         defer
-        src="https://looksy.tech/min-script.js"
-        data-shop-token="YOUR_SHOP_TOKEN"
-        data-lang="en">
+        src="https://loosy-widget.online/min-script.js"
+        data-shop-token="YOUR_SHOP_TOKEN">
     </script>
     <?php
 }, 99);
@@ -331,22 +334,7 @@ add_action('wp_footer', function () {
 
 После проверки удалите его или замените на `data-debug="false"`.
 
-### 8. Как изменить язык кнопки
-
-Для английской кнопки:
-
-```html
-<script
-	defer
-	src="https://looksy.tech/min-script.js"
-	data-shop-token="YOUR_SHOP_TOKEN"
-	data-lang="en"
-></script>
-```
-
-Для русского/default режима уберите `data-lang` или укажите `data-lang="ru"`.
-
-### 9. Ручная интеграция для разработчиков
+### 8. Ручная интеграция для разработчиков
 
 Если тема сильно изменяет стандартную WooCommerce-разметку, можно разметить товар вручную:
 
@@ -370,7 +358,7 @@ add_action('wp_footer', function () {
 
 `data-fitting-name` и `data-fitting-price` передают название и цену товара в виджет.
 
-### 10. Не рекомендуется для обычных пользователей
+### 9. Не рекомендуется для обычных пользователей
 
 Не редактируйте `footer.php` и не создавайте `single-product.php`, если вы не разработчик темы.
 
@@ -412,16 +400,15 @@ add_action('wp_footer', function () {
 {% if request.page_type == 'product' %}
   <script
     defer
-    src="https://looksy.tech/min-script.js"
-    data-shop-token="YOUR_SHOP_TOKEN"
-    data-lang="en">
+    src="https://loosy-widget.online/min-script.js"
+    data-shop-token="YOUR_SHOP_TOKEN">
   </script>
 {% endif %}
 ```
 
 Замените `YOUR_SHOP_TOKEN` на токен вашего магазина.
 
-SDK должен быть подключён один раз. Если в теме уже есть строка `https://looksy.tech/min-script.js`, не добавляйте второй такой же скрипт.
+SDK должен быть подключён один раз. Если в теме уже есть строка `https://loosy-widget.online/min-script.js`, не добавляйте второй такой же скрипт.
 
 ### 2. Добавьте разметку товара
 
@@ -588,9 +575,8 @@ data-fitting-price="{{ product.price | money }}"
 {% if request.page_type == 'product' %}
   <script
     defer
-    src="https://looksy.tech/min-script.js"
-    data-shop-token="YOUR_SHOP_TOKEN"
-    data-lang="en">
+    src="https://loosy-widget.online/min-script.js"
+    data-shop-token="YOUR_SHOP_TOKEN">
   </script>
 {% endif %}
 ```
@@ -601,9 +587,8 @@ data-fitting-price="{{ product.price | money }}"
 {% if request.page_type == 'product' %}
   <script
     defer
-    src="https://looksy.tech/min-script.js"
-    data-shop-token="YOUR_SHOP_TOKEN"
-    data-lang="en">
+    src="https://loosy-widget.online/min-script.js"
+    data-shop-token="YOUR_SHOP_TOKEN">
   </script>
 
   <style>
@@ -698,9 +683,8 @@ data-fitting-price="{{ product.price | money }}"
 {% if request.page_type == 'product' %}
   <script
     defer
-    src="https://looksy.tech/min-script.js"
+    src="https://loosy-widget.online/min-script.js"
     data-shop-token="YOUR_SHOP_TOKEN"
-    data-lang="en"
     data-debug="true">
   </script>
 {% endif %}
@@ -722,7 +706,7 @@ data-fitting-price="{{ product.price | money }}"
 <?php
 // В footer.php или в компоненте bitrix:main.include
 ?>
-<script defer src="https://looksy.tech/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
+<script defer src="https://loosy-widget.online/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
 ```
 
 ### 2. Настройка карточки товара
@@ -766,7 +750,7 @@ data-fitting-price="{{ product.price | money }}"
 В файле `catalog/view/theme/default/template/common/footer.tpl`:
 
 ```php
-<script defer src="https://looksy.tech/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
+<script defer src="https://loosy-widget.online/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
 </body>
 </html>
 ```
@@ -796,7 +780,7 @@ data-fitting-price="{{ product.price | money }}"
 ```javascript
 $(document).ready(function () {
 	const script = document.createElement('script')
-	script.src = 'https://looksy.tech/min-script.js'
+	script.src = 'https://loosy-widget.online/min-script.js'
 	script.setAttribute('data-shop-token', 'YOUR_SHOP_TOKEN')
 	document.body.appendChild(script)
 })
@@ -841,7 +825,7 @@ $(document).ready(function () {
 Создайте `app/design/frontend/YourVendor/YourTheme/Magento_Theme/templates/virtual-fitting.phtml`:
 
 ```php
-<script defer src="https://looksy.tech/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
+<script defer src="https://loosy-widget.online/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
 ```
 
 ### 2. Шаблон товара
@@ -871,6 +855,9 @@ $_imageHelper = $this->helper('Magento\Catalog\Helper\Image');
 
 Ручная разметка `data-fitting-*` обычно не требуется.
 
+Полная актуальная инструкция, включая отдельное размещение кнопки через slot:
+[TILDA_RU.md](./TILDA_RU.md).
+
 ### 1. Откройте настройки сайта
 
 1. Войдите в аккаунт Tilda.
@@ -879,11 +866,11 @@ $_imageHelper = $this->helper('Magento\Catalog\Helper\Image');
 
 ### 2. Откройте раздел вставки кода
 
-В настройках сайта откройте `Ещё -> Вставка кода` или, в зависимости от интерфейса Tilda, `Настройки сайта -> Вставка кода`.
+В настройках сайта откройте:
 
-Найдите блок для добавления HTML-кода перед закрывающим тегом `</body>`. Обычно он называется `Перед закрывающим тегом BODY` или `Before </body>`.
+`Ещё -> HTML-код для вставки внутрь head`.
 
-Нажмите `Редактировать код`.
+Этот путь соответствует текущей [официальной инструкции Tilda](https://help-ru.tilda.cc/html). Если SDK нужен только на одной странице, вместо глобального кода можно добавить на неё блок T123 «HTML-код».
 
 ### 3. Вставьте код Looksy
 
@@ -892,13 +879,14 @@ $_imageHelper = $this->helper('Magento\Catalog\Helper\Image');
 ```html
 <script
 	defer
-	src="https://looksy.tech/min-script.js"
+	src="https://loosy-widget.online/min-script.js"
 	data-shop-token="YOUR_SHOP_TOKEN"
-	data-debug="true"
 ></script>
 ```
 
 Важно: для Tilda оставьте атрибут `defer`.
+
+Не подключайте этот же SDK одновременно глобально и через блок T123.
 
 ### 4. Сохраните изменения
 
@@ -920,7 +908,7 @@ $_imageHelper = $this->helper('Magento\Catalog\Helper\Image');
 
 ### 6. Если кнопка не появилась
 
-Откройте DevTools -> `Console` и проверьте, есть ли сообщения `[Looksy]`.
+Временно включите debug-режим по инструкции ниже, затем откройте DevTools -> `Console` и проверьте сообщения `[Looksy]`.
 
 Также проверьте:
 
@@ -931,17 +919,20 @@ $_imageHelper = $this->helper('Magento\Catalog\Helper\Image');
 - в карточке товара есть изображение товара;
 - на странице нет второго подключения `min-script.js`.
 
-### 7. Как отключить debug-режим
+### 7. Debug-режим
 
-После проверки замените `data-debug="true"` на `data-debug="false"` или удалите атрибут:
+Для обычной установки debug не нужен. Если требуется диагностика, временно добавьте `data-debug="true"`:
 
 ```html
 <script
 	defer
-	src="https://looksy.tech/min-script.js"
+	src="https://loosy-widget.online/min-script.js"
 	data-shop-token="YOUR_SHOP_TOKEN"
+	data-debug="true"
 ></script>
 ```
+
+После проверки удалите `data-debug="true"`.
 
 ### Для нестандартной вёрстки
 
@@ -958,8 +949,14 @@ $_imageHelper = $this->helper('Magento\Catalog\Helper\Image');
 		alt="Название товара"
 		data-fitting-image
 	/>
+
+	<div data-fitting-button-slot data-fitting-full-width="true"></div>
 </div>
 ```
+
+Пустой `data-fitting-button-slot` размещает кнопку отдельно от фотографии. Он должен находиться внутри контейнера конкретного товара `data-fitting-product`. SDK сам создаёт кнопку; добавлять собственный `<button>` и обработчик клика не нужно.
+
+В стандартном popup Tilda Store slot необходимо вставлять внутрь разметки открытой карточки. Один глобальный slot в блоке T123 с товаром связан не будет. Подробнее: [TILDA_RU.md](./TILDA_RU.md#кнопка-отдельно-от-фотографии-slot).
 
 После динамической вставки товара можно вызвать:
 
@@ -1002,7 +999,7 @@ $_imageHelper = $this->helper('Magento\Catalog\Helper\Image');
 
 		<script
 			defer
-			src="https://looksy.tech/min-script.js"
+			src="https://loosy-widget.online/min-script.js"
 			data-shop-token="YOUR_SHOP_TOKEN"
 		></script>
 	</body>
@@ -1016,7 +1013,7 @@ $_imageHelper = $this->helper('Magento\Catalog\Helper\Image');
 
 <script
 	defer
-	src="https://looksy.tech/min-script.js"
+	src="https://loosy-widget.online/min-script.js"
 	data-shop-token="YOUR_SHOP_TOKEN"
 ></script>
 <script>
@@ -1075,9 +1072,8 @@ function useLooksyInitOnRouteChange() {
 ```html
 <script
 	defer
-	src="https://looksy.tech/min-script.js"
+	src="https://loosy-widget.online/min-script.js"
 	data-shop-token="YOUR_SHOP_TOKEN"
-	data-lang="en"
 ></script>
 ```
 

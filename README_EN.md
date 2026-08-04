@@ -12,11 +12,16 @@ Embeddable script for adding virtual clothing try-on functionality to e-commerce
 - [WooCommerce (WordPress)](#woocommerce-wordpress)
 - [Shopify](#shopify)
 - [Tilda](#tilda)
+- [Detailed Tilda guide in Russian](./TILDA_RU.md)
 - [Plain HTML/CSS/JS Layout](#plain-htmlcssjs-layout)
 - [React (for SPA)](#react-for-spa)
 - [Vue.js](#vuejs)
 
 ## Quick Start
+
+> The current production SDK is served only from
+> `https://loosy-widget.online/min-script.js`. Do not use the obsolete
+> `https://looksy.tech/min-script.js` URL.
 
 ### 1. Add the script
 
@@ -25,7 +30,7 @@ Add the script before the closing `</body>` tag:
 ```html
 <script
 	defer
-	src="https://looksy.tech/min-script.js"
+	src="https://loosy-widget.online/min-script.js"
 	data-shop-token="YOUR_SHOP_TOKEN"
 ></script>
 ```
@@ -64,6 +69,13 @@ Add data attributes to the product elements:
 | -------------------- | --------- | ------------ | ----------------------------------------------------------------------------- |
 | `data-fitting-name`  | Container | Product name | First searched in the card/headings text, then taken from the image `alt`     |
 | `data-fitting-price` | Container | Product price | Empty string                                                                  |
+
+### SDK script attributes
+
+| Attribute | Required | Description |
+| --- | --- | --- |
+| `data-shop-token` | Yes | Public shop identifier issued by Looksy |
+| `defer` | Recommended | Avoids blocking HTML parsing and runs the SDK after the document is parsed |
 
 ---
 
@@ -136,7 +148,7 @@ The shop token is passed through the `data-shop-token` attribute in the `<script
 ```html
 <script
 	defer
-	src="https://looksy.tech/min-script.js"
+	src="https://loosy-widget.online/min-script.js"
 	data-shop-token="YOUR_SHOP_TOKEN"
 ></script>
 ```
@@ -154,7 +166,7 @@ To enable diagnostic logs in the browser console, add `data-debug="true"`:
 ```html
 <script
 	defer
-	src="https://looksy.tech/min-script.js"
+	src="https://loosy-widget.online/min-script.js"
 	data-shop-token="YOUR_SHOP_TOKEN"
 	data-debug="true"
 ></script>
@@ -202,14 +214,6 @@ Do not use this method together with manual script insertion in `footer.php`, ot
 2. Set a name, for example `Looksy WooCommerce Widget`.
 3. Paste the code below.
 4. Replace `YOUR_SHOP_TOKEN` with your store token.
-5. If needed, change the language via `data-lang`.
-
-Available options:
-
-```text
-data-lang="en" - English interface and Try on button
-data-lang="ru" or no data-lang - Russian/default mode
-```
 
 ### 3. Paste the code
 
@@ -272,9 +276,8 @@ add_action('wp_footer', function () {
 
     <script
         defer
-        src="https://looksy.tech/min-script.js"
-        data-shop-token="YOUR_SHOP_TOKEN"
-        data-lang="en">
+        src="https://loosy-widget.online/min-script.js"
+        data-shop-token="YOUR_SHOP_TOKEN">
     </script>
     <?php
 }, 99);
@@ -331,22 +334,7 @@ For testing, add the `data-debug="true"` attribute.
 
 After testing, remove it or replace it with `data-debug="false"`.
 
-### 8. How to change the button language
-
-For the English button:
-
-```html
-<script
-	defer
-	src="https://looksy.tech/min-script.js"
-	data-shop-token="YOUR_SHOP_TOKEN"
-	data-lang="en"
-></script>
-```
-
-For Russian/default mode, remove `data-lang` or set `data-lang="ru"`.
-
-### 9. Manual integration for developers
+### 8. Manual integration for developers
 
 If the theme heavily changes the standard WooCommerce markup, you can mark up the product manually:
 
@@ -370,7 +358,7 @@ Place `data-fitting-image` on the product image inside that container.
 
 `data-fitting-name` and `data-fitting-price` pass the product name and price to the widget.
 
-### 10. Not recommended for regular users
+### 9. Not recommended for regular users
 
 Do not edit `footer.php` or create `single-product.php` unless you are a theme developer.
 
@@ -412,16 +400,15 @@ If there is no such block, add a new block before `</body>`:
 {% if request.page_type == 'product' %}
   <script
     defer
-    src="https://looksy.tech/min-script.js"
-    data-shop-token="YOUR_SHOP_TOKEN"
-    data-lang="en">
+    src="https://loosy-widget.online/min-script.js"
+    data-shop-token="YOUR_SHOP_TOKEN">
   </script>
 {% endif %}
 ```
 
 Replace `YOUR_SHOP_TOKEN` with your store token.
 
-The SDK must be connected only once. If the theme already contains `https://looksy.tech/min-script.js`, do not add the same script again.
+The SDK must be connected only once. If the theme already contains `https://loosy-widget.online/min-script.js`, do not add the same script again.
 
 ### 2. Add product markup
 
@@ -596,9 +583,8 @@ Find the place where you added the SDK:
 {% if request.page_type == 'product' %}
   <script
     defer
-    src="https://looksy.tech/min-script.js"
-    data-shop-token="YOUR_SHOP_TOKEN"
-    data-lang="en">
+    src="https://loosy-widget.online/min-script.js"
+    data-shop-token="YOUR_SHOP_TOKEN">
   </script>
 {% endif %}
 ```
@@ -609,9 +595,8 @@ Add CSS inside the same block, immediately after `<script>`:
 {% if request.page_type == 'product' %}
   <script
     defer
-    src="https://looksy.tech/min-script.js"
-    data-shop-token="YOUR_SHOP_TOKEN"
-    data-lang="en">
+    src="https://loosy-widget.online/min-script.js"
+    data-shop-token="YOUR_SHOP_TOKEN">
   </script>
 
   <style>
@@ -706,9 +691,8 @@ If the button does not appear, temporarily enable debug mode:
 {% if request.page_type == 'product' %}
   <script
     defer
-    src="https://looksy.tech/min-script.js"
+    src="https://loosy-widget.online/min-script.js"
     data-shop-token="YOUR_SHOP_TOKEN"
-    data-lang="en"
     data-debug="true">
   </script>
 {% endif %}
@@ -730,7 +714,7 @@ There should be only one SDK connection on the page.
 <?php
 // In footer.php or in the bitrix:main.include component
 ?>
-<script defer src="https://looksy.tech/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
+<script defer src="https://loosy-widget.online/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
 ```
 
 ### 2. Product page setup
@@ -774,7 +758,7 @@ There should be only one SDK connection on the page.
 In `catalog/view/theme/default/template/common/footer.tpl`:
 
 ```php
-<script defer src="https://looksy.tech/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
+<script defer src="https://loosy-widget.online/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
 </body>
 </html>
 ```
@@ -804,7 +788,7 @@ In `catalog/view/theme/default/template/product/product.tpl`:
 ```javascript
 $(document).ready(function () {
 	const script = document.createElement('script')
-	script.src = 'https://looksy.tech/min-script.js'
+	script.src = 'https://loosy-widget.online/min-script.js'
 	script.setAttribute('data-shop-token', 'YOUR_SHOP_TOKEN')
 	document.body.appendChild(script)
 })
@@ -849,7 +833,7 @@ Create `app/design/frontend/YourVendor/YourTheme/Magento_Theme/layout/default.xm
 Create `app/design/frontend/YourVendor/YourTheme/Magento_Theme/templates/virtual-fitting.phtml`:
 
 ```php
-<script defer src="https://looksy.tech/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
+<script defer src="https://loosy-widget.online/min-script.js" data-shop-token="YOUR_SHOP_TOKEN"></script>
 ```
 
 ### 2. Product template
@@ -879,6 +863,9 @@ For Tilda, it is usually enough to add one script in the site settings. After th
 
 Manual `data-fitting-*` markup is usually not required.
 
+The complete current guide, including custom button placement through a slot,
+is available in Russian: [TILDA_RU.md](./TILDA_RU.md).
+
 ### 1. Open site settings
 
 1. Log in to your Tilda account.
@@ -887,11 +874,11 @@ Manual `data-fitting-*` markup is usually not required.
 
 ### 2. Open the code insertion section
 
-In the site settings, open `More -> Code insertion` or, depending on your Tilda interface, `Site Settings -> Code insertion`.
+In the site settings, open:
 
-Find the block for adding HTML code before the closing `</body>` tag. It is usually called `Before closing BODY tag` or `Before </body>`.
+`More -> HTML code for the head section`.
 
-Click `Edit code`.
+This matches Tilda's current [official HTML embedding guide](https://help.tilda.cc/html). If the SDK is needed only on one page, add a T123 “Embed HTML Code” block to that page instead.
 
 ### 3. Paste the Looksy code
 
@@ -900,13 +887,14 @@ Add this code:
 ```html
 <script
 	defer
-	src="https://looksy.tech/min-script.js"
+	src="https://loosy-widget.online/min-script.js"
 	data-shop-token="YOUR_SHOP_TOKEN"
-	data-debug="true"
 ></script>
 ```
 
 Important: for Tilda, keep the `defer` attribute.
+
+Do not load the same SDK globally and through a T123 block at the same time.
 
 ### 4. Save changes
 
@@ -928,7 +916,7 @@ Expected result:
 
 ### 6. If the button does not appear
 
-Open DevTools -> `Console` and check whether there are `[Looksy]` messages.
+Temporarily enable debug mode as described below, then open DevTools -> `Console` and check the `[Looksy]` messages.
 
 Also check the following:
 
@@ -939,17 +927,20 @@ Also check the following:
 - the product card contains a product image;
 - there is no second `min-script.js` connection on the page.
 
-### 7. How to disable debug mode
+### 7. Debug mode
 
-After testing, replace `data-debug="true"` with `data-debug="false"` or remove the attribute:
+Debug is not needed for a normal installation. For troubleshooting, temporarily add `data-debug="true"`:
 
 ```html
 <script
 	defer
-	src="https://looksy.tech/min-script.js"
+	src="https://loosy-widget.online/min-script.js"
 	data-shop-token="YOUR_SHOP_TOKEN"
+	data-debug="true"
 ></script>
 ```
+
+Remove `data-debug="true"` after testing.
 
 ### For custom layouts
 
@@ -966,8 +957,14 @@ If you use a custom Zero Block or custom HTML product markup, you can mark the p
 		alt="Product name"
 		data-fitting-image
 	/>
+
+	<div data-fitting-button-slot data-fitting-full-width="true"></div>
 </div>
 ```
+
+The empty `data-fitting-button-slot` places the button away from the image. It must stay inside the matching `data-fitting-product` container. The SDK creates the button itself; do not add a custom `<button>` or click handler.
+
+In a standard Tilda Store popup, the slot must be inserted into the opened product card markup. A single global slot in a T123 block cannot be associated with a specific product. See the [detailed Russian guide](./TILDA_RU.md#кнопка-отдельно-от-фотографии-slot).
 
 After inserting a product dynamically, you can call:
 
@@ -1010,7 +1007,7 @@ After inserting a product dynamically, you can call:
 
 		<script
 			defer
-			src="https://looksy.tech/min-script.js"
+			src="https://loosy-widget.online/min-script.js"
 			data-shop-token="YOUR_SHOP_TOKEN"
 		></script>
 	</body>
@@ -1024,7 +1021,7 @@ After inserting a product dynamically, you can call:
 
 <script
 	defer
-	src="https://looksy.tech/min-script.js"
+	src="https://loosy-widget.online/min-script.js"
 	data-shop-token="YOUR_SHOP_TOKEN"
 ></script>
 <script>
@@ -1083,9 +1080,8 @@ Connect the SDK once in `index.html`, and call `window.VirtualFitting.init()` at
 ```html
 <script
 	defer
-	src="https://looksy.tech/min-script.js"
+	src="https://loosy-widget.online/min-script.js"
 	data-shop-token="YOUR_SHOP_TOKEN"
-	data-lang="en"
 ></script>
 ```
 

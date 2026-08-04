@@ -30,8 +30,16 @@ const EN_BUTTON_TEXT = "Try on";
 
 const FIXTURE_PATH = "/widget-url-fixture.html";
 
-function createProductFixtureHtml({ token, lang }) {
+function createProductFixtureHtml({ token, lang, widgetUrl = "", manualInit = false }) {
   const langAttr = lang ? ` data-lang="${lang}"` : "";
+  const widgetUrlAttr = widgetUrl ? ` data-widget-url="${widgetUrl}"` : "";
+  const manualInitScript = manualInit
+    ? `<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    window.VirtualFitting.init();
+  });
+  </script>`
+    : "";
   return `<!doctype html>
 <html lang="ru">
 <head>
@@ -42,7 +50,8 @@ function createProductFixtureHtml({ token, lang }) {
   <article data-fitting-product data-fitting-name="Test product" data-fitting-price="1 000 ₽">
     <img src="${PRODUCT_IMAGE}" alt="Test product" data-fitting-image>
   </article>
-  <script src="${LOCAL_ORIGIN}/script/script.js" data-shop-token="${token}"${langAttr}></script>
+  <script src="${LOCAL_ORIGIN}/script/script.js" data-shop-token="${token}"${langAttr}${widgetUrlAttr}></script>
+  ${manualInitScript}
 </body>
 </html>`;
 }
@@ -172,3 +181,88 @@ for (const testCase of CASES) {
     }
   });
 }
+
+test("@regression late shop config replaces rendered defaults after the two-second deadline", async ({ page }) => {
+  const sdkScript = fs.readFileSync(SDK_SCRIPT_PATH, "utf8");
+  const fixtureHtml = createProductFixtureHtml({
+    token: "late-config-token",
+    lang: "ru",
+    widgetUrl: LOCAL_ORIGIN,
+    manualInit: true,
+  });
+  let configRequests = 0;
+
+  await page.route("**/*", async (route) => {
+    const url = new URL(route.request().url());
+
+    if (url.origin === LOCAL_ORIGIN && url.pathname === "/script/script.js") {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/javascript; charset=utf-8",
+        body: sdkScript,
+      });
+      return;
+    }
+
+    if (url.origin === LOCAL_ORIGIN && url.pathname === FIXTURE_PATH) {
+      await route.fulfill({
+        status: 200,
+        contentType: "text/html; charset=utf-8",
+        body: fixtureHtml,
+      });
+      return;
+    }
+
+    if (url.origin === LOCAL_ORIGIN && url.pathname === "/api/widget/config") {
+      configRequests += 1;
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json; charset=utf-8",
+        body: JSON.stringify({
+          button: {
+            bg_color: "#48091a",
+            text_color: "#ffffff",
+            text: "Примерить",
+            font_size: 14,
+            height: 36,
+            border_radius: 0,
+            icon_url: "https://hoops.ru/images/pic_foto.svg",
+            icon_size: 18,
+            icon_offset_x: 0,
+            icon_offset_y: 0,
+            offset_x: 0,
+            offset_y: 0,
+          },
+          iframe: {
+            primary_button_color: "#48091a",
+            accent_color: "#7886ff",
+            widget_bg_color: "#ffffff",
+          },
+        }),
+      });
+      return;
+    }
+
+    await route.abort();
+  });
+
+  await page.goto(`${LOCAL_ORIGIN}${FIXTURE_PATH}`, { waitUntil: "domcontentloaded" });
+
+  const button = page.locator(".virtual-fitting-button");
+  await expect(button).toHaveCount(1, { timeout: 2500 });
+  await expect(button).toHaveText(RU_BUTTON_TEXT);
+  await expect(button.locator("img")).toHaveAttribute(
+    "src",
+    "https://s3.regru.cloud/looksy-widget/try_on.svg",
+  );
+
+  await expect(button).toHaveText("Примерить", { timeout: 2500 });
+  await expect(button.locator("img")).toHaveAttribute(
+    "src",
+    "https://hoops.ru/images/pic_foto.svg",
+  );
+  await expect(button).toHaveCSS("background-color", "rgb(72, 9, 26)");
+  await expect(button).toHaveCSS("height", "36px");
+  expect(configRequests).toBe(1);
+});

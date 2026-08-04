@@ -8,6 +8,7 @@
   const BUTTON_TEXT = "Примерить на себе";
   const Z_INDEX = 2147483646;
   const BUTTON_RENDER_DELAY_MS = 140;
+  const SHOP_CONFIG_RENDER_TIMEOUT_MS = 2000;
   const ST305N_RELOAD_STEPS_MS = [120, 450, 900, 1600, 2600, 3800];
   const ICON_URL = "https://s3.regru.cloud/looksy-widget/try_on.svg";
   const GLENFIELD_RU_SHOP_TOKEN = "ru_a5428add-7a7c-41ef-b385-1018c5dd6939";
@@ -377,7 +378,10 @@
     },
   };
 
-  function applyOffsetsToRenderedButtons() {
+  let shopConfigRequest = null;
+  let shopConfigRenderGate = null;
+
+  function applyShopConfigToButton(button) {
     const bx = shopConfig.button.offset_x || 0;
     const by = shopConfig.button.offset_y || 0;
     const ix = shopConfig.button.icon_offset_x || 0;
@@ -389,31 +393,95 @@
       ? "translate(" + ix + "px, " + iy + "px)"
       : "";
 
-    document.querySelectorAll("." + WIDGET_CONFIG.buttonClass).forEach(function(button) {
-      button.style.transform = buttonTransform;
-      const icon = button.querySelector("img");
-      if (icon) icon.style.transform = iconTransform;
+    let icon = button.querySelector("img");
+    if (!icon) {
+      icon = document.createElement("img");
+      icon.alt = "";
+      icon.setAttribute("aria-hidden", "true");
+      button.insertBefore(icon, button.firstChild);
+    }
+    const iconSize = shopConfig.button.icon_size || 18;
+    icon.src = shopConfig.button.icon_url || WIDGET_CONFIG.iconUrl;
+    icon.style.width = iconSize + "px";
+    icon.style.height = iconSize + "px";
+    icon.style.objectFit = "contain";
+    icon.style.flexShrink = "0";
+    icon.style.transform = iconTransform;
+
+    let textNode = null;
+    Array.prototype.slice.call(button.childNodes).forEach(function(node) {
+      if (node.nodeType !== 3) return;
+      if (!textNode) textNode = node;
+      else node.remove();
+    });
+    if (!textNode) {
+      textNode = document.createTextNode("");
+      button.appendChild(textNode);
+    }
+    textNode.nodeValue = shopConfig.button.text;
+    button.style.transform = buttonTransform;
+  }
+
+  function applyShopConfigToRenderedUi() {
+    const style = document.getElementById("virtual-fitting-styles");
+    if (style) {
+      style.remove();
+      createStyles();
+    }
+    document.querySelectorAll("." + WIDGET_CONFIG.buttonClass).forEach(applyShopConfigToButton);
+    postMessageToIframe({
+      type: "SHOP_CONFIG",
+      config: shopConfig.iframe,
     });
   }
 
   function loadShopConfig() {
-    if (!WIDGET_CONFIG.shopToken) return Promise.resolve();
+    if (shopConfigRequest) return shopConfigRequest;
+    if (!WIDGET_CONFIG.shopToken) return Promise.resolve(false);
     const url = WIDGET_CONFIG.widgetUrl.replace(/\/$/, "") + "/api/widget/config?shop_token=" + encodeURIComponent(WIDGET_CONFIG.shopToken);
-    return fetch(url)
+    shopConfigRequest = fetch(url)
       .then(function(response) {
         if (response.ok) return response.json();
       })
       .then(function(data) {
         if (data && data.button && data.iframe) {
           shopConfig = data;
-          // На динамических витринах кнопка иногда появляется до завершения
-          // запроса конфига. Применяем offsets и к уже отрисованной кнопке.
-          applyOffsetsToRenderedButtons();
+          // После двухсекундного дедлайна витрина могла показать дефолты.
+          // Поздний ответ всё равно должен обновить все видимые настройки.
+          applyShopConfigToRenderedUi();
+          return true;
         }
+        return false;
       })
       .catch(function() {
         // Не удалось загрузить — используем дефолты
+        return false;
       });
+    return shopConfigRequest;
+  }
+
+  function waitForShopConfigBeforeRender() {
+    if (shopConfigRenderGate) return shopConfigRenderGate;
+    shopConfigRenderGate = new Promise(function(resolve) {
+      let resolved = false;
+      const timer = window.setTimeout(function() {
+        if (resolved) return;
+        resolved = true;
+        resolve(false);
+      }, SHOP_CONFIG_RENDER_TIMEOUT_MS);
+
+      loadShopConfig().then(function(loaded) {
+        if (resolved) return;
+        resolved = true;
+        window.clearTimeout(timer);
+        resolve(loaded);
+      });
+    });
+    return shopConfigRenderGate;
+  }
+
+  function initButtonsWithConfig() {
+    return waitForShopConfigBeforeRender().then(initButtons);
   }
   // ─────────────────────────────────────────────────────────────────────────
   let buttonRenderTimer = null;
@@ -2349,10 +2417,10 @@
     initCrossAnalytics();
     if (document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", function () {
-        loadShopConfig().then(initWidget);
+        waitForShopConfigBeforeRender().then(initWidget);
       });
     } else {
-      loadShopConfig().then(initWidget);
+      waitForShopConfigBeforeRender().then(initWidget);
     }
   }
   
@@ -3536,7 +3604,7 @@
   window.VirtualFitting = {
     open: openWidget,
     close: closeWidget,
-    init: initButtons,
+    init: initButtonsWithConfig,
     onAddToCart: null,
     track: function(eventName, data) { _sendEvent(eventName, data || {}); },
   };
