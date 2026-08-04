@@ -80,7 +80,7 @@ jobs:
           username: ${{ secrets.TEST_SERVER_USER }}
           key: ${{ secrets.TEST_SERVER_SSH_KEY }}
           source: script-test.tar.gz
-          target: /srv
+          target: /tmp/looksy-sdk-test-${{ github.run_id }}-${{ github.run_attempt }}
 
       - name: Deploy script to test server
         uses: appleboy/ssh-action@v1.0.3
@@ -93,8 +93,9 @@ jobs:
             if [ -z "$TEST_DEPLOY_PATH" ]; then
               TEST_DEPLOY_PATH="/srv/sdk-test"
             fi
-            TEST_ARCHIVE_PATH="/srv/script-test.tar.gz"
-            TEST_EXTRACT_PATH="/srv/script-test-build"
+            TEST_UPLOAD_PATH="/tmp/looksy-sdk-test-${{ github.run_id }}-${{ github.run_attempt }}"
+            TEST_ARCHIVE_PATH="$TEST_UPLOAD_PATH/script-test.tar.gz"
+            TEST_EXTRACT_PATH="/tmp/looksy-sdk-test-build-${{ github.run_id }}-${{ github.run_attempt }}"
 
             rm -rf "$TEST_EXTRACT_PATH"
             mkdir -p "$TEST_EXTRACT_PATH"
@@ -110,7 +111,7 @@ jobs:
               mv "$TEST_DEPLOY_PATH/script.min.js" "$TEST_DEPLOY_PATH/script-test.min.js"
             fi
 
-            rm -rf "$TEST_EXTRACT_PATH" "$TEST_ARCHIVE_PATH"
+            rm -rf "$TEST_EXTRACT_PATH" "$TEST_UPLOAD_PATH"
 
   build-prod:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
@@ -173,7 +174,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           source: script-prod.tar.gz
-          target: /srv
+          target: /tmp/looksy-sdk-prod-${{ github.run_id }}-${{ github.run_attempt }}
 
       - name: Deploy script to prod server
         uses: appleboy/ssh-action@v1.0.3
@@ -186,8 +187,9 @@ jobs:
             if [ -z "$PROD_DEPLOY_PATH" ]; then
               PROD_DEPLOY_PATH="/srv/sdk"
             fi
-            PROD_ARCHIVE_PATH="/srv/script-prod.tar.gz"
-            PROD_EXTRACT_PATH="/srv/script-prod-build"
+            PROD_UPLOAD_PATH="/tmp/looksy-sdk-prod-${{ github.run_id }}-${{ github.run_attempt }}"
+            PROD_ARCHIVE_PATH="$PROD_UPLOAD_PATH/script-prod.tar.gz"
+            PROD_EXTRACT_PATH="/tmp/looksy-sdk-prod-build-${{ github.run_id }}-${{ github.run_attempt }}"
 
             rm -rf "$PROD_EXTRACT_PATH"
             mkdir -p "$PROD_EXTRACT_PATH"
@@ -203,7 +205,7 @@ jobs:
               mv "$PROD_DEPLOY_PATH/script.min.js" "$PROD_DEPLOY_PATH/script-prod.min.js"
             fi
 
-            rm -rf "$PROD_EXTRACT_PATH" "$PROD_ARCHIVE_PATH"
+            rm -rf "$PROD_EXTRACT_PATH" "$PROD_UPLOAD_PATH"
 
   deploy-prod-ru:
     needs: build-prod
